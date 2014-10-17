@@ -29,7 +29,7 @@ Vorstellungen
  * Waffen (über Q/E wechselbar)
   * Munition
 
-* Steuerung
+* Steuerung (Maus nicht erlaubt und nur 2 zuzätzliche Tasten zu (w,a,s,d) Grund: Arcade
  * A/D -> Links/Rechts
  * S -> Ducken?
  * W/SPACE -> Springen
