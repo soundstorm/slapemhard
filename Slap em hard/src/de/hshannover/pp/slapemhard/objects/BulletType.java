@@ -1,4 +1,4 @@
-package de.hshannover.pp.slapemhard;
+package de.hshannover.pp.slapemhard.objects;
 
 import java.awt.Dimension;
 //import java.awt.Image;
