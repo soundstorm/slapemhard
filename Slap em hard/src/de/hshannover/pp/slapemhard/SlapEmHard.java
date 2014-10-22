@@ -36,10 +36,10 @@ public class SlapEmHard {
 				confirmQuit();
 			}
 		});
-		collisionObjects.add(new CollisionObject(new Rectangle(90,0,10,90)));
-		collisionObjects.add(new CollisionObject(new Rectangle(20,0,10,10)));
-		collisionObjects.add(new CollisionObject(new Rectangle(50,50,40,40)));
-		collisionObjects.add(new CollisionObject(new Rectangle(30,70,20,20)));
+		collisionObjects.add(new CollisionObject(new Rectangle(190,0,10,90)));
+		collisionObjects.add(new CollisionObject(new Rectangle(120,0,10,10)));
+		collisionObjects.add(new CollisionObject(new Rectangle(150,50,40,40)));
+		collisionObjects.add(new CollisionObject(new Rectangle(130,70,20,20)));
 		collisionObjects.add(new CollisionObject(new Rectangle(0,90,200,10)));
 		mover = new MoveThread(me,collisionObjects);
 		mover.start();
