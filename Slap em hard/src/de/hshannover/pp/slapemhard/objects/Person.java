@@ -34,12 +34,10 @@ public class Person extends CollisionObject {
 		if (!collision[0]) {
 			super.setPos(super.getPosition().x + x,
 						 super.getPosition().y);
-			System.out.println("X Change");
 		}
 		if (!collision[1]) {
 			super.setPos(super.getPosition().x,
 						 super.getPosition().y - y);
-			System.out.println("Y Change");
 		}
 		return collision;
 	}
