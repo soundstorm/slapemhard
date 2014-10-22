@@ -17,18 +17,17 @@ public class MoveThread extends Thread {
 	public synchronized void run() {
 		while (true) {
 			if (moveLeft) {
-				me.move(-1, jump?1:-1, collisionObjects);
+				me.move(-1, 0, collisionObjects);
 			} else
 			if (moveRight) {
-				me.move(1, jump?1:-1, collisionObjects);
-			} else {
-				boolean[] collision = me.move(0, jump?1:-1, collisionObjects); //Gravity
-				if (jump && (collision[1] | jumped >= 40)) { //Collision with object above or reached max jump height
-					jump = false;
-					jumped = 0;
-				} else if (jump) {//Jumped less than max jump height
-					jumped++;
-				}
+				me.move(1, 0, collisionObjects);
+			}
+			boolean[] collision = me.move(0, jump?1:-1, collisionObjects); //Gravity
+			if (jump && (collision[1] | jumped >= 40)) { //Collision with object above or reached max jump height
+				jump = false;
+				jumped = 0;
+			} else if (jump) {//Jumped less than max jump height
+				jumped++;
 			}
 			try {
 				sleep(15);

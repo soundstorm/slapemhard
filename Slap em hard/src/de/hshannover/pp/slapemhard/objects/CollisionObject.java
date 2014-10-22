@@ -14,6 +14,8 @@ public class CollisionObject {
 	}
 	public boolean[] collides(ArrayList<CollisionObject> collisions, int x, int y) {
 		boolean collision[] = {false,false};
+		if (size.x+x <= 0)		//Out of Panel width
+			collision[0] = true;
 		for (CollisionObject collide : collisions) {
 			final Rectangle collision_size = collide.getPosition();
 
