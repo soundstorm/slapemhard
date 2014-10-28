@@ -19,10 +19,10 @@ public class CollisionObject {
 		for (CollisionObject collide : collisions) {
 			final Rectangle collision_size = collide.getPosition();
 
-			if (!((collision_size.x > size.x+size.width+x) |					//End of CollisionObject before end of Person
-				(collision_size.x+collision_size.width < size.x+x) |			//Begin of CollisionObject behind end of Person
-				(collision_size.y > size.y+size.height+y) |						//End of CollisionObject over end of Person
-				(collision_size.y+collision_size.height < size.y+y))) {			//Begin of CollisionObject under end of Person
+			if (!((collision_size.x > size.x+size.width+x) |					//Neither end of CollisionObject before end of Person
+				(collision_size.x+collision_size.width < size.x+x) |			//nor begin of CollisionObject behind end of Person
+				(collision_size.y > size.y+size.height+y) |						//nor end of CollisionObject over end of Person
+				(collision_size.y+collision_size.height < size.y+y))) {			//nor begin of CollisionObject under end of Person
 																				//Collision Detected. Now determine in which Direction:
 				if (!((collision_size.y > size.y+size.height+y) |				//Upper bound
 					(collision_size.y+collision_size.height < size.y+y)) &&		//or lower bound not outside Object height after movement
@@ -46,8 +46,13 @@ public class CollisionObject {
 		}
 		return collision;
 	}
+	@Deprecated
 	public void setPos(int x, int y) {
 		size.x = x;
 		size.y = y;
+	}
+	public void setPosition(int x, int y) {
+		this.size.x = x;
+		this.size.y = y;
 	}
 }

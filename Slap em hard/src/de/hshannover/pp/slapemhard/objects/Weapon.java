@@ -6,18 +6,35 @@ import de.hshannover.pp.slapemhard.SlapEmHard;
 
 public class Weapon {
 	private int ammo;
-	private SlapEmHard self;
+	private SlapEmHard game;
+	private int angle;
+	private BulletType type;
+	private boolean fromPlayer;
 	
-	public Weapon(SlapEmHard self) {
-		this.self = self;
+	public Weapon(SlapEmHard game, BulletType type, boolean fromPlayer) {
+		this.game = game;
+		this.fromPlayer = fromPlayer;
+		this.type = type;
+		ammo = 50;
+		angle = 20;
 	}
 	public int getAmmo() {
 		return ammo;
 	}
-	public void fire(int angle, Dimension position) {
-		this.fire(angle, position, true);
+	public void setAngle(int angle) {
+		this.angle = angle;
 	}
-	public void fire(int angle, Dimension position, boolean enemy) {
-		
+	public int getAngle() {
+		return angle;
+	}
+	public void fire(Dimension origin) {
+		if (ammo > 0 || !fromPlayer) {
+			//Für Schrotflinte und LSD aktuell nicht geeignet.
+			//play sound
+			game.getBullets().add(new Bullet(game, origin, type, angle, fromPlayer));
+			ammo--;
+		} else {
+			//play click sound
+		}
 	}
 }

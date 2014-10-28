@@ -11,11 +11,15 @@ public class Person extends CollisionObject {
 	private Weapon weapon;
 	private int health;
 	private boolean heading;
-	private int weaponAngle;
+	private boolean isPlayer;
 	
 	public Person(int health, Rectangle size) {
+		this(health, size, false);
+	}
+	public Person(int health, Rectangle size, boolean isPlayer) {
 		super(size);
 		this.health = health;
+		this.isPlayer = isPlayer;
 	}
 	public boolean isAlive() {
 		return health > 0;
@@ -29,19 +33,39 @@ public class Person extends CollisionObject {
 		if (x != 0) {
 			heading = x<0;
 			//Change heading of person
+			weapon.setAngle(360-(weapon.getAngle()-180));
 		}
 		boolean collision[] = super.collides(collisions, x, -y);
 		if (!collision[0]) {
-			super.setPos(super.getPosition().x + x,
-						 super.getPosition().y);
+			super.setPosition(super.getPosition().x+x,
+							  super.getPosition().y);
 		}
 		if (!collision[1]) {
-			super.setPos(super.getPosition().x,
-						 super.getPosition().y - y);
+			super.setPosition(super.getPosition().x,
+							  super.getPosition().y - y);
 		}
 		return collision;
 	}
+	public void setWeaponAngle(boolean up) {
+		if (heading && ((up && weapon.getAngle() < 90) | (up && weapon.getAngle() > 90)))
+			weapon.setAngle(heading?weapon.getAngle()+1:weapon.getAngle()-1);
+		if (heading && ((up && weapon.getAngle() > 270) | (up && weapon.getAngle() < 270)))
+			weapon.setAngle(heading?weapon.getAngle()-1:weapon.getAngle()+1);
+	}
+	public Weapon getWeapon() {
+		return weapon;
+	}
 	public void shoot() {
-		weapon.fire(heading?weaponAngle-180:weaponAngle, new Dimension(super.getPosition().x,super.getPosition().y));
+		weapon.fire(new Dimension(super.getPosition().x,super.getPosition().y));
+	}
+	public void setWeapon(Weapon weapon) {
+		this.weapon = weapon;
+	}
+	public void fire() {
+		weapon.fire(new Dimension(super.getPosition().x,super.getPosition().y));
+	}
+	public BufferedImage getImage() {
+		return image;
+		//TODO replace with animation frame
 	}
 }
