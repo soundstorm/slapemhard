@@ -1,28 +1,49 @@
 package de.hshannover.pp.slapemhard;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import de.hshannover.pp.slapemhard.listener.*;
 import de.hshannover.pp.slapemhard.objects.*;
+import de.hshannover.pp.slapemhard.threads.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
+import java.io.*;
 import java.util.ArrayList;
 
 public class SlapEmHard {
 	protected static JFrame frame;
 	private static Graphics graphics;
 	private static ArrayList<CollisionObject> collisionObjects = new ArrayList<CollisionObject>();
-	private static ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+	private static ArrayList<Person> enemies = new ArrayList<Person>();
 	private static ArrayList<Bullet> bullets = new ArrayList<Bullet>();
-	private static Player me = new Player(100);
+	private static Player me;
 	private static MoveThread mover;
-	public static void main(String[] args) {
+	
+	public SlapEmHard() {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		frame = new JFrame("Slap Em Hard");
 		frame.setUndecorated(true);
-		frame.setSize(800, 600);
+		frame.setSize(640,480);
+		//http://stackoverflow.com/questions/11225113/change-screen-resolution-in-java
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gs = ge.getScreenDevices();
+		GraphicsDevice device = gs[0];
+		DisplayMode oldDisplayMode = device.getDisplayMode();
 		frame.setVisible(true);
 		frame.setResizable(false);
+		if (device.isDisplayChangeSupported()) {
+			try {
+				throw new Exception("");
+				//device.setDisplayMode(new DisplayMode(frame.getWidth(), frame.getHeight(), 32, 0));
+				//device.setFullScreenWindow(frame);
+			} catch (Exception e) {
+				device.setFullScreenWindow(null);
+				device.setDisplayMode(oldDisplayMode);
+			}
+		}
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		graphics = frame.getGraphics();
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -37,97 +58,12 @@ public class SlapEmHard {
 			}
 		});
 		collisionObjects.add(new CollisionObject(new Rectangle(190,0,10,90)));
-		collisionObjects.add(new CollisionObject(new Rectangle(120,0,10,10)));
+		collisionObjects.add(new CollisionObject(new Rectangle(100,0,10,10)));
 		collisionObjects.add(new CollisionObject(new Rectangle(150,50,40,40)));
 		collisionObjects.add(new CollisionObject(new Rectangle(130,70,20,20)));
-		collisionObjects.add(new CollisionObject(new Rectangle(0,90,200,10)));
-		mover = new MoveThread(me,collisionObjects);
-		mover.start();
-		frame.addKeyListener(new KeyListener() {
-			private boolean spacePressed;	//Only allow jumping once when pressed
-			@Override
-			public void keyTyped(KeyEvent e){}
-			@Override
-			public void keyPressed(KeyEvent e) {
-				switch (e.getKeyCode()) {
-					case 32: //SPACE
-						if (!spacePressed) {
-							boolean collision[] = me.collides(collisionObjects,0,1);	//Check if on floor
-							if (collision[1]) {											//Only Jump, when on floor
-								mover.setJump(true);
-							}
-							spacePressed = true;
-						}
-						break;
-					case 65: case 37: //A <
-						mover.setLeft(true);
-						break;
-					case 68: case 39: //D >
-						mover.setRight(true);
-						break;
-					default:
-						System.out.println(e.getKeyCode());
-				}
-			}
-			@Override
-			public void keyReleased(KeyEvent e) {
-				switch (e.getKeyCode()) {
-				case 32: //SPACE
-					mover.setJump(false);
-					spacePressed = false;
-					break;
-				case 65: case 37: //A <
-					mover.setLeft(false);
-					break;
-				case 68: case 39: //D >
-					mover.setRight(false);
-					break;
-				default:
-					System.out.println(e.getKeyCode());
-			}
-				
-			}
-		});
-		(new Thread() {
-			boolean running;
-			@Override
-			public void start() {
-				running = true;
-				super.start();
-			}
-			@Override
-			public synchronized void run() {
-				while (running) {
-					int xoffset = me.getPosition().x-100;
-					int yoffset = 0;
-					if (xoffset < 0) {
-						xoffset = 0;
-					}
-					graphics.setColor(Color.GRAY);
-					graphics.fillRect(0, 0, frame.getWidth(), frame.getHeight());
-					graphics.setColor(Color.RED);
-					for (Enemy obj : enemies) {
-						graphics.drawRect(obj.getPosition().x-xoffset, obj.getPosition().y, obj.getPosition().width, obj.getPosition().height);
-					}
-					graphics.setColor(Color.WHITE);
-					for (Bullet obj : bullets) {
-						graphics.drawRect(obj.getPosition().x-xoffset, obj.getPosition().y, obj.getPosition().width, obj.getPosition().height);
-					}
-					graphics.setColor(Color.YELLOW);
-					for (CollisionObject obj : collisionObjects) {
-						graphics.fillRect(obj.getPosition().x-xoffset, obj.getPosition().y, obj.getPosition().width, obj.getPosition().height);
-						//System.out.println(obj.getPosition().y);
-					}
-					graphics.setColor(Color.GREEN);
-					graphics.drawRect(me.getPosition().x-xoffset, me.getPosition().y, me.getPosition().width, me.getPosition().height);
-					try {
-						sleep(10);
-					} catch (InterruptedException e) {
-						
-					}
-				}
-			}
-		}).start();
+		collisionObjects.add(new CollisionObject(new Rectangle(0,450,700,10)));
+		//bullets.add(new Bullet(this, new Dimension(2,30), new BulletType(BulletType.BulletName.ROCKET), 20, true));
+		newGame(0);
 	}
 	private static void confirmQuit() {
 		Object[] options = {"Beenden", "Abbrechen"};
@@ -145,8 +81,17 @@ public class SlapEmHard {
 			return;
 		}
 	}
+	public void newGame(int level) {
+		me = new Player(this, 100);
+		me.setWeapon(new BulletType(BulletType.BulletName.ROCKET));
+		mover = new MoveThread(this);
+		mover.start();
+		frame.addKeyListener(new KeyboardListener(this));
+		DrawGameThread drawGameThread = new DrawGameThread(this);
+		drawGameThread.start();
+	}
 	
-/*	public ArrayList<Enemy> getEnemies() {
+	public ArrayList<Person> getEnemies() {
 		return enemies;
 	}
 	public ArrayList<Bullet> getBullets() {
@@ -154,5 +99,17 @@ public class SlapEmHard {
 	}
 	public ArrayList<CollisionObject> getCollisionObjects() {
 		return collisionObjects;
-	}*/
+	}
+	public Player getPlayer() {
+		return me;
+	}
+	public MoveThread getMoveThread() {
+		return mover;
+	}
+	public Graphics getGraphics() {
+		return graphics;
+	}
+	public JFrame getFrame() {
+		return frame;
+	}
 }
