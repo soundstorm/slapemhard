@@ -10,16 +10,23 @@ public class Weapon {
 	private int angle;
 	private BulletType type;
 	private boolean fromPlayer;
+	private boolean heading;
 	
 	public Weapon(SlapEmHard game, BulletType type, boolean fromPlayer) {
 		this.game = game;
 		this.fromPlayer = fromPlayer;
 		this.type = type;
 		ammo = 50;
-		angle = 20;
+		angle = 0;
 	}
 	public int getAmmo() {
 		return ammo;
+	}
+	public void setHeading(boolean b) {
+		heading = b;
+	}
+	public boolean getHeading() {
+		return heading;
 	}
 	public void setAngle(int angle) {
 		this.angle = angle;
@@ -31,7 +38,7 @@ public class Weapon {
 		if (ammo > 0 || !fromPlayer) {
 			//Für Schrotflinte und LSD aktuell nicht geeignet.
 			//play sound
-			game.getBullets().add(new Bullet(game, origin, type, angle, fromPlayer));
+			game.getBullets().add(new Bullet(game, origin, type, heading?360-angle+180:angle, fromPlayer));
 			ammo--;
 		} else {
 			//play click sound

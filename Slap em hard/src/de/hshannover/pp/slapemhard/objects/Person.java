@@ -1,6 +1,7 @@
 package de.hshannover.pp.slapemhard.objects;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class Person extends CollisionObject {
 		if (x != 0) {
 			heading = x<0;
 			//Change heading of person
-			weapon.setAngle(360-(weapon.getAngle()-180));
+			weapon.setHeading(heading);
 		}
 		boolean collision[] = super.collides(collisions, x, -y);
 		if (!collision[0]) {
@@ -62,7 +63,15 @@ public class Person extends CollisionObject {
 		this.weapon = weapon;
 	}
 	public void fire() {
-		weapon.fire(new Dimension(super.getPosition().x,super.getPosition().y));
+		weapon.fire(new Dimension(super.getPosition().x+22,super.getPosition().y+7));
+	}
+	@Override
+	public void render (Graphics g) {
+		//draw person
+		//TODO replace with animation frames
+		g.drawRect(super.getPosition().x, super.getPosition().y, super.getPosition().width, super.getPosition().height);
+		//draw weapon:
+		
 	}
 	public BufferedImage getImage() {
 		return image;

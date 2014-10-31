@@ -1,5 +1,7 @@
 package de.hshannover.pp.slapemhard.objects;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
@@ -46,6 +48,11 @@ public class CollisionObject {
 		}
 		return collision;
 	}
+	public boolean outOfWindow() {
+		//TODO migrate windowsize
+		return size.x+size.width < 0 | size.y+size.height < 0 | size.y > 480;
+	}
+	
 	@Deprecated
 	public void setPos(int x, int y) {
 		size.x = x;
@@ -54,5 +61,11 @@ public class CollisionObject {
 	public void setPosition(int x, int y) {
 		this.size.x = x;
 		this.size.y = y;
+	}
+	
+	public void render(Graphics g) {
+		//TODO remove fillRect if background is there
+		g.setColor(Color.YELLOW);
+		g.fillRect(size.x, size.y, size.width, size.height);
 	}
 }

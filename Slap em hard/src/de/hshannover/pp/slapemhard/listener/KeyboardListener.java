@@ -5,20 +5,34 @@ import java.awt.event.*;
 import de.hshannover.pp.slapemhard.SlapEmHard;
 
 /**
- * @see java.awt.event.KeyListener (java.awt.event.KeyEvent)
- * Implementation of KeyListener for Games.
+ * Implementation of KeyListener for Games.<br />
  * Default keyboard layout for mame emulation:
- * 5      -> Insert Coin                       CODE 53
- * 1      -> Start                             CODE 49
- * Arrows -> Movement                          37 <, 38 ^, 39 >, 40 v
- * Ctrl   -> Arcade 1   (normally A/jump/fire) CODE 17
- * Alt    -> Arcade 2   (normally B/bomb)      CODE 18
- * Space  -> Arcade 3   (other function)       CODE 32
- * P      -> Pause                             CODE 80
- * F2     -> Service Mode                      CODE 113
- * Tab    -> Select Game menu - do not use.    not detected by keyEvent 
- * Codes for keys follow ASCII-Table.
- * But ctrl+Arrow Keys interferes on OS X with "Spaces"
+ * <table>
+ * <tr><td>5		</td><td>Insert Coin						</td><td>CODE 53</td></tr>
+ * <tr><td>1		</td><td>Start								</td><td>CODE 49</td></tr>
+ * <tr><td>Arrows	</td><td>Movement							</td><td>37 &lt;<br />38 ^<br />39 &gt;<br />40 v</td></tr>
+ * <tr><td>Ctrl		</td><td>Arcade 1   (normally A/jump/fire)	</td><td>CODE 17</td></tr>
+ * <tr><td>Alt		</td><td>Arcade 2   (normally B/bomb)		</td><td>CODE 18</td></tr>
+ * <tr><td>Space	</td><td>Arcade 3   (other function)		</td><td>CODE 32</td></tr>
+ * <tr><td>P		</td><td>Pause								</td><td>CODE 80</td></tr>
+ * <tr><td>F2		</td><td>Service Mode						</td><td>CODE 113</td></tr>
+ * <tr><td>Tab		</td><td>Select Game menu - do not use.		</td><td>not detected by keyEvent</td></tr>
+ * <tr><td>ESC		</td><td>Quit								</td><td>CODE 27</td></tr>
+ * </table>
+ * Codes for keys follow ASCII-Table.<br />
+ * But ctrl+Arrow Keys interferes on OS X with "Spaces", use fullscreen to override this behavior.<br />
+ * Used configuration for this game:
+ * <table>
+ * <tr><td>5		</td><td>Add Credit</td></tr>
+ * <tr><td>1		</td><td>Start</td></tr>
+ * <tr><td>Left		</td><td>Move left</td></tr>
+ * <tr><td>Right	</td><td>Move right</td></tr>
+ * <tr><td>Up		</td><td>Hold weapon up</td></tr>
+ * <tr><td>Down		</td><td>Hold weapon down</td></tr>
+ * <tr><td>Ctrl		</td><td>Jump</td></tr>
+ * <tr><td>Alt		</td><td>Fire</td></tr>
+ * </table>
+ * @see java.awt.event.KeyListener (java.awt.event.KeyEvent)
  */
 public class KeyboardListener implements KeyListener {
 	private boolean spacePressed;	//Only allow jumping once when pressed

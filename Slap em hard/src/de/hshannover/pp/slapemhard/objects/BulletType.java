@@ -43,13 +43,13 @@ public class BulletType {
 				this.speed = 100;
 				break;
 			case ROCKET:
-				this.size = new Dimension(40,29);
+				this.size = new Dimension(10,7);
 				this.destruction = 50;
 				this.range = 10;
-				this.speed = 60;
+				this.speed = 80;
 				this.usesGravity = true;
 				try {
-					this.image = ImageIO.read(new File("resources/images/rocket_small.png"));
+					this.image = ImageIO.read(new File("resources/images/rocket.png"));
 				} catch (IOException e) {}
 				break;
 			case GRENADE:

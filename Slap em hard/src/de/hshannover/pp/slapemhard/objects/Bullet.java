@@ -1,6 +1,7 @@
 package de.hshannover.pp.slapemhard.objects;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -16,8 +17,9 @@ public class Bullet extends CollisionObject {
 	private ArrayList<Person> persons;
 	private SlapEmHard game;
 	private boolean exploded;
-	public Bullet(SlapEmHard game, Dimension origin, BulletType type, int angle) {
-		this(game, origin, type, angle, false);
+	private long firstMove;
+	public Bullet(SlapEmHard game, Dimension origin, BulletType type, int degree) {
+		this(game, origin, type, degree, false);
 	}
 	public Bullet(SlapEmHard game,Dimension origin, BulletType type, int degree, boolean fromPlayer) {
 		super(new Rectangle(origin.width,origin.height,type.getSize().width,type.getSize().height));
@@ -32,6 +34,7 @@ public class Bullet extends CollisionObject {
 			this.persons = new ArrayList<Person>();
 			this.persons.add(game.getPlayer());
 		}
+		firstMove = System.currentTimeMillis();
 	}
 	/**
 	 * Moves the bullet in microsteps in direction of flight and checks if it collides with any obstacle or hostile
@@ -46,7 +49,7 @@ public class Bullet extends CollisionObject {
 	 */
 	public void move() {
 		if (exploded) return;
-		double t = travelled/100.0;
+		double t = (System.currentTimeMillis()-firstMove)/200.0;
 		int x = (int)(origin.width + type.getSpeed() * Math.cos(originAngle) * t)-super.getPosition().x;
 		int y = super.getPosition().y-(int)(origin.height - type.getSpeed() * Math.sin(originAngle) * t);
 		if (type.getGravity()) {
@@ -57,8 +60,8 @@ public class Bullet extends CollisionObject {
 		if (x != 0 && y != 0) {
 			boolean collision[] = super.collides(game.getCollisionObjects(), x, y);
 			if (!collision[0] && !collision[1]) {
-				super.setPos(super.getPosition().x + x,
-							 super.getPosition().y - y);
+				super.setPosition(super.getPosition().x + x,
+								  super.getPosition().y - y);
 			} else {
 				explode();
 				return;
@@ -76,8 +79,12 @@ public class Bullet extends CollisionObject {
 				}
 			}
 		}
-		travelled++;
 	}
+	@Override
+	public void render(Graphics g) {
+		g.drawImage(getImage(),  super.getPosition().x, super.getPosition().y, null);
+	}
+	@Deprecated
 	public BufferedImage getImage() {
 		return type.getImage();
 	}
@@ -93,5 +100,8 @@ public class Bullet extends CollisionObject {
 	}
 	public double getAngle() {
 		return angle;
+	}
+	public boolean getGravity() {
+		return type.getGravity();
 	}
 }
