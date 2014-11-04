@@ -23,6 +23,7 @@ public class Player extends Person {
 			image = ImageIO.read(new File("resources/images/persons/luca/full.png"));
 		} catch (IOException e) {}
 	}
+	/*
 	@Override
 	public void render(Graphics g) {
 		//TODO let all be rendered by superclass Person
@@ -35,6 +36,7 @@ public class Player extends Person {
 		
 		//draw weapon
 	}
+	*/
 	
 	@Deprecated
 	@Override

@@ -91,7 +91,7 @@ public class Bullet extends CollisionObject {
 				exploded = true;
 				return;
 			}
-			g.drawImage(type.getAnimation().getTile(animationFrame), super.getPosition().x-(type.getAnimation().getWidth()-super.getPosition().width), super.getPosition().y-(type.getAnimation().getHeight()-super.getPosition().height), null);
+			g.drawImage(type.getAnimation().getTile(animationFrame), super.getPosition().x-(type.getAnimation().getWidth()-super.getPosition().width)/2, super.getPosition().y-(type.getAnimation().getHeight()-super.getPosition().height)/2, null);
 			animationFrame++;
 			return;
 		}

@@ -21,8 +21,18 @@ public class MoveThread extends Thread {
 			if (moveRight) {
 				game.getPlayer().move(1, 0, game.getCollisionObjects());
 			}
+			if (moveRight | moveLeft) {
+				game.getPlayer().setWalking(true);
+			} else {
+				game.getPlayer().setWalking(false);
+			}
 			boolean[] collision = game.getPlayer().move(0, jump?1:-1, game.getCollisionObjects()); //Gravity
-			if (jump && (collision[1] | jumped >= 80)) { //Collision with object above or reached max jump height
+			if (jump | !collision[1]) {
+				game.getPlayer().setJumping(true);
+			} else {
+				game.getPlayer().setJumping(false);
+			}
+			if (jump && (collision[1] | jumped >= 50)) { //Collision with object above or reached max jump height
 				jump = false;
 				jumped = 0;
 			} else if (jump) {//Jumped less than max jump height

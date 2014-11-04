@@ -92,9 +92,11 @@ public class SlapEmHard {
 		collisionObjects
 				.add(new CollisionObject(new Rectangle(100, 0, 10, 10)));
 		collisionObjects
-				.add(new CollisionObject(new Rectangle(150, 50, 40, 40)));
+				.add(new CollisionObject(new Rectangle(150, 50, 40, 40)));*/
 		collisionObjects
-				.add(new CollisionObject(new Rectangle(130, 70, 20, 20)));*/
+			.add(new CollisionObject(new Rectangle(200, 170, 20, 50)));
+		collisionObjects
+			.add(new CollisionObject(new Rectangle(180, 195, 20, 25)));
 		collisionObjects
 				.add(new CollisionObject(new Rectangle(0, 220, 700, 10)));
 		// bullets.add(new Bullet(this, new Dimension(2,30), new

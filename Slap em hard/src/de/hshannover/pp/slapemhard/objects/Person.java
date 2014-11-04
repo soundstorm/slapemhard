@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.images.SpriteSheet;
 
 public class Person extends CollisionObject {
@@ -27,6 +28,8 @@ public class Person extends CollisionObject {
 		super(size);
 		this.health = health;
 		this.isPlayer = isPlayer;
+		BufferedImageLoader bL = new BufferedImageLoader();
+		animation = new SpriteSheet(bL.getImage("resources/images/persons/luca/person.png"),16,56);
 	}
 	public boolean isAlive() {
 		return health > 0;
@@ -37,10 +40,12 @@ public class Person extends CollisionObject {
 			health = 0;
 	}
 	public void setWalking(boolean b) {
+		if (walking == b) return;
 		walking = b;
 		animationFrame = 0;
 	}
 	public void setJumping(boolean b) {
+		if (jumping == b) return;
 		jumping = b;
 		animationFrame = 0;
 	}
@@ -84,12 +89,12 @@ public class Person extends CollisionObject {
 		//draw person
 		//TODO replace with animation frames
 		if (jumping) {
-			g.drawImage(animation.getTile(2, 0), super.getPosition().x+(heading?super.getPosition().width:0), super.getPosition().y, super.getPosition().width*(heading?-1:1), super.getPosition().height, null);
+			g.drawImage(animation.getTile(2, (heading?7:0)), super.getPosition().x, super.getPosition().y, super.getPosition().width, super.getPosition().height, null);
 		} else if (walking) {
-			g.drawImage(animation.getTile(1, animationFrame), super.getPosition().x+(heading?super.getPosition().width:0), super.getPosition().y, super.getPosition().width*(heading?-1:1), super.getPosition().height, null);
-			animationFrame = (animationFrame+1)%4;
+			g.drawImage(animation.getTile(1, (heading?7-animationFrame/2:animationFrame/2)), super.getPosition().x, super.getPosition().y, super.getPosition().width, super.getPosition().height, null);
+			animationFrame = (animationFrame+1)%8;
 		} else {
-			g.drawImage(animation.getTile(0, animationFrame), super.getPosition().x+(heading?super.getPosition().width:0), super.getPosition().y, super.getPosition().width*(heading?-1:1), super.getPosition().height, null);
+			g.drawImage(animation.getTile(0, (heading?7:0)), super.getPosition().x, super.getPosition().y, super.getPosition().width, super.getPosition().height, null);
 		}
 		//draw weapon:
 		

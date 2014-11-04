@@ -114,8 +114,20 @@ public class DrawGameThread extends Canvas implements Runnable {
 			xoffset = 0;
 		}
 		g2d.translate(-xoffset, 0); //Beginn der Kamera
-		
+
+		for (CollisionObject ro : game.getCollisionObjects()) {
+			ro.render(g);
+		}
 		//handler.render(g);
+		
+		/*for (Bullet ro : game.getBullets()) {
+			ro.render(g);
+		}*/
+		for (Person ro : game.getEnemies()) {
+			ro.render(g);
+		}
+		game.getPlayer().render(g);
+		
 		for (int i = 0; i < game.getBullets().size(); i++) {
 			Bullet obj = game.getBullets().get(i);
 			if (obj.isExploded() | obj.outOfWindow()) {
@@ -126,16 +138,6 @@ public class DrawGameThread extends Canvas implements Runnable {
 			obj.move();
 			obj.render(g);
 		}
-		/*for (Bullet ro : game.getBullets()) {
-			ro.render(g);
-		}*/
-		for (Person ro : game.getEnemies()) {
-			ro.render(g);
-		}
-		for (CollisionObject ro : game.getCollisionObjects()) {
-			ro.render(g);
-		}
-		game.getPlayer().render(g);
 		
 		g2d.translate(xoffset, 0);
 		
