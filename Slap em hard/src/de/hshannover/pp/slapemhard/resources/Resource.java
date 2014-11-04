@@ -7,7 +7,7 @@ import java.io.InputStream;
 
 public class Resource {
 	public InputStream getInputStream(String relativePath) {
-		System.out.println(this.getClass().getResource("").toString()+(">res>"+relativePath).replace(">", File.separator));
-		return this.getClass().getResourceAsStream((">res>"+relativePath).replace(">", File.separator));
+		System.out.println(this.getClass().getResource((">res>"+relativePath).replace(">", File.separator)).toString());
+		return this.getClass().getResourceAsStream(("/res>"+relativePath).replace(">", "/"));//File.separator));
 	}
 }
