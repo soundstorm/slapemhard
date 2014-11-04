@@ -28,7 +28,7 @@ public class SlapEmHard {
 	public SlapEmHard() {
 		Object[] options = { "Ja", "Nein" };
 		int n = JOptionPane.showOptionDialog(null,
-				"Spiel im Vollbildmodus starten?", "Vollbildmodus",
+				"Switch to fullscreen?", "Fullscreen",
 				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
 				null, options, options[0]);
 		if (n == JOptionPane.YES_OPTION) {
@@ -72,6 +72,7 @@ public class SlapEmHard {
 			} catch (Exception e) {
 				device.setFullScreenWindow(null);
 				device.setDisplayMode(oldDisplayMode);
+				JOptionPane.showMessageDialog(frame, "Fullscreen is not supported.");
 			}
 		}
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -102,14 +103,14 @@ public class SlapEmHard {
 		collisionObjects
 			.add(new CollisionObject(new Rectangle(240, 190, 20, 30)));
 		collisionObjects
-			.add(new CollisionObject(new Rectangle(0, 220, 700, 10)));
+			.add(new CollisionObject(new Rectangle(0, 220, 2700, 10)));
 		newGame(0);
 	}
 
 	private static void confirmQuit() {
-		Object[] options = { "Beenden", "Abbrechen" };
+		Object[] options = {"Quit", "Cancel"};
 		int n = JOptionPane.showOptionDialog(null,
-				"Möchtest du das Spiel wirklich beenden?", "Spiel beenden",
+				"Do you really want to quit?", "Quit game",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE,
 				null, options, options[1]);
 		if (n == JOptionPane.OK_OPTION) {

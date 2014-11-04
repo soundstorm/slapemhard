@@ -19,25 +19,7 @@ public class Player extends Person {
 	public Player(SlapEmHard game, int health) {
 		super(health, new Rectangle(50,10,16,52), false);
 		this.game = game;
-		/*try {
-			image = ImageIO.read(new File("images>persons>luca>full.png"));
-		} catch (IOException e) {}
-		*/
 	}
-	/*
-	@Override
-	public void render(Graphics g) {
-		//TODO let all be rendered by superclass Person
-		//TODO invert person right
-		//draw body
-		g.drawImage(image, super.getPosition().x, super.getPosition().y-8, image.getWidth()*(heading?-1:1), image.getHeight(), null);
-		//draw arm
-		
-		//draw legs
-		
-		//draw weapon
-	}
-	*/
 	
 	public void addWeapon(BulletType type) {
 		weapons.add(new Weapon(game, type, true));

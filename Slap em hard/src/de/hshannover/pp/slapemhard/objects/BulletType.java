@@ -39,7 +39,8 @@ public class BulletType {
 	private boolean usesGravity;
 	private int tileHeight;
 	private int tileWidth;
-	private SpriteSheet animation;
+	private SpriteSheet explosion;
+	private SpriteSheet weapon;
 	private int tiles;
 	public BulletType(BulletName name) {
 		BufferedImageLoader bL = new BufferedImageLoader();
@@ -54,13 +55,14 @@ public class BulletType {
 				this.size = new Dimension(10,7);
 				this.destruction = 50;
 				this.range = 10;
-				this.speed = 80;
+				this.speed = 70;
 				this.tileWidth = 64;
 				this.tileHeight = 64;
 				this.tiles = 24;
 				this.usesGravity = true;
 				this.image = bL.getImage("images>rocket.png");
-				this.animation = new SpriteSheet(bL.getImage("images>weapons>rocketlauncher>explosion.png"),tileWidth,tileHeight);
+				this.explosion = new SpriteSheet(bL.getImage("images>weapons>rocketlauncher>explosion.png"),tileWidth,tileHeight);
+				this.weapon = new SpriteSheet(bL.getImage("images>weapons>rocketlauncher>weapon.png"),48,60);
 				break;
 			case GRENADE:
 				this.size = new Dimension(15,20);
@@ -89,8 +91,11 @@ public class BulletType {
 	public boolean getGravity() {
 		return usesGravity;
 	}
-	public SpriteSheet getAnimation() {
-		return animation;
+	public SpriteSheet getExplosion() {
+		return explosion;
+	}
+	public SpriteSheet getWeapon() {
+		return weapon;
 	}
 	public int getAnimationLength() {
 		return tiles;

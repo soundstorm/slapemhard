@@ -1,6 +1,7 @@
 package de.hshannover.pp.slapemhard.objects;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
 
 import de.hshannover.pp.slapemhard.SlapEmHard;
 
@@ -18,6 +19,9 @@ public class Weapon {
 		this.type = type;
 		ammo = 100;
 		angle = 0;
+	}
+	public BulletType getType() {
+		return type;
 	}
 	public int getAmmo() {
 		return ammo;
@@ -38,7 +42,7 @@ public class Weapon {
 		if (ammo > 0 || !fromPlayer) {
 			//Für Schrotflinte und LSD aktuell nicht geeignet.
 			//play sound
-			game.getBullets().add(new Bullet(game, origin, type, heading?(360-angle+180)%360:angle, fromPlayer));
+			game.getBullets().add(new Bullet(game, origin, type, (360+(heading?-angle*45+180:angle*45))%360, fromPlayer));
 			ammo--;
 		} else {
 			//play click sound

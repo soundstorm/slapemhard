@@ -57,6 +57,8 @@ public class KeyboardListener implements KeyListener {
 	 */
 	@Override
 	public void keyPressed(KeyEvent e) {
+		toggleEvent(e.getKeyCode(),true);
+		/*
 		switch (e.getKeyCode()) {
 			case 17: //Ctrl/Strg
 				if (!spacePressed) {
@@ -80,9 +82,14 @@ public class KeyboardListener implements KeyListener {
 			case 68: case 39: //D >
 				game.getMoveThread().setRight(true);
 				break;
+			case 38: case 87:	//W ^
+				game.getPlayer().getWeapon().setAngle(1);
+			case 40: case 83:	//S v
+				game.getPlayer().getWeapon().setAngle(-1);
 			default:
 				System.out.println(e.getKeyCode());
 		}
+		*/
 	}
 	/**
 	 * Sets the threads to stop behavior according to the key if any of the keys is released.
@@ -90,7 +97,8 @@ public class KeyboardListener implements KeyListener {
 	 */
 	@Override
 	public void keyReleased(KeyEvent e) {
-		switch (e.getKeyCode()) {
+		toggleEvent(e.getKeyCode(), false);
+		/*switch (e.getKeyCode()) {
 			case 17: //Ctrl/Strg
 				game.getMoveThread().setJump(false);
 				spacePressed = false;
@@ -109,6 +117,44 @@ public class KeyboardListener implements KeyListener {
 				break;
 			default:
 				System.out.println(e.getKeyCode());
+		}*/
+	}
+	
+	private void toggleEvent(int keyCode, boolean state) {
+		switch (keyCode) {
+			case 17: //Ctrl/Strg
+				if (!spacePressed && state) {
+					boolean collision[] = game.getPlayer().collides(game.getCollisionObjects(),0,1);	//Check if on floor
+					if (collision[1]) {																	//Only Jump, when on floor
+						game.getMoveThread().setJump(true);
+					}
+				} else if (!state) {
+					game.getMoveThread().setJump(false);
+				}
+				spacePressed = state;
+				break;
+			case 18: //Alt
+				if (state)
+					game.getPlayer().fire();
+				break;
+			case 27: //ESC
+				if (state)
+					return; //return to menu or just do nothing and do everything per pause menu
+				break;
+			case 65: case 37: //A <
+				game.getMoveThread().setLeft(state);
+				break;
+			case 68: case 39: //D >
+				game.getMoveThread().setRight(state);
+				break;
+			case 38: case 87:	//W ^
+				game.getPlayer().getWeapon().setAngle(state?1:0);
+				break;
+			case 40: case 83:	//S v
+				game.getPlayer().getWeapon().setAngle(state?-1:0);
+				break;
+			default:
+				System.out.println(keyCode);
 		}
 	}
 }

@@ -10,6 +10,7 @@ public class MoveThread extends Thread {
 	int jumped;
 	SlapEmHard game;
 	public MoveThread(SlapEmHard game) {
+		super("Moving Thread");
 		this.game = game;
 	}
 	@Override

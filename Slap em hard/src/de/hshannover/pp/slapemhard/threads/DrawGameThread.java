@@ -15,6 +15,7 @@ public class DrawGameThread extends Canvas implements Runnable {
 	boolean running;
 	SlapEmHard game;
 	private Thread thread;
+	int fps = 30;
 	//public static int WIDTH, HEIGHT;
 	
 	public DrawGameThread(SlapEmHard game) {
@@ -34,7 +35,7 @@ public class DrawGameThread extends Canvas implements Runnable {
 			return;
 		}
 		running = true;
-		thread = new Thread(this);
+		thread = new Thread(this, "Rendering Thread");
 		thread.start();
 	}
 	@Override
@@ -48,7 +49,6 @@ public class DrawGameThread extends Canvas implements Runnable {
 		long timer = System.currentTimeMillis();
 		int updates = 0;
 		int frames = 0;
-		int staticFrames = 30;
 		int waitDuration = 0;
 		//int waitNanos = 0;
 		while(running){
@@ -65,22 +65,26 @@ public class DrawGameThread extends Canvas implements Runnable {
 					
 			if(System.currentTimeMillis() - timer > 1000){
 				timer += 1000;
-				System.out.println("FPS: " + frames + " TICKS: " + updates);
-				staticFrames = frames;
+				//System.out.println("FPS: " + frames + " TICKS: " + updates);
+				fps = frames;
 				frames = 0;
 				updates = 0;
 			}
-			if (staticFrames < 20) {
+			if (fps < 20) {
+				//Don't wait if frame rate drops
 				waitDuration = 0;
-				//waitNanos = 0;
+				System.out.println("FPS DROPPED BELOW 20!");
 			} else {
-				waitDuration = 30-(int)(System.nanoTime()-now)/10000000;
-				//waitNanos = (int)((System.nanoTime()-now))%10000000;
-				//System.out.println(waitNanos);
-				
+				//33.3ms for 30fps. Reduced to 29ms to get a more constant framerate of 30fps, otherwise it will likely drop to 27fps.
+				//Automatic compensation for elapsed time while rendering.
+				waitDuration = 29-(int)((System.nanoTime()-now)/1000000);
+				if (waitDuration < 0) {
+					waitDuration = 0;
+				}
 			}
 			try {
 				Thread.sleep(waitDuration);
+				//Thread.sleep((int)(waitDuration/1000000), (int)(waitDuration%1000000));
 			} catch (InterruptedException e) {}
 		}
 	}
@@ -113,20 +117,12 @@ public class DrawGameThread extends Canvas implements Runnable {
 		if (xoffset < 0) {
 			xoffset = 0;
 		}
-		g2d.translate(-xoffset, 0); //Beginn der Kamera
+		//Move to active clip
+		g2d.translate(-xoffset, 0);
 
 		for (CollisionObject ro : game.getCollisionObjects()) {
 			ro.render(g);
 		}
-		//handler.render(g);
-		
-		/*for (Bullet ro : game.getBullets()) {
-			ro.render(g);
-		}*/
-		for (Person ro : game.getEnemies()) {
-			ro.render(g);
-		}
-		game.getPlayer().render(g);
 		
 		for (int i = 0; i < game.getBullets().size(); i++) {
 			Bullet obj = game.getBullets().get(i);
@@ -139,67 +135,24 @@ public class DrawGameThread extends Canvas implements Runnable {
 			obj.render(g);
 		}
 		
+		for (Person ro : game.getEnemies()) {
+			ro.render(g);
+		}
+		game.getPlayer().render(g);
+		
+		//
 		g2d.translate(xoffset, 0);
 		
 		//Draw HUD
 		g.setColor(Color.WHITE);
-		g.fillRect(5,5,50,10);
+		g.fillRect(5,5,50,20);
 		g.setColor(Color.BLACK);
 		g.setFont(game.getFont().deriveFont(Font.PLAIN,8));
 		g.drawString("BULLETS: "+game.getPlayer().getWeapon().getAmmo(), 10, 13);
+		g.drawString("FPS: "+fps, 10, 20);
 		
-		////////////////////////////////////
+		// Push Image to frame
 		g.dispose();
 		bs.show();
 	}
-	
-	/*
-	foobar {
-		while (running) {
-			int xoffset = game.getPlayer().getPosition().x-100;
-			if (xoffset < 0) {
-				xoffset = 0;
-			}
-			game.getGraphics().setColor(Color.GREEN);
-			game.getGraphics().fillRect(0, 0, game.getFrame().getWidth(), game.getFrame().getHeight());
-			game.getGraphics().setColor(Color.RED);
-			for (Person obj : game.getEnemies()) {
-				game.getGraphics().drawRect(obj.getPosition().x-xoffset, obj.getPosition().y, obj.getPosition().width, obj.getPosition().height);
-			}
-			game.getGraphics().setColor(Color.WHITE);
-			System.out.println(game.getBullets().size());
-			for (int i = 0; i < game.getBullets().size(); i++) {
-				Bullet obj = game.getBullets().get(i);
-				if (obj.isExploded()) {
-					game.getBullets().remove(obj);
-					System.out.println("REMOVED");
-					i--;
-				} else {
-					//AffineTransform at = new AffineTransform();
-					//at.translate(game.getFrame().getWidth()/2, game.getFrame().getHeight() / 2);
-					//at.rotate(-obj.getAngle());
-					//at.translate(-game.getFrame().getWidth()/2, -game.getFrame().getHeight() / 2);
-					//at.translate(obj.getPosition().x-xoffset, obj.getPosition().y);
-					//((Graphics2D)game.getGraphics()).drawImage(obj.getImage(), at, null);
-					game.getGraphics().drawImage(obj.getImage(), obj.getPosition().x-xoffset, obj.getPosition().y, null);
-					obj.move();
-				}
-			}
-			game.getGraphics().setColor(Color.YELLOW);
-			for (CollisionObject obj : game.getCollisionObjects()) {
-				game.getGraphics().fillRect(obj.getPosition().x-xoffset, obj.getPosition().y, obj.getPosition().width, obj.getPosition().height);
-				//System.out.println(obj.getPosition().y);
-			}
-			game.getGraphics().setColor(Color.GREEN);
-			//graphics.drawRect(me.getPosition().x-xoffset, me.getPosition().y, me.getPosition().width, me.getPosition().height);
-			game.getGraphics().drawImage(game.getPlayer().getImage(),game.getPlayer().getPosition().x-xoffset, game.getPlayer().getPosition().y,null);
-			//game.getBullets().get(0).move();
-			try {
-				sleep(10);
-			} catch (InterruptedException e) {
-				
-			}
-		}
-	}
-	*/
 }
