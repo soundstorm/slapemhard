@@ -16,7 +16,7 @@ public class Weapon {
 		this.game = game;
 		this.fromPlayer = fromPlayer;
 		this.type = type;
-		ammo = 50;
+		ammo = 100;
 		angle = 0;
 	}
 	public int getAmmo() {
@@ -38,7 +38,7 @@ public class Weapon {
 		if (ammo > 0 || !fromPlayer) {
 			//Für Schrotflinte und LSD aktuell nicht geeignet.
 			//play sound
-			game.getBullets().add(new Bullet(game, origin, type, heading?360-angle+180:angle, fromPlayer));
+			game.getBullets().add(new Bullet(game, origin, type, heading?(360-angle+180)%360:angle, fromPlayer));
 			ammo--;
 		} else {
 			//play click sound

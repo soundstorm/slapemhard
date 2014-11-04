@@ -7,6 +7,9 @@ import java.io.*;
 
 import javax.imageio.ImageIO;
 
+import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
+import de.hshannover.pp.slapemhard.images.SpriteSheet;
+
 /**
   * Objekt für verschiedene Projektile
   *
@@ -34,7 +37,12 @@ public class BulletType {
 	private int range;
 	private int speed;
 	private boolean usesGravity;
+	private int tileHeight;
+	private int tileWidth;
+	private SpriteSheet animation;
+	private int tiles;
 	public BulletType(BulletName name) {
+		BufferedImageLoader bL = new BufferedImageLoader();
 		switch (name) {
 			case BULLET:
 				this.size = new Dimension(2,1);
@@ -47,10 +55,12 @@ public class BulletType {
 				this.destruction = 50;
 				this.range = 10;
 				this.speed = 80;
+				this.tileWidth = 64;
+				this.tileHeight = 64;
+				this.tiles = 24;
 				this.usesGravity = true;
-				try {
-					this.image = ImageIO.read(new File("resources/images/rocket.png"));
-				} catch (IOException e) {}
+				this.image = bL.getImage("resources/images/rocket.png");
+				this.animation = new SpriteSheet(bL.getImage("resources/images/weapons/rocketlauncher/explosion.png"),tileWidth,tileHeight);
 				break;
 			case GRENADE:
 				this.size = new Dimension(15,20);
@@ -78,5 +88,11 @@ public class BulletType {
 	}
 	public boolean getGravity() {
 		return usesGravity;
+	}
+	public SpriteSheet getAnimation() {
+		return animation;
+	}
+	public int getAnimationLength() {
+		return tiles;
 	}
 }

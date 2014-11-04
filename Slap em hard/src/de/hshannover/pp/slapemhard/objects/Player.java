@@ -26,12 +26,18 @@ public class Player extends Person {
 	@Override
 	public void render(Graphics g) {
 		//TODO let all be rendered by superclass Person
-		//draw person
-		g.drawImage(image, super.getPosition().x, super.getPosition().y-8, null);
+		//TODO invert person right
+		//draw body
+		g.drawImage(image, super.getPosition().x, super.getPosition().y-8, image.getWidth()*(heading?-1:1), image.getHeight(), null);
+		//draw arm
+		
+		//draw legs
+		
 		//draw weapon
 	}
 	
-	@Override	
+	@Deprecated
+	@Override
 	public BufferedImage getImage() {
 		return image;
 	}

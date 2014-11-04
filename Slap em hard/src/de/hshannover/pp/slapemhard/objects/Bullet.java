@@ -16,8 +16,10 @@ public class Bullet extends CollisionObject {
 	private int travelled;
 	private ArrayList<Person> persons;
 	private SlapEmHard game;
-	private boolean exploded;
+	private boolean explode,exploded;
 	private long firstMove;
+	private boolean heading;
+	private int animationFrame;
 	public Bullet(SlapEmHard game, Dimension origin, BulletType type, int degree) {
 		this(game, origin, type, degree, false);
 	}
@@ -34,6 +36,7 @@ public class Bullet extends CollisionObject {
 			this.persons = new ArrayList<Person>();
 			this.persons.add(game.getPlayer());
 		}
+		heading = 90<degree && degree<270;
 		firstMove = System.currentTimeMillis();
 	}
 	/**
@@ -48,7 +51,7 @@ public class Bullet extends CollisionObject {
 	 * Otherwise the component of g/2*t^2 will be ignored.
 	 */
 	public void move() {
-		if (exploded) return;
+		if (explode | exploded) return;
 		double t = (System.currentTimeMillis()-firstMove)/200.0;
 		int x = (int)(origin.width + type.getSpeed() * Math.cos(originAngle) * t)-super.getPosition().x;
 		int y = super.getPosition().y-(int)(origin.height - type.getSpeed() * Math.sin(originAngle) * t);
@@ -57,7 +60,7 @@ public class Bullet extends CollisionObject {
 			//degree = originAngle
 		}
 		//only check if bullet has moved
-		if (x != 0 && y != 0) {
+		if (x != 0 | y != 0) {
 			boolean collision[] = super.collides(game.getCollisionObjects(), x, y);
 			if (!collision[0] && !collision[1]) {
 				super.setPosition(super.getPosition().x + x,
@@ -82,7 +85,17 @@ public class Bullet extends CollisionObject {
 	}
 	@Override
 	public void render(Graphics g) {
-		g.drawImage(getImage(),  super.getPosition().x, super.getPosition().y, null);
+		
+		if (explode) {
+			if (animationFrame >= type.getAnimationLength()) {
+				exploded = true;
+				return;
+			}
+			g.drawImage(type.getAnimation().getTile(animationFrame), super.getPosition().x-(type.getAnimation().getWidth()-super.getPosition().width), super.getPosition().y-(type.getAnimation().getHeight()-super.getPosition().height), null);
+			animationFrame++;
+			return;
+		}
+		g.drawImage(getImage(), super.getPosition().x+(heading?super.getPosition().width:0), super.getPosition().y, super.getPosition().width*(heading?-1:1), super.getPosition().height, null);
 	}
 	@Deprecated
 	public BufferedImage getImage() {
@@ -92,7 +105,7 @@ public class Bullet extends CollisionObject {
 		return type.getSize();
 	}
 	private void explode() {
-		exploded = true;
+		explode = true;
 		//TODO animation stuff & destruction in ambit
 	}
 	public boolean isExploded() {

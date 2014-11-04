@@ -6,13 +6,19 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import de.hshannover.pp.slapemhard.images.SpriteSheet;
+
 public class Person extends CollisionObject {
 	@Deprecated
 	private BufferedImage image;// TODO Replace with animation Frames
 	private Weapon weapon;
 	private int health;
-	private boolean heading;
+	protected boolean heading;
 	private boolean isPlayer;
+	private boolean walking;
+	private boolean jumping;
+	private SpriteSheet animation;
+	private int animationFrame;
 	
 	public Person(int health, Rectangle size) {
 		this(health, size, false);
@@ -29,6 +35,14 @@ public class Person extends CollisionObject {
 		health -= damage;
 		if (health < 0)
 			health = 0;
+	}
+	public void setWalking(boolean b) {
+		walking = b;
+		animationFrame = 0;
+	}
+	public void setJumping(boolean b) {
+		jumping = b;
+		animationFrame = 0;
 	}
 	public boolean[] move(int x, int y, ArrayList<CollisionObject> collisions) {
 		if (x != 0) {
@@ -69,7 +83,14 @@ public class Person extends CollisionObject {
 	public void render (Graphics g) {
 		//draw person
 		//TODO replace with animation frames
-		g.drawRect(super.getPosition().x, super.getPosition().y, super.getPosition().width, super.getPosition().height);
+		if (jumping) {
+			g.drawImage(animation.getTile(2, 0), super.getPosition().x+(heading?super.getPosition().width:0), super.getPosition().y, super.getPosition().width*(heading?-1:1), super.getPosition().height, null);
+		} else if (walking) {
+			g.drawImage(animation.getTile(1, animationFrame), super.getPosition().x+(heading?super.getPosition().width:0), super.getPosition().y, super.getPosition().width*(heading?-1:1), super.getPosition().height, null);
+			animationFrame = (animationFrame+1)%4;
+		} else {
+			g.drawImage(animation.getTile(0, animationFrame), super.getPosition().x+(heading?super.getPosition().width:0), super.getPosition().y, super.getPosition().width*(heading?-1:1), super.getPosition().height, null);
+		}
 		//draw weapon:
 		
 	}
