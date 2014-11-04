@@ -29,7 +29,7 @@ public class Person extends CollisionObject {
 		this.health = health;
 		this.isPlayer = isPlayer;
 		BufferedImageLoader bL = new BufferedImageLoader();
-		animation = new SpriteSheet(bL.getImage("resources>images>persons>luca>person.png"),16,56);
+		animation = new SpriteSheet(bL.getImage("images>persons>luca>person.png"),16,56);
 	}
 	public boolean isAlive() {
 		return health > 0;

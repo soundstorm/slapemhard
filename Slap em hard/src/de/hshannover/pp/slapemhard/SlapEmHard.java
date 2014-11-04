@@ -5,6 +5,7 @@ import javax.swing.*;
 
 import de.hshannover.pp.slapemhard.listener.*;
 import de.hshannover.pp.slapemhard.objects.*;
+import de.hshannover.pp.slapemhard.resources.Resource;
 import de.hshannover.pp.slapemhard.threads.*;
 
 import java.awt.*;
@@ -33,6 +34,7 @@ public class SlapEmHard {
 		if (n == JOptionPane.YES_OPTION) {
 			fullscreen = true;
 		}
+		Resource r = new Resource();
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		frame = new JFrame("Slap Em Hard");
 		frame.setUndecorated(true);
@@ -43,7 +45,7 @@ public class SlapEmHard {
 				.getLocalGraphicsEnvironment();
 		try {
 			//font = Font.createFont(Font.TRUETYPE_FONT, new File("resources/fonts/8-BIT-WONDER.TTF"));
-			font = Font.createFont(Font.TRUETYPE_FONT, new File("resources>fonts>pixelated.ttf".replaceAll(">", File.separator)));
+			font = Font.createFont(Font.TRUETYPE_FONT, r.getInputStream("fonts>pixelated.ttf"));
 		    ge.registerFont(font);
 		    System.out.println("FONT");
 		} catch (IOException|FontFormatException e) {

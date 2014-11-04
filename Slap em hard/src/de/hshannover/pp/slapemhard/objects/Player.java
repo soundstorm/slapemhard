@@ -20,7 +20,7 @@ public class Player extends Person {
 		super(health, new Rectangle(50,10,16,52), false);
 		this.game = game;
 		/*try {
-			image = ImageIO.read(new File("resources>images>persons>luca>full.png"));
+			image = ImageIO.read(new File("images>persons>luca>full.png"));
 		} catch (IOException e) {}
 		*/
 	}

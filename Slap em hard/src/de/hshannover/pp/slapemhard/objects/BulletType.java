@@ -59,8 +59,8 @@ public class BulletType {
 				this.tileHeight = 64;
 				this.tiles = 24;
 				this.usesGravity = true;
-				this.image = bL.getImage("resources>images>rocket.png");
-				this.animation = new SpriteSheet(bL.getImage("resources>images>weapons>rocketlauncher>explosion.png"),tileWidth,tileHeight);
+				this.image = bL.getImage("images>rocket.png");
+				this.animation = new SpriteSheet(bL.getImage("images>weapons>rocketlauncher>explosion.png"),tileWidth,tileHeight);
 				break;
 			case GRENADE:
 				this.size = new Dimension(15,20);
