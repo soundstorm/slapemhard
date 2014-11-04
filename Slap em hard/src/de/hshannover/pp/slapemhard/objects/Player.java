@@ -15,13 +15,14 @@ public class Player extends Person {
 	ArrayList<Weapon> weapons = new ArrayList<Weapon>();
 	SlapEmHard game;
 	private int activeWeapon;
-	private static BufferedImage image;// = new BufferedImage(40,60,BufferedImage.TYPE_INT_ARGB);
+	//private static BufferedImage image;// = new BufferedImage(40,60,BufferedImage.TYPE_INT_ARGB);
 	public Player(SlapEmHard game, int health) {
 		super(health, new Rectangle(50,10,16,52), false);
 		this.game = game;
-		try {
-			image = ImageIO.read(new File("resources/images/persons/luca/full.png"));
+		/*try {
+			image = ImageIO.read(new File("resources>images>persons>luca>full.png"));
 		} catch (IOException e) {}
+		*/
 	}
 	/*
 	@Override
@@ -38,12 +39,6 @@ public class Player extends Person {
 	}
 	*/
 	
-	@Deprecated
-	@Override
-	public BufferedImage getImage() {
-		return image;
-	}
-
 	public void addWeapon(BulletType type) {
 		weapons.add(new Weapon(game, type, true));
 		//activate weapon immediately

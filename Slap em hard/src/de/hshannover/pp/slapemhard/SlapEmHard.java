@@ -43,14 +43,12 @@ public class SlapEmHard {
 				.getLocalGraphicsEnvironment();
 		try {
 			//font = Font.createFont(Font.TRUETYPE_FONT, new File("resources/fonts/8-BIT-WONDER.TTF"));
-			font = Font.createFont(Font.TRUETYPE_FONT, new File("resources/fonts/pixelated.ttf"));
+			font = Font.createFont(Font.TRUETYPE_FONT, new File("resources>fonts>pixelated.ttf".replaceAll(">", File.separator)));
 		    ge.registerFont(font);
-		    System.out.println("FONTED");
+		    System.out.println("FONT");
 		} catch (IOException|FontFormatException e) {
+		    System.out.println("FONT FAIL");
 		     //Handle exception
-		}
-		for (String b : ge.getAvailableFontFamilyNames()) {
-			System.out.println(b);
 		}
 		GraphicsDevice[] gs = ge.getScreenDevices();
 		GraphicsDevice device = gs[0];
@@ -98,9 +96,11 @@ public class SlapEmHard {
 		collisionObjects
 			.add(new CollisionObject(new Rectangle(180, 195, 20, 25)));
 		collisionObjects
-				.add(new CollisionObject(new Rectangle(0, 220, 700, 10)));
-		// bullets.add(new Bullet(this, new Dimension(2,30), new
-		// BulletType(BulletType.BulletName.ROCKET), 20, true));
+			.add(new CollisionObject(new Rectangle(220, 145, 20, 75)));
+		collisionObjects
+			.add(new CollisionObject(new Rectangle(240, 190, 20, 30)));
+		collisionObjects
+			.add(new CollisionObject(new Rectangle(0, 220, 700, 10)));
 		newGame(0);
 	}
 
