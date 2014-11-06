@@ -2,26 +2,35 @@ package de.hshannover.pp.slapemhard.threads;
 
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
 
 import de.hshannover.pp.slapemhard.*;
+import de.hshannover.pp.slapemhard.images.*;
 import de.hshannover.pp.slapemhard.objects.*;
 
-public class DrawGameThread extends Canvas implements Runnable {
+public class DrawLevelThread extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
 	boolean running;
-	SlapEmHard game;
+	Level level;
 	private Thread thread;
 	int fps = 30;
+	SpriteSheet lives;
+	double scale;
 	//public static int WIDTH, HEIGHT;
+	private Dimension gameSize;
 	
-	public DrawGameThread(SlapEmHard game) {
+	public DrawLevelThread(Level level) {
 		super();
-		this.game = game;
+		this.level = level;
+		this.scale = level.getGame().getScale();
+		this.gameSize = level.getGame().getGameSize();
 		setIgnoreRepaint(true);
+		lives = new SpriteSheet((new BufferedImageLoader()).getImage("images>lives.png"),11,11);
 	}
 	
 	private void init(){
@@ -49,13 +58,13 @@ public class DrawGameThread extends Canvas implements Runnable {
 		long timer = System.currentTimeMillis();
 		int updates = 0;
 		int frames = 0;
-		int waitDuration = 0;
-		//int waitNanos = 0;
+		//int waitDuration = 0;
+		long waitDuration = 0L;
 		while(running){
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
 			lastTime = now;
-			while(delta >= 1){
+			while(delta > 0){
 				tick();
 				updates++;
 				delta--;
@@ -75,27 +84,31 @@ public class DrawGameThread extends Canvas implements Runnable {
 				waitDuration = 0;
 				System.out.println("FPS DROPPED BELOW 20!");
 			} else {
-				//33.3ms for 30fps. Reduced to 29ms to get a more constant framerate of 30fps, otherwise it will likely drop to 27fps.
+				//33.3ms for 30fps. Reduced to 30ms to get a more constant framerate of 30fps, otherwise it will likely drop to 27fps.
 				//Automatic compensation for elapsed time while rendering.
-				waitDuration = 29-(int)((System.nanoTime()-now)/1000000);
+				//waitDuration = 30-(int)((System.nanoTime()-now)/1000000);
+				waitDuration = 30000000-(System.nanoTime()-now);
 				if (waitDuration < 0) {
 					waitDuration = 0;
 				}
 			}
 			try {
-				Thread.sleep(waitDuration);
-				//Thread.sleep((int)(waitDuration/1000000), (int)(waitDuration%1000000));
+				//more precise if using a long instead:
+				Thread.sleep((int)(waitDuration/1000000), (int)(waitDuration%1000000));
 			} catch (InterruptedException e) {}
 		}
 	}
 	
 	private void tick(){
-		/*handler.tick();
-		for(int i = 0; i < handler.object.size(); i++){
-			if(handler.object.get(i).getId() == ObjectId.Player){
-				cam.tick(handler.object.get(i));
+		for (int i = 0; i < level.getBullets().size(); i++) {
+			Bullet obj = level.getBullets().get(i);
+			obj.move();
+			if (obj.isExploded() | obj.outOfWindow()) {
+				level.getBullets().remove(obj);
+				i--;
+				continue;
 			}
-		}*/
+		}
 	}
 	
 	private void render(){
@@ -107,38 +120,37 @@ public class DrawGameThread extends Canvas implements Runnable {
 		
 		Graphics g = bs.getDrawGraphics();
 		Graphics2D g2d = (Graphics2D) g;
-		g2d.scale(2.0, 2.0);
+		g2d.scale(scale, scale);
 		////////////////////////////////////
 		
-		g.setColor(Color.GRAY);
-		g.fillRect(0, 0, getWidth(), getHeight());
-		
-		int xoffset = game.getPlayer().getPosition().x-100;
+		int xoffset = level.getPlayer().getPosition().x-100;
 		if (xoffset < 0) {
 			xoffset = 0;
+		} else if (xoffset > level.getBounds().width-gameSize.width) {
+			xoffset = level.getBounds().width-gameSize.width;
 		}
+		
+		for (BufferedImage bI : level.getBackgroundImages()) {
+			g.drawImage(bI, -xoffset*(bI.getWidth()-gameSize.width)/(level.getBounds().width-gameSize.width), 0, null);
+		}
+		
 		//Move to active clip
 		g2d.translate(-xoffset, 0);
+		g.drawImage(level.getLandscapeImage(),0,0,null);
 
-		for (CollisionObject ro : game.getCollisionObjects()) {
+		for (CollisionObject ro : level.getCollisionObjects()) {
 			ro.render(g);
 		}
 		
-		for (int i = 0; i < game.getBullets().size(); i++) {
-			Bullet obj = game.getBullets().get(i);
-			if (obj.isExploded() | obj.outOfWindow()) {
-				game.getBullets().remove(obj);
-				i--;
-				continue;
-			}
-			obj.move();
+		for (int i = 0; i < level.getBullets().size(); i++) {
+			Bullet obj = level.getBullets().get(i);
 			obj.render(g);
 		}
 		
-		for (Person ro : game.getEnemies()) {
+		for (Person ro : level.getEnemies()) {
 			ro.render(g);
 		}
-		game.getPlayer().render(g);
+		level.getPlayer().render(g);
 		
 		//
 		g2d.translate(xoffset, 0);
@@ -147,9 +159,16 @@ public class DrawGameThread extends Canvas implements Runnable {
 		g.setColor(Color.WHITE);
 		g.fillRect(5,5,50,20);
 		g.setColor(Color.BLACK);
-		g.setFont(game.getFont().deriveFont(Font.PLAIN,8));
-		g.drawString("BULLETS: "+game.getPlayer().getWeapon().getAmmo(), 10, 13);
+		g.setFont(level.getFont().deriveFont(Font.PLAIN,8));
+		g.drawString("BULLETS: "+level.getPlayer().getWeapon().getAmmo(), 10, 13);
 		g.drawString("FPS: "+fps, 10, 20);
+		for (int i=0; i < level.getPlayer().getLives(); i++) {
+			if (i != level.getPlayer().getLives()-1) {
+				g.drawImage(lives.getTile(9), 60+i*12, 10, null);
+			} else {
+				g.drawImage(lives.getTile(9*level.getPlayer().getHealth()/level.getPlayer().getMaxHealth()), 60+i*12, 10, null);
+			}
+		}
 		
 		// Push Image to frame
 		g.dispose();

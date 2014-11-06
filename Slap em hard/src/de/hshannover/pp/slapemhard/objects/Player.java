@@ -1,24 +1,23 @@
 package de.hshannover.pp.slapemhard.objects;
 
-import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
-
-import javax.imageio.ImageIO;
 
 import de.hshannover.pp.slapemhard.*;
 
 public class Player extends Person {
 	ArrayList<Weapon> weapons = new ArrayList<Weapon>();
-	SlapEmHard game;
+	Game game;
 	private int activeWeapon;
-	//private static BufferedImage image;// = new BufferedImage(40,60,BufferedImage.TYPE_INT_ARGB);
-	public Player(SlapEmHard game, int health) {
-		super(health, new Rectangle(50,10,16,52), false);
+	private int lives = 3;
+	
+	public Player(Game game, int health) {
+		super(game, health, new Rectangle(0,0,16,52), Person.PersonName.LUCA, false);
 		this.game = game;
+	}
+	
+	public int getLives() {
+		return lives;
 	}
 	
 	public void addWeapon(BulletType type) {

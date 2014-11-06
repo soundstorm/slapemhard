@@ -6,7 +6,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import de.hshannover.pp.slapemhard.SlapEmHard;
+import de.hshannover.pp.slapemhard.Game;
 
 public class Bullet extends CollisionObject {
 	private double originAngle;
@@ -15,21 +15,22 @@ public class Bullet extends CollisionObject {
 	private Dimension origin;
 	private int travelled;
 	private ArrayList<Person> persons;
-	private SlapEmHard game;
+	private Game game;
 	private boolean explode,exploded;
 	private long firstMove;
 	private boolean heading;
 	private int animationFrame;
-	public Bullet(SlapEmHard game, Dimension origin, BulletType type, int degree) {
+	private double g = 9.81;
+	public Bullet(Game game, Dimension origin, BulletType type, int degree) {
 		this(game, origin, type, degree, false);
 	}
-	public Bullet(SlapEmHard game,Dimension origin, BulletType type, int degree, boolean fromPlayer) {
-		super(new Rectangle(origin.width,origin.height,type.getSize().width,type.getSize().height));
+	public Bullet(Game game,Dimension origin, BulletType type, int degree, boolean fromPlayer) {
+		super(game, new Rectangle(origin.width,origin.height,type.getSize().width,type.getSize().height));
 		this.game = game;
 		this.origin = origin;
 		this.type = type;
 		this.originAngle = Math.toRadians(degree);
-		angle = this.originAngle;
+		angle = originAngle;
 		if (fromPlayer) {
 			this.persons = game.getEnemies();
 		} else {
@@ -52,23 +53,28 @@ public class Bullet extends CollisionObject {
 	 */
 	public void move() {
 		if (explode | exploded) return;
-		double t = (System.currentTimeMillis()-firstMove)/200.0;
+		double t = (System.currentTimeMillis()-firstMove)/100.0;
 		int x = (int)(origin.width + type.getSpeed() * Math.cos(originAngle) * t)-super.getPosition().x;
 		int y = super.getPosition().y-(int)(origin.height - type.getSpeed() * Math.sin(originAngle) * t);
 		if (type.getGravity()) {
-			y -=  (int)4.9 * t * t;
+			y -=  (int)((g/2.0) * t * t);
 			//degree = originAngle
 		}
+		//Curve of flight: f(x) = h0-g/(2*v0^2*cos(α))*2x^2+x*tan(α)
+		//Angle = atan(f'(x))
+		//-atan(g^2*x*sec(α)/v0^2-tan(α))
+		//-atan(g^2*x/cos(α)/v0^2-tan(α)
+		angle = (2*Math.PI-Math.atan(Math.abs(super.getPosition().x-origin.width)*g*2/Math.cos(originAngle)/type.getSpeed()/type.getSpeed()-Math.tan(originAngle)))%(2*Math.PI);
+		
 		//only check if bullet has moved
 		if (x != 0 | y != 0) {
 			boolean collision[] = super.collides(game.getCollisionObjects(), x, y);
-			if (!collision[0] && !collision[1]) {
-				super.setPosition(super.getPosition().x + x,
-								  super.getPosition().y - y);
-			} else {
+			if (collision[0] | collision[1]) {
 				explode();
 				return;
 			}
+			super.setPosition(super.getPosition().x + x,
+							  super.getPosition().y - y);
 			for (Person person : persons) {
 				final Rectangle collision_size = person.getPosition();
 	
@@ -94,8 +100,18 @@ public class Bullet extends CollisionObject {
 			g.drawImage(type.getExplosion().getTile(animationFrame), super.getPosition().x-(type.getExplosion().getWidth()-super.getPosition().width)/2, super.getPosition().y-(type.getExplosion().getHeight()-super.getPosition().height)/2, null);
 			animationFrame++;
 			return;
+		} else {
+			g.drawImage(type.getBulletImage().getTile(heading?4-getRelativeAngle():1+getRelativeAngle()), super.getPosition().x, super.getPosition().y, null);
 		}
-		g.drawImage(getImage(), super.getPosition().x+(heading?super.getPosition().width:0), super.getPosition().y, super.getPosition().width*(heading?-1:1), super.getPosition().height, null);
+	}
+	private int getRelativeAngle() {
+		if (angle < Math.PI/8.0 | angle > Math.PI*15/8.0) {// | (angle > Math.PI*7/8.0 && angle < Math.PI*9/8.0)) {
+			return 0; //straight
+		} else if (angle <= Math.PI*7/8.0) {
+			return heading?-1:1; //upwards
+		} else {
+			return heading?1:-1; //downwards
+		}
 	}
 	@Deprecated
 	public BufferedImage getImage() {

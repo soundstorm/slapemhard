@@ -43,7 +43,7 @@ public class SpriteSheet {
 	 * @return
 	 */
 	public BufferedImage getTile(int y, int x) {
-		if ((x > cols)|(y > rows)) {
+		if ((x >= cols)|(y >= rows)) {
 			System.out.println("NULL");
 			return null;
 		}

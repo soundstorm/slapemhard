@@ -1,39 +1,36 @@
 package de.hshannover.pp.slapemhard.threads;
 
-import java.util.ArrayList;
-
 import de.hshannover.pp.slapemhard.*;
-import de.hshannover.pp.slapemhard.objects.*;
 
 public class MoveThread extends Thread {
 	private boolean moveLeft,moveRight,jump,fire;
 	int jumped;
-	SlapEmHard game;
-	public MoveThread(SlapEmHard game) {
+	Level level;
+	public MoveThread(Level level) {
 		super("Moving Thread");
-		this.game = game;
+		this.level = level;
 	}
 	@Override
 	public synchronized void run() {
 		while (true) {
 			if (moveLeft) {
-				game.getPlayer().move(-1, 0, game.getCollisionObjects());
+				level.getPlayer().move(-1, 0, level.getCollisionObjects());
 			} else
 			if (moveRight) {
-				game.getPlayer().move(1, 0, game.getCollisionObjects());
+				level.getPlayer().move(1, 0, level.getCollisionObjects());
 			}
 			if (moveRight | moveLeft) {
-				game.getPlayer().setWalking(true);
+				level.getPlayer().setWalking(true);
 			} else {
-				game.getPlayer().setWalking(false);
+				level.getPlayer().setWalking(false);
 			}
-			boolean[] collision = game.getPlayer().move(0, jump?1:-1, game.getCollisionObjects()); //Gravity
+			boolean[] collision = level.getPlayer().move(0, jump?1:-1, level.getCollisionObjects()); //Gravity
 			if (jump | !collision[1]) {
-				game.getPlayer().setJumping(true);
+				level.getPlayer().setJumping(true);
 			} else {
-				game.getPlayer().setJumping(false);
+				level.getPlayer().setJumping(false);
 			}
-			if (jump && (collision[1] | jumped >= 50)) { //Collision with object above or reached max jump height
+			if (jump && (collision[1] | jumped >= 70)) { //Collision with object above or reached max jump height
 				jump = false;
 				jumped = 0;
 			} else if (jump) {//Jumped less than max jump height

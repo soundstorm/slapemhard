@@ -6,12 +6,13 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import de.hshannover.pp.slapemhard.Game;
 import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.images.SpriteSheet;
 
 public class Person extends CollisionObject {
 	private Weapon weapon;
-	private int health;
+	private int maxHealth,health;
 	protected boolean heading;
 	private boolean isPlayer;
 	private boolean walking;
@@ -20,17 +21,47 @@ public class Person extends CollisionObject {
 	private SpriteSheet arm;
 	private int animationFrame;
 	private boolean armed;
-	
-	public Person(int health, Rectangle size) {
-		this(health, size, false);
+	public enum PersonName {
+		ANDRE,
+		LUCA,
+		PATRICK,
+		STEFFEN,
+		ENEMY0,
+		ENEMY1,
+		ENEMY2,
+		ENEMY3,
+		ENEMY4,
+		ENEMY5,
+		ENEMY6,
+		ENEMY7,
+		ENEMY8,
+		ENEMY9
 	}
-	public Person(int health, Rectangle size, boolean isPlayer) {
-		super(size);
-		this.health = health;
+	
+	public Person(Game game, int health, Rectangle size, PersonName name) {
+		this(game, health, size, name, false);
+	}
+	public Person(Game game, int health, Rectangle size, PersonName name, boolean isPlayer) {
+		super(game,size);
+		this.health = this.maxHealth = health;
 		this.isPlayer = isPlayer;
 		BufferedImageLoader bL = new BufferedImageLoader();
-		animation = new SpriteSheet(bL.getImage("images>persons>luca>person.png"),16,56);
-		arm = new SpriteSheet(bL.getImage("images>persons>luca>arm.png"),38,60);
+		switch (name) {
+			case ANDRE:
+				
+			case LUCA:
+				animation = new SpriteSheet(bL.getImage("images>persons>luca>person.png"),16,56);
+				arm = new SpriteSheet(bL.getImage("images>persons>luca>arm.png"),38,60);
+				break;
+			case PATRICK:
+				
+			case STEFFEN:
+				
+			case ENEMY0:
+				
+			default:
+				
+		}
 	}
 	public boolean isAlive() {
 		return health > 0;
@@ -39,6 +70,12 @@ public class Person extends CollisionObject {
 		health -= damage;
 		if (health < 0)
 			health = 0;
+	}
+	public int getHealth() {
+		return health;
+	}
+	public int getMaxHealth() {
+		return maxHealth;
 	}
 	public void setWalking(boolean b) {
 		if (walking == b) return;
@@ -104,7 +141,7 @@ public class Person extends CollisionObject {
 			g.drawImage(arm.getTile(heading?7:0), x-11, y-6, null);
 		} else {
 			g.drawImage(arm.getTile(heading?5-weapon.getAngle():2+weapon.getAngle()), x-11, y-6,null);
-			g.drawImage(weapon.getType().getWeapon().getTile(heading?4-weapon.getAngle():1+weapon.getAngle()), x-(weapon.getType().getWeapon().getWidth()-super.getPosition().width)/2, y-(weapon.getType().getWeapon().getHeight()-super.getPosition().height), null);
+			g.drawImage(weapon.getType().getWeapon().getTile(heading?4-weapon.getAngle():1+weapon.getAngle()), x-16, y-6, null);
 		}
 		//draw weapon:
 		

@@ -3,17 +3,17 @@ package de.hshannover.pp.slapemhard.objects;
 import java.awt.Dimension;
 import java.awt.Graphics;
 
-import de.hshannover.pp.slapemhard.SlapEmHard;
+import de.hshannover.pp.slapemhard.Game;
 
 public class Weapon {
 	private int ammo;
-	private SlapEmHard game;
+	private Game game;
 	private int angle;
 	private BulletType type;
 	private boolean fromPlayer;
 	private boolean heading;
 	
-	public Weapon(SlapEmHard game, BulletType type, boolean fromPlayer) {
+	public Weapon(Game game, BulletType type, boolean fromPlayer) {
 		this.game = game;
 		this.fromPlayer = fromPlayer;
 		this.type = type;

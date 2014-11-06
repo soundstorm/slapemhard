@@ -26,9 +26,9 @@ import de.hshannover.pp.slapemhard.images.SpriteSheet;
 
 public class BulletType {
 	public enum BulletName {
-		BULLET,
-		ROCKET,
-		GRENADE
+		HANDGUN,
+		ROCKETLAUNCHER,
+		MACHINEGUN
 	};
 	private static BufferedImage rocket;
 	private Dimension size;
@@ -41,21 +41,22 @@ public class BulletType {
 	private int tileWidth;
 	private SpriteSheet explosion;
 	private SpriteSheet weapon;
+	private SpriteSheet bullet;
 	private int tiles;
 	public BulletType(BulletName name) {
 		BufferedImageLoader bL = new BufferedImageLoader();
 		switch (name) {
-			case BULLET:
+			case HANDGUN:
 				this.size = new Dimension(2,1);
 				this.destruction = 2;
 				this.range = 1;
 				this.speed = 100;
 				break;
-			case ROCKET:
+			case ROCKETLAUNCHER:
 				this.size = new Dimension(10,7);
 				this.destruction = 50;
 				this.range = 10;
-				this.speed = 70;
+				this.speed = 40;
 				this.tileWidth = 64;
 				this.tileHeight = 64;
 				this.tiles = 24;
@@ -63,8 +64,9 @@ public class BulletType {
 				this.image = bL.getImage("images>rocket.png");
 				this.explosion = new SpriteSheet(bL.getImage("images>weapons>rocketlauncher>explosion.png"),tileWidth,tileHeight);
 				this.weapon = new SpriteSheet(bL.getImage("images>weapons>rocketlauncher>weapon.png"),48,60);
+				this.bullet = new SpriteSheet(bL.getImage("images>weapons>rocketlauncher>bullet.png"),10,11);
 				break;
-			case GRENADE:
+			case MACHINEGUN:
 				this.size = new Dimension(15,20);
 				this.destruction = 40;
 				this.range = 30;
@@ -76,6 +78,7 @@ public class BulletType {
 	public Dimension getSize() {
 		return size;
 	}
+	@Deprecated
 	public BufferedImage getImage() {
 		return image;
 	}
@@ -90,6 +93,9 @@ public class BulletType {
 	}
 	public boolean getGravity() {
 		return usesGravity;
+	}
+	public SpriteSheet getBulletImage() {
+		return bullet;
 	}
 	public SpriteSheet getExplosion() {
 		return explosion;

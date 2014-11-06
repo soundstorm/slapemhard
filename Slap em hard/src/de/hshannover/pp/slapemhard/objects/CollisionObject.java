@@ -5,11 +5,14 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
+import de.hshannover.pp.slapemhard.Game;
+
 public class CollisionObject {
 	private Rectangle size;
-	public CollisionObject (Rectangle size) {
+	private Game game;
+	public CollisionObject (Game game, Rectangle size) {
+		this.game = game;
 		this.size = size;
-		System.out.println(size.y);
 	}
 	public Rectangle getPosition () {
 		return size;
@@ -18,31 +21,24 @@ public class CollisionObject {
 		boolean collision[] = {false,false};
 		if (size.x+x <= 0)		//Out of Panel width
 			collision[0] = true;
+
+		Rectangle xColl = new Rectangle(this.getPosition().x+x,this.getPosition().y,this.getPosition().width,this.getPosition().height);
+		Rectangle yColl = new Rectangle(this.getPosition().x,this.getPosition().y+y,this.getPosition().width,this.getPosition().height);
+		
 		for (CollisionObject collide : collisions) {
 			final Rectangle collision_size = collide.getPosition();
 
-			if (!((collision_size.x > size.x+size.width+x) |					//Neither end of CollisionObject before end of Person
-				(collision_size.x+collision_size.width < size.x+x) |			//nor begin of CollisionObject behind end of Person
-				(collision_size.y > size.y+size.height+y) |						//nor end of CollisionObject over end of Person
-				(collision_size.y+collision_size.height < size.y+y))) {			//nor begin of CollisionObject under end of Person
-																				//Collision Detected. Now determine in which Direction:
-				if (!((collision_size.y > size.y+size.height+y) |				//Upper bound
-					(collision_size.y+collision_size.height < size.y+y)) &&		//or lower bound not outside Object height after movement
-					!((collision_size.x > size.x+size.width) |					//and right bound
-					(collision_size.x+collision_size.width < size.x))) {		//or left bound actually not outside Object width
-					collision[1] = true;										//Collides on Y-Axis
-					if (collision[0]) {											//Collides on both axis
-						return collision;										//Stop further tests/iterations
-					}
+			//Collision Detected. Now determine in which Direction:
+			if (collision_size.intersects(xColl)) {
+				collision[0] = true;
+				if (collision[1]) {				//Collides on both axis
+					return collision;			//Stop further tests/iterations
 				}
-				if (!((collision_size.x > size.x+size.width+x) |				//Right bound
-						(collision_size.x+collision_size.width < size.x+x)) &&	//or left bound not outside Object width after movement
-						!((collision_size.y > size.y+size.height) |				//and upper bound
-						(collision_size.y+collision_size.height < size.y))) {	//or lower bound actually not outside Object height
-					collision[0] = true;										//Collides on X-Axis
-					if (collision[1]) {											//Collides on both axis
-						return collision;										//Stop further tests/iterations
-					}
+			}
+			if (collision_size.intersects(yColl)) {
+				collision[1] = true;
+				if (collision[0]) {				//Collides on both axis
+					return collision;			//Stop further tests/iterations
 				}
 			}
 		}
@@ -65,7 +61,7 @@ public class CollisionObject {
 	
 	public void render(Graphics g) {
 		//TODO remove fillRect if background is there
-		g.setColor(Color.YELLOW);
+		g.setColor(new Color(255, 0, 0, 50));
 		g.fillRect(size.x, size.y, size.width, size.height);
 	}
 }
