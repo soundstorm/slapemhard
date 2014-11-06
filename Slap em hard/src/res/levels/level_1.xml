@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Level>
+	<CollisionObjects>
+		<CollisionObject x="0" y="213" width="554" height="20"></CollisionObject>
+		<CollisionObject x="610" y="213" width="471" height="20"></CollisionObject>
+		
+		<CollisionObject x="135" y="76" width="84" height="16"></CollisionObject>
+		<CollisionObject x="298" y="76" width="16" height="16"></CollisionObject>
+		<CollisionObject x="436" y="76" width="16" height="16"></CollisionObject>
+		<CollisionObject x="580" y="76" width="134" height="16"></CollisionObject>
+		
+		<CollisionObject x="83" y="143" width="16" height="16"></CollisionObject>
+		<CollisionObject x="168" y="143" width="68" height="16"></CollisionObject>
+		<CollisionObject x="264" y="143" width="84" height="16"></CollisionObject>
+		<CollisionObject x="504" y="143" width="50" height="16"></CollisionObject>
+		<CollisionObject x="760" y="143" width="34" height="16"></CollisionObject>
+		<CollisionObject x="813" y="143" width="16" height="16"></CollisionObject>
+		
+		<CollisionObject x="370" y="145" width="34" height="68"></CollisionObject>
+	</CollisionObjects>
+	<Player x="50" y="150"></Player>
+	<LandscapeImage src="landscape.png"></LandscapeImage>
+	<BackgroundImage src="background_1.png" layer="0"></BackgroundImage>
+</Level>
