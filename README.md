@@ -6,36 +6,46 @@ Programmieren Projekt
 Vorstellungen
 -------------
 * PowerUps
- * Unkaputtbar
- * LSD (Unpräzisere Schüsse [+/- 5°], explodierende Regenbogen)
- * Munition
+  * Unkaputtbar
+  * Munition
+  * MediKit
+  * Extra Life
 * Waffen
- * Raketenwerfer (Flugbahn, einstellbare Schussweite?)
  * Normale Pistole (Grundausrüstung)
- * Maschinengewehr
- * Schrotflinte
- * Handgranate (Rechtsklick, Flugbahn)
- * Lenkrakete?
+ * Raketenwerfer (Flugbahn ~~einstellbare Schussweite~~)
+ * Maschinengewehr (großes Magazin, schnelle Schussfolge)
+ * ~~Schrotflinte~~
+ * ~~Handgranate (Rechtsklick, Flugbahn)~~
+ * ~~Lenkrakete?~~
 * Gegner
- * Sniper Schütze (von Haus herunter, bewegt sich nicht -> keine Kollision mit normalen Objekten)
- * Helikopter
+ * ~~Sniper Schütze (von Haus herunter, bewegt sich nicht -> keine Kollision mit normalen Objekten)~~
+ * ~~Helikopter~~
  * Bodenschützen
-* Endgegner
- * Justin Bieber
+* ~~Endgegner~~
+ * ~~Justin Bieber~~
 
 * OSD
  * Punktzahl
  * Health
- * Waffen (über Q/E wechselbar)
+ * Waffen (über Space/X wechselbar)
   * Munition
 
-* Steuerung (Maus nicht erlaubt und nur 2 zuzätzliche Tasten zu (w,a,s,d) Grund: Arcade
- * A/D -> Links/Rechts
- * S -> Ducken?
- * W/SPACE -> Springen
- * Q/E -> Waffe wechseln
- * Maus
-  * Position -> Anvisieren
-  * Linksklick -> Schießen
-  * Rechtsklick -> Granate
- * ESC -> Menü
+* Steuerung:
+
+| Taste(n)   | Aktion            |
+| ---------- | ----------------- |
+| </>        | Links/Rechts      |
+| ^/v        | Waffe hoch/runter |
+| Ctrl/Shift | Springen          |
+| Alt/Y      | Schießen          |
+| Space/X    | Waffe wechseln    |
+| ESC        | Beenden           |
+
+Aktuelle Kosten für Automaten:
+
+* Monitor 7,90+5,99 (wegen verwechselter Pakete) *-10,-* Rückerstattung dafür **3,89**
+* HDMI/VGA-Wandler **11,95**
+* Joysticks **12,18**
+* Buttons **12,77**
+* Münzeinwurf **13,76**
+ * **54,55**
