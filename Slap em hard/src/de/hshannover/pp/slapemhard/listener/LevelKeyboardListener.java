@@ -70,7 +70,7 @@ public class LevelKeyboardListener implements KeyListener {
 	
 	private void toggleEvent(int keyCode, boolean state) {
 		switch (keyCode) {
-			case 17: //Ctrl/Strg
+			case 17: case 16: //Ctrl/Strg Shift
 				if (!spacePressed && state) {
 					boolean collision[] = level.getPlayer().collides(level.getCollisionObjects(),0,1);	//Check if on floor
 					if (collision[1]) {																	//Only Jump, when on floor
@@ -81,9 +81,13 @@ public class LevelKeyboardListener implements KeyListener {
 				}
 				spacePressed = state;
 				break;
-			case 18: //Alt
+			case 18: case 89: //Alt/Y
 				if (state)
 					level.getPlayer().fire();
+				break;
+			case 20: case 88: //Space X
+				if (state)
+					level.getPlayer().changeWapon();
 				break;
 			case 27: //ESC
 				if (state)

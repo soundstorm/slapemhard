@@ -26,28 +26,27 @@ public class SpriteSheet {
 	}
 	
 	/**
-	 * 
+	 * Calls getTile(int y, int x)
 	 * @param tile Number of the tile in SpriteSheet, numbered from left to right, top to bottom. 0-Indexed.
 	 * @return The requested tile. Null if tile exceeds the number of tiles.
 	 */
 	public BufferedImage getTile(int tile) {
-		/*if (tile >= cols*rows) {
-			return null;
-		}*/
 		return getTile(tile/cols, tile%cols);
 	}
 	/**
 	 * 
-	 * @param y
+	 * @param y 
 	 * @param x 
-	 * @return
+	 * @return 
 	 */
 	public BufferedImage getTile(int y, int x) {
 		if ((x >= cols)|(y >= rows)) {
-			System.out.println("NULL");
 			return null;
 		}
 		return bi.getSubimage(tileWidth*x, tileHeight*y, tileWidth, tileHeight);
+	}
+	public int getCols() {
+		return cols;
 	}
 	public int getWidth() {
 		return tileWidth;

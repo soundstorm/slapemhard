@@ -3,7 +3,6 @@ package de.hshannover.pp.slapemhard.objects;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import de.hshannover.pp.slapemhard.Game;
@@ -14,7 +13,7 @@ public class Person extends CollisionObject {
 	private Weapon weapon;
 	private int maxHealth,health;
 	protected boolean heading;
-	private boolean isPlayer;
+	//private boolean isPlayer;
 	private boolean walking;
 	private boolean jumping;
 	private SpriteSheet animation;
@@ -44,17 +43,19 @@ public class Person extends CollisionObject {
 	public Person(Game game, int health, Rectangle size, PersonName name, boolean isPlayer) {
 		super(game,size);
 		this.health = this.maxHealth = health;
-		this.isPlayer = isPlayer;
+		//this.isPlayer = isPlayer;
 		BufferedImageLoader bL = new BufferedImageLoader();
 		switch (name) {
 			case ANDRE:
 				
 			case LUCA:
-				animation = new SpriteSheet(bL.getImage("images>persons>luca>person.png"),16,56);
-				arm = new SpriteSheet(bL.getImage("images>persons>luca>arm.png"),38,60);
+				animation = new SpriteSheet(bL.getImage("images/persons/luca/person.png"),16,56);
+				arm = new SpriteSheet(bL.getImage("images/persons/luca/arm.png"),38,60);
 				break;
 			case PATRICK:
-				
+				animation = new SpriteSheet(bL.getImage("images/persons/patrick/person.png"),16,56);
+				arm = new SpriteSheet(bL.getImage("images/persons/patrick/arm.png"),38,60);
+				break;
 			case STEFFEN:
 				
 			case ENEMY0:
@@ -71,11 +72,17 @@ public class Person extends CollisionObject {
 		if (health < 0)
 			health = 0;
 	}
+	public void restoreHealth() {
+		health = maxHealth;
+	}
 	public int getHealth() {
 		return health;
 	}
 	public int getMaxHealth() {
 		return maxHealth;
+	}
+	public void setMaxHealth(int maxHealth) {
+		this.maxHealth = maxHealth;
 	}
 	public void setWalking(boolean b) {
 		if (walking == b) return;
@@ -94,6 +101,10 @@ public class Person extends CollisionObject {
 			weapon.setHeading(heading);
 		}
 		boolean collision[] = super.collides(collisions, x, -y);
+		boolean[] cwb = this.collidesWithBounds();
+		if ((cwb[0] && x < 0) | (cwb[2] && x > 0)) {
+			collision[0] = true;
+		}
 		if (!collision[0]) {
 			super.setPosition(super.getPosition().x+x,
 							  super.getPosition().y);
@@ -101,6 +112,10 @@ public class Person extends CollisionObject {
 		if (!collision[1]) {
 			super.setPosition(super.getPosition().x,
 							  super.getPosition().y - y);
+		}
+		if (this.outOfWindow()[3]) {
+			//to notify Player that health has been set to zero and player is dead
+			reduceHealth(health);
 		}
 		return collision;
 	}
@@ -121,7 +136,7 @@ public class Person extends CollisionObject {
 		armed = false;
 	}
 	public void fire() {
-		weapon.fire(new Dimension(super.getPosition().x+22,super.getPosition().y+7));
+		weapon.fire(new Dimension(super.getPosition().x,super.getPosition().y));
 	}
 	@Override
 	public void render (Graphics g) {

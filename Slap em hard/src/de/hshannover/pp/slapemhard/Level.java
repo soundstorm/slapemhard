@@ -17,6 +17,7 @@ import de.hshannover.pp.slapemhard.objects.Bullet;
 import de.hshannover.pp.slapemhard.objects.CollisionObject;
 import de.hshannover.pp.slapemhard.objects.Person;
 import de.hshannover.pp.slapemhard.objects.Player;
+import de.hshannover.pp.slapemhard.objects.PowerUp;
 import de.hshannover.pp.slapemhard.threads.DrawLevelThread;
 import de.hshannover.pp.slapemhard.threads.MoveThread;
 
@@ -25,14 +26,17 @@ public class Level {
 	private ArrayList<CollisionObject> collisionObjects = new ArrayList<CollisionObject>();
 	private ArrayList<Person> enemies = new ArrayList<Person>();
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();
+	private ArrayList<PowerUp> powerups = new ArrayList<PowerUp>();
 	private Game game;
 	private MoveThread mover;
-	private boolean paused;
+	private int levelTime;
 	private BufferedImage landscapeImage;
 	private ArrayList<BufferedImage> backgroundImages = new ArrayList<BufferedImage>();
 	private ArrayList<BufferedImage> foregroundImages = new ArrayList<BufferedImage>();
 	private int width;
 	private Dimension bounds;
+	private DrawLevelThread drawThread;
+	private long startTime;
 	
 	public Level(Game game, int level) {
 		this.game = game;
@@ -43,14 +47,12 @@ public class Level {
 			Document doc = dBuilder.parse(fXmlFile);
 			doc.getDocumentElement().normalize();
 			
-			System.out.println("Root element :"+doc.getDocumentElement().getNodeName());
+			levelTime = Integer.parseInt(doc.getDocumentElement().getAttribute("time"));
 
-			System.out.println("----------------------------");
-
+			//Add collision objects
 			NodeList nList = doc.getElementsByTagName("CollisionObject");
 			for (int temp = 0; temp < nList.getLength(); temp++) {
 				Node nNode = nList.item(temp);
-				System.out.println("\nCurrent Element :" + nNode.getNodeName());
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element eElement = (Element) nNode;
 					collisionObjects
@@ -61,49 +63,99 @@ public class Level {
 										Integer.parseInt(eElement.getAttribute("y")),
 										Integer.parseInt(eElement.getAttribute("width")),
 										Integer.parseInt(eElement.getAttribute("height"))
-								)));
-					System.out.println("x : "
-							+ eElement.getAttribute("x"));
-					System.out.println("y : "
-							+ eElement.getAttribute("y"));
-					System.out.println("width : "
-							+ eElement.getAttribute("width"));
-					System.out.println("height : "
-							+ eElement.getAttribute("height"));
+								)
+						));
 				}
 			}
+			
+			nList = doc.getElementsByTagName("PowerUp");
+			for (int temp = 0; temp < nList.getLength(); temp++) {
+				Node nNode = nList.item(temp);
+				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+					Element eElement = (Element) nNode;
+					powerups
+						.add(new PowerUp(
+								game,
+								new Dimension(
+										Integer.parseInt(eElement.getAttribute("x")),
+										Integer.parseInt(eElement.getAttribute("y"))
+								),
+								Integer.parseInt(eElement.getAttribute("type"))
+						));
+					System.out.println("Added Powerup.");
+				}
+			}
+			
+			//Place player
 			Element playerElement = (Element)doc.getElementsByTagName("Player").item(0);
 			game.getPlayer().setPosition(Integer.parseInt(playerElement.getAttribute("x")), Integer.parseInt(playerElement.getAttribute("y")));
 			
+			//Add Background images
 			BufferedImageLoader bL = new BufferedImageLoader();
 			nList = doc.getElementsByTagName("BackgroundImage");
 			for (int temp = 0; temp < nList.getLength(); temp++) {
 				Node nNode = nList.item(temp);
-				System.out.println("\nCurrent Element :" + nNode.getNodeName());
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element eElement = (Element) nNode;
 					backgroundImages
 						.add(Integer.parseInt(eElement.getAttribute("layer")), bL.getImage("levels/level_"+level+"/"+eElement.getAttribute("src")));
 				}
 			}
+			//Add Foreground images
+			nList = doc.getElementsByTagName("ForegroundImage");
+			for (int temp = 0; temp < nList.getLength(); temp++) {
+				Node nNode = nList.item(temp);
+				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+					Element eElement = (Element) nNode;
+					foregroundImages
+						.add(Integer.parseInt(eElement.getAttribute("layer")), bL.getImage("levels/level_"+level+"/"+eElement.getAttribute("src")));
+				}
+			}
 			
-			
+			//Add main landscape
 			Element landscapeElement = (Element)doc.getElementsByTagName("LandscapeImage").item(0);
 			landscapeImage = bL.getImage("levels/level_"+level+"/"+landscapeElement.getAttribute("src"));
 			width = landscapeImage.getWidth();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		DrawLevelThread drawThread = new DrawLevelThread(this);
+		this.bounds = new Dimension(width,game.getGameSize().height);
+	}
+	
+	public void start() {
+		System.out.println("Starting level");
+		drawThread = new DrawLevelThread(this);
 		drawThread.setPreferredSize(new Dimension(game.getFrame().getWidth(), game.getFrame().getHeight()));
 		drawThread.setBounds(new Rectangle(0,0,game.getFrame().getWidth(), game.getFrame().getHeight()));
 		game.getFrame().add(drawThread);
 		drawThread.addKeyListener(new LevelKeyboardListener(this));
-		mover = new MoveThread(this);
 		drawThread.start();
+		System.out.println("Started drawThread");
+		mover = new MoveThread(this);
 		mover.start();
-		bounds = new Dimension(width,game.getGameSize().height);
+		System.out.println("Started mover");
+		startTime = System.currentTimeMillis();
+	}
+	
+	public void stop() {
+		System.out.println("Stopping mover");
+		mover.interrupt();
+		System.out.println("Stopping drawThread");
+		drawThread.interrupt();
+		System.out.println("Stopped");
+		game.getFrame().remove(drawThread);
+	}
+	
+	public boolean done() {
+		return false;
+	}
+	
+	public String getRemainingTime() {
+		return ""+(levelTime*100-(System.currentTimeMillis()-startTime)/10);
+	}
+	
+	public boolean timeUp() {
+		return System.currentTimeMillis() > startTime+levelTime*1000;
 	}
 	
 	public BufferedImage getLandscapeImage() {
@@ -120,6 +172,10 @@ public class Level {
 
 	public ArrayList<CollisionObject> getCollisionObjects() {
 		return collisionObjects;
+	}
+	
+	public ArrayList<PowerUp> getPowerUps() {
+		return powerups;
 	}
 
 	public Player getPlayer() {
@@ -144,5 +200,9 @@ public class Level {
 
 	public Game getGame() {
 		return game;
+	}
+
+	public ArrayList<BufferedImage> getForegroundImages() {
+		return foregroundImages;
 	}
 }

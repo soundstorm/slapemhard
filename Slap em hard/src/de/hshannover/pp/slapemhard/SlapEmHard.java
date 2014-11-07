@@ -1,7 +1,121 @@
 package de.hshannover.pp.slapemhard;
 
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.DisplayMode;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+//import java.net.URL;
+
+//import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 public class SlapEmHard {
+	private static JFrame frame;
+	private static boolean fullscreen;
+	private static double scale;
+	private static Dimension gameSize;
 	public static void main(String[] args) {
-		new Menu();
+		JFrame.setDefaultLookAndFeelDecorated(true);
+		frame = new JFrame("Slap Em Hard");
+		frame.setUndecorated(true);
+		//URL iconURL = getClass().getResource("/res/images/icon.png");
+		//ImageIcon icon = new ImageIcon(iconURL);
+		//frame.setIconImage(icon.getImage());
+
+		Object[] options = { "Ja", "Nein" };
+		int n = JOptionPane.showOptionDialog(null,
+				"Switch to fullscreen?", "Fullscreen",
+				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
+				null, options, options[0]);
+		if (n == JOptionPane.YES_OPTION) {
+			fullscreen = true;
+		}
+		gameSize = new Dimension(320,240);
+		
+		scale = 2.5;
+		frame.setSize((int)(scale*gameSize.width), (int)(scale*gameSize.height));
+		// http://stackoverflow.com/questions/11225113/change-screen-resolution-in-java
+		GraphicsEnvironment ge = GraphicsEnvironment
+				.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gs = ge.getScreenDevices();
+		GraphicsDevice device = gs[0];
+		DisplayMode oldDisplayMode = device.getDisplayMode();
+		frame.setVisible(true);
+		frame.setResizable(false);
+		/*Preferred sizes:
+		SCALEFACTOR	NAME	RESOLUTION
+		5			UXGA	1600x1200
+		4.5					1440x1080
+		4					1280x 960
+		3.6			XGA+	1152x 964
+		3.2			XGA		1024x 768
+		2.5			SVGA	 800x 600
+		2.4			PAL		 768x 576
+		2			VGA		 640x 480
+		1			QVGA	 320x 240
+		
+		*/
+		double scales[] = {1,2,4,5,4.5,2.5,3.6,3.2,2.4};
+		if (device.isDisplayChangeSupported() && device.isFullScreenSupported() && fullscreen) {
+			for (int i = 0; i < scales.length; i++) {
+				try {
+					//throw new Exception("");
+					//device.setDisplayMode(new DisplayMode(frame.getWidth(), frame.getHeight(), 32, 0));
+					device.setDisplayMode(new DisplayMode((int)(gameSize.width*scales[i]), (int)(gameSize.height*scales[i]), 32, 0));
+					device.setFullScreenWindow(frame);
+					Toolkit toolkit = Toolkit.getDefaultToolkit();
+					Point hotSpot = new Point(0, 0);
+					BufferedImage cursorImage = new BufferedImage(1, 1,
+							BufferedImage.TRANSLUCENT);
+					Cursor invisibleCursor = toolkit.createCustomCursor(
+							cursorImage, hotSpot, "InvisibleCursor");
+					frame.setCursor(invisibleCursor);
+					fullscreen = true;
+					scale = scales[i];
+					break;
+				} catch (Exception e) {
+					fullscreen = false;
+				}
+			}
+			if (!fullscreen) {
+				device.setFullScreenWindow(null);
+				device.setDisplayMode(oldDisplayMode);
+				JOptionPane.showMessageDialog(frame, "Fullscreen is not supported.");
+			}
+		}
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		//graphics = frame.getGraphics();
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				System.out.println("EXIT/ALT+F4/CMD+Q Fired");
+			}
+		});
+		frame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent we) {
+				confirmQuit();
+			}
+		});
+		new Menu(frame, gameSize, scale);
+	}
+	
+	private static void confirmQuit() {
+		Object[] options = {"Quit", "Cancel"};
+		int n = JOptionPane.showOptionDialog(null,
+				"Do you really want to quit?", "Quit game",
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE,
+				null, options, options[1]);
+		if (n == JOptionPane.OK_OPTION) {
+			System.exit(0);
+		} else {
+			return;
+		}
 	}
 }

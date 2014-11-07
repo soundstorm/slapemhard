@@ -1,11 +1,7 @@
 package de.hshannover.pp.slapemhard.objects;
 
 import java.awt.Dimension;
-//import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.*;
-
-import javax.imageio.ImageIO;
+import java.util.ArrayList;
 
 import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.images.SpriteSheet;
@@ -30,21 +26,19 @@ public class BulletType {
 		ROCKETLAUNCHER,
 		MACHINEGUN
 	};
-	private static BufferedImage rocket;
+	private static BufferedImageLoader bL = new BufferedImageLoader();
 	private Dimension size;
-	private BufferedImage image;
 	private int destruction;
 	private int range;
 	private int speed;
+	private int ammo;
 	private boolean usesGravity;
-	private int tileHeight;
-	private int tileWidth;
 	private SpriteSheet explosion;
 	private SpriteSheet weapon;
 	private SpriteSheet bullet;
+	private ArrayList<Dimension> offsets = new ArrayList<Dimension>();
 	private int tiles;
 	public BulletType(BulletName name) {
-		BufferedImageLoader bL = new BufferedImageLoader();
 		switch (name) {
 			case HANDGUN:
 				this.size = new Dimension(2,1);
@@ -54,21 +48,22 @@ public class BulletType {
 				break;
 			case ROCKETLAUNCHER:
 				this.size = new Dimension(10,7);
-				this.destruction = 50;
+				this.destruction = 20;
 				this.range = 10;
 				this.speed = 40;
-				this.tileWidth = 64;
-				this.tileHeight = 64;
 				this.tiles = 24;
+				this.ammo = 25;
 				this.usesGravity = true;
-				this.image = bL.getImage("images>rocket.png");
-				this.explosion = new SpriteSheet(bL.getImage("images>weapons>rocketlauncher>explosion.png"),tileWidth,tileHeight);
-				this.weapon = new SpriteSheet(bL.getImage("images>weapons>rocketlauncher>weapon.png"),48,60);
-				this.bullet = new SpriteSheet(bL.getImage("images>weapons>rocketlauncher>bullet.png"),10,11);
+				this.explosion = new SpriteSheet(bL.getImage("images/weapons/rocketlauncher/explosion.png"),64,64);
+				this.weapon = new SpriteSheet(bL.getImage("images/weapons/rocketlauncher/weapon.png"),48,60);
+				this.bullet = new SpriteSheet(bL.getImage("images/weapons/rocketlauncher/bullet.png"),10,11);
+				offsets.add(new Dimension(2,15)); //Facing down
+				offsets.add(new Dimension(5,6));  //Facing straight
+				offsets.add(new Dimension(2,-5));  //Facing down
 				break;
 			case MACHINEGUN:
 				this.size = new Dimension(15,20);
-				this.destruction = 40;
+				this.destruction = 4;
 				this.range = 30;
 				this.speed = 20;
 				this.usesGravity = true;
@@ -78,9 +73,8 @@ public class BulletType {
 	public Dimension getSize() {
 		return size;
 	}
-	@Deprecated
-	public BufferedImage getImage() {
-		return image;
+	public ArrayList<Dimension> getOffsets() {
+		return offsets;
 	}
 	public int getDestruction() {
 		return destruction;
@@ -105,5 +99,8 @@ public class BulletType {
 	}
 	public int getAnimationLength() {
 		return tiles;
+	}
+	public int getAmmo() {
+		return ammo;
 	}
 }

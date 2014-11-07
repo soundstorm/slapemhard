@@ -19,8 +19,6 @@ public class CollisionObject {
 	}
 	public boolean[] collides(ArrayList<CollisionObject> collisions, int x, int y) {
 		boolean collision[] = {false,false};
-		if (size.x+x <= 0)		//Out of Panel width
-			collision[0] = true;
 
 		Rectangle xColl = new Rectangle(this.getPosition().x+x,this.getPosition().y,this.getPosition().width,this.getPosition().height);
 		Rectangle yColl = new Rectangle(this.getPosition().x,this.getPosition().y+y,this.getPosition().width,this.getPosition().height);
@@ -44,9 +42,11 @@ public class CollisionObject {
 		}
 		return collision;
 	}
-	public boolean outOfWindow() {
-		//TODO migrate windowsize
-		return size.x+size.width < 0 | size.y+size.height < 0 | size.y > 480;
+	public boolean[] outOfWindow() {
+		return new boolean[] {size.x+size.width < 0, size.y+size.height < 0, size.x > game.getBounds().width, size.y > game.getBounds().height};
+	}
+	public boolean[] collidesWithBounds() {
+		return new boolean[] {size.x <= 0, size.y <= 0, size.x+size.width >= game.getBounds().width, size.y+size.width >= game.getBounds().height};
 	}
 	
 	@Deprecated
@@ -60,7 +60,7 @@ public class CollisionObject {
 	}
 	
 	public void render(Graphics g) {
-		//TODO remove fillRect if background is there
+		//TODO remove fillRect as it's just for debugging
 		g.setColor(new Color(255, 0, 0, 50));
 		g.fillRect(size.x, size.y, size.width, size.height);
 	}

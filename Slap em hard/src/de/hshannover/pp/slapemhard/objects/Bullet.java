@@ -3,7 +3,6 @@ package de.hshannover.pp.slapemhard.objects;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import de.hshannover.pp.slapemhard.Game;
@@ -13,7 +12,6 @@ public class Bullet extends CollisionObject {
 	private double angle;
 	private BulletType type;
 	private Dimension origin;
-	private int travelled;
 	private ArrayList<Person> persons;
 	private Game game;
 	private boolean explode,exploded;
@@ -30,7 +28,6 @@ public class Bullet extends CollisionObject {
 		this.origin = origin;
 		this.type = type;
 		this.originAngle = Math.toRadians(degree);
-		angle = originAngle;
 		if (fromPlayer) {
 			this.persons = game.getEnemies();
 		} else {
@@ -38,6 +35,11 @@ public class Bullet extends CollisionObject {
 			this.persons.add(game.getPlayer());
 		}
 		heading = 90<degree && degree<270;
+		angle = this.originAngle;
+		if (heading) {
+			angle = (Math.PI+angle)%(2*Math.PI);
+		}
+		
 		firstMove = System.currentTimeMillis();
 	}
 	/**
@@ -58,13 +60,13 @@ public class Bullet extends CollisionObject {
 		int y = super.getPosition().y-(int)(origin.height - type.getSpeed() * Math.sin(originAngle) * t);
 		if (type.getGravity()) {
 			y -=  (int)((g/2.0) * t * t);
-			//degree = originAngle
+			//if (Math.abs(super.getPosition().x-origin.width) > 3)
+				angle = (2*Math.PI-Math.atan(Math.abs(super.getPosition().x-origin.width)*g*2/Math.cos(originAngle)/type.getSpeed()/type.getSpeed()-Math.tan(originAngle)))%(2*Math.PI);
 		}
 		//Curve of flight: f(x) = h0-g/(2*v0^2*cos(α))*2x^2+x*tan(α)
 		//Angle = atan(f'(x))
 		//-atan(g^2*x*sec(α)/v0^2-tan(α))
 		//-atan(g^2*x/cos(α)/v0^2-tan(α)
-		angle = (2*Math.PI-Math.atan(Math.abs(super.getPosition().x-origin.width)*g*2/Math.cos(originAngle)/type.getSpeed()/type.getSpeed()-Math.tan(originAngle)))%(2*Math.PI);
 		
 		//only check if bullet has moved
 		if (x != 0 | y != 0) {
@@ -113,16 +115,21 @@ public class Bullet extends CollisionObject {
 			return heading?1:-1; //downwards
 		}
 	}
-	@Deprecated
-	public BufferedImage getImage() {
-		return type.getImage();
-	}
 	public Dimension getSize() {
 		return type.getSize();
 	}
 	private void explode() {
 		explode = true;
-		//TODO animation stuff & destruction in ambit
+		Rectangle explosion = new Rectangle(super.getPosition().x-(type.getExplosion().getWidth()-super.getPosition().width)/2, super.getPosition().y-(type.getExplosion().getHeight()-super.getPosition().height)/2, type.getExplosion().getWidth(), type.getExplosion().getHeight());
+		for (int i = 0; i < game.getEnemies().size(); i++) {
+			if (game.getEnemies().get(i).getPosition().intersects(explosion)) {
+				game.getEnemies().get(i).reduceHealth(type.getDestruction());
+			}
+		}
+		if (game.getPlayer().getPosition().intersects(explosion)) {
+			game.getPlayer().reduceHealth(type.getDestruction());
+		}
+		
 	}
 	public boolean isExploded() {
 		return exploded;

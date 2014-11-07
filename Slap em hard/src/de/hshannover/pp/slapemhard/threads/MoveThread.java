@@ -4,15 +4,26 @@ import de.hshannover.pp.slapemhard.*;
 
 public class MoveThread extends Thread {
 	private boolean moveLeft,moveRight,jump,fire;
-	int jumped;
-	Level level;
+	private int jumped;
+	private Level level;
+	private boolean running;
+	
 	public MoveThread(Level level) {
 		super("Moving Thread");
 		this.level = level;
 	}
 	@Override
+	public void start() {
+		running = true;
+		super.start();
+	}
+	@Override
+	public void interrupt() {
+		running = false;
+	}
+	@Override
 	public synchronized void run() {
-		while (true) {
+		while (running) {
 			if (moveLeft) {
 				level.getPlayer().move(-1, 0, level.getCollisionObjects());
 			} else

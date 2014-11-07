@@ -15,13 +15,12 @@ import de.hshannover.pp.slapemhard.objects.*;
 
 public class DrawLevelThread extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
-	boolean running;
-	Level level;
+	private boolean running;
+	private Level level;
 	private Thread thread;
-	int fps = 30;
-	SpriteSheet lives;
-	double scale;
-	//public static int WIDTH, HEIGHT;
+	private int fps = 30;
+	private static SpriteSheet lives = new SpriteSheet((new BufferedImageLoader()).getImage("images/lives.png"),11,11);
+	private double scale;
 	private Dimension gameSize;
 	
 	public DrawLevelThread(Level level) {
@@ -30,17 +29,19 @@ public class DrawLevelThread extends Canvas implements Runnable {
 		this.scale = level.getGame().getScale();
 		this.gameSize = level.getGame().getGameSize();
 		setIgnoreRepaint(true);
-		lives = new SpriteSheet((new BufferedImageLoader()).getImage("images>lives.png"),11,11);
 	}
 	
 	private void init(){
-		/*WIDTH = game.getFrame().getWidth();
-		HEIGHT = game.getFrame().getHeight();
-		System.out.println(getWidth()+" "+getHeight());*/
+	}
+	
+	public void interrupt() {
+		running = false;
+		//thread.interrupt();
 	}
 	
 	public synchronized void start(){
 		if(running){
+			System.out.println("Draw Thread alread running");
 			return;
 		}
 		running = true;
@@ -56,7 +57,6 @@ public class DrawLevelThread extends Canvas implements Runnable {
 		double ns = 1000000000 / amountOfTicks;
 		double delta = 0;
 		long timer = System.currentTimeMillis();
-		int updates = 0;
 		int frames = 0;
 		//int waitDuration = 0;
 		long waitDuration = 0L;
@@ -66,7 +66,6 @@ public class DrawLevelThread extends Canvas implements Runnable {
 			lastTime = now;
 			while(delta > 0){
 				tick();
-				updates++;
 				delta--;
 			}
 			render();
@@ -77,7 +76,6 @@ public class DrawLevelThread extends Canvas implements Runnable {
 				//System.out.println("FPS: " + frames + " TICKS: " + updates);
 				fps = frames;
 				frames = 0;
-				updates = 0;
 			}
 			if (fps < 20) {
 				//Don't wait if frame rate drops
@@ -95,7 +93,9 @@ public class DrawLevelThread extends Canvas implements Runnable {
 			try {
 				//more precise if using a long instead:
 				Thread.sleep((int)(waitDuration/1000000), (int)(waitDuration%1000000));
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -103,13 +103,22 @@ public class DrawLevelThread extends Canvas implements Runnable {
 		for (int i = 0; i < level.getBullets().size(); i++) {
 			Bullet obj = level.getBullets().get(i);
 			obj.move();
-			if (obj.isExploded() | obj.outOfWindow()) {
+			boolean[] oow = obj.outOfWindow();
+			if (obj.isExploded() | oow[0] | (!obj.getGravity() && oow[1]) | oow[2] | oow[3]) {
 				level.getBullets().remove(obj);
+				System.out.println("Removed bullet");
 				i--;
 				continue;
 			}
 		}
 	}
+	
+	/*private boolean checkIfAnyIsTrue(boolean[] booleans) {
+		for (boolean b : booleans) {
+			if (b) return true;
+		}
+		return false;
+	}*/
 	
 	private void render(){
 		BufferStrategy bs = this.getBufferStrategy();
@@ -143,30 +152,50 @@ public class DrawLevelThread extends Canvas implements Runnable {
 		}
 		
 		for (int i = 0; i < level.getBullets().size(); i++) {
-			Bullet obj = level.getBullets().get(i);
-			obj.render(g);
+			try {
+				level.getBullets().get(i).render(g);
+			} catch (Exception e) {}
+		}
+		
+		for (int i = 0; i < level.getPowerUps().size(); i++) {
+			try {
+				level.getPowerUps().get(i).render(g);
+			} catch (Exception e) {
+				System.out.println("Cant render Powerup");
+			}
 		}
 		
 		for (Person ro : level.getEnemies()) {
-			ro.render(g);
+			try {
+				ro.render(g);
+			} catch (Exception e) {}
 		}
 		level.getPlayer().render(g);
 		
 		//
 		g2d.translate(xoffset, 0);
 		
+		for (BufferedImage fI : level.getForegroundImages()) {
+			g.drawImage(fI, -xoffset*(fI.getWidth()-gameSize.width)/(level.getBounds().width-gameSize.width), 0, null);
+		}
+		
 		//Draw HUD
-		g.setColor(Color.WHITE);
-		g.fillRect(5,5,50,20);
+		g.setColor(new Color(255, 255, 255, 127));
+		g.fillRect(5,5,50,30);
 		g.setColor(Color.BLACK);
 		g.setFont(level.getFont().deriveFont(Font.PLAIN,8));
 		g.drawString("BULLETS: "+level.getPlayer().getWeapon().getAmmo(), 10, 13);
 		g.drawString("FPS: "+fps, 10, 20);
+		g.drawString(level.getRemainingTime(), 10, 27);
 		for (int i=0; i < level.getPlayer().getLives(); i++) {
 			if (i != level.getPlayer().getLives()-1) {
 				g.drawImage(lives.getTile(9), 60+i*12, 10, null);
 			} else {
-				g.drawImage(lives.getTile(9*level.getPlayer().getHealth()/level.getPlayer().getMaxHealth()), 60+i*12, 10, null);
+				if (level.getPlayer().isInvincable()) {
+					g.drawImage(lives.getTile(10), 60+i*12, 10, null);
+				} else {
+					g.drawImage(lives.getTile(9*level.getPlayer().getHealth()/level.getPlayer().getMaxHealth()), 60+i*12, 10, null);
+				}
 			}
 		}
 		
