@@ -12,17 +12,10 @@ import javax.xml.parsers.*;
 import org.w3c.dom.*;
 
 import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
-import de.hshannover.pp.slapemhard.listener.LevelKeyboardListener;
-import de.hshannover.pp.slapemhard.objects.Bullet;
-import de.hshannover.pp.slapemhard.objects.CollisionObject;
-import de.hshannover.pp.slapemhard.objects.Person;
-import de.hshannover.pp.slapemhard.objects.Player;
-import de.hshannover.pp.slapemhard.objects.PowerUp;
-import de.hshannover.pp.slapemhard.threads.DrawLevelThread;
+import de.hshannover.pp.slapemhard.objects.*;
 import de.hshannover.pp.slapemhard.threads.MoveThread;
 
 public class Level {
-
 	private ArrayList<CollisionObject> collisionObjects = new ArrayList<CollisionObject>();
 	private ArrayList<Person> enemies = new ArrayList<Person>();
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();
@@ -35,7 +28,6 @@ public class Level {
 	private ArrayList<BufferedImage> foregroundImages = new ArrayList<BufferedImage>();
 	private int width;
 	private Dimension bounds;
-	private DrawLevelThread drawThread;
 	private long startTime;
 	
 	public Level(Game game, int level) {
@@ -90,6 +82,25 @@ public class Level {
 			Element playerElement = (Element)doc.getElementsByTagName("Player").item(0);
 			game.getPlayer().setPosition(Integer.parseInt(playerElement.getAttribute("x")), Integer.parseInt(playerElement.getAttribute("y")));
 			
+			
+			nList = doc.getElementsByTagName("Enemy");
+			for (int temp = 0; temp < nList.getLength(); temp++) {
+				Node nNode = nList.item(temp);
+				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+					Element eElement = (Element) nNode;
+					Person enemy = new Person(game,
+						Integer.parseInt(eElement.getAttribute("health")),
+						new Dimension(
+							Integer.parseInt(eElement.getAttribute("x")),
+							Integer.parseInt(eElement.getAttribute("y"))
+						),
+						Person.PersonName.values()[Integer.parseInt(eElement.getAttribute("look"))]
+					);
+					enemy.setPower(Integer.parseInt(eElement.getAttribute("power")));
+					enemy.setWeapon(new Weapon(game, new BulletType(BulletType.BulletName.values()[Integer.parseInt(eElement.getAttribute("weapon"))])));
+					enemies.add(enemy);
+				}
+			}
 			//Add Background images
 			BufferedImageLoader bL = new BufferedImageLoader();
 			nList = doc.getElementsByTagName("BackgroundImage");
@@ -98,7 +109,7 @@ public class Level {
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element eElement = (Element) nNode;
 					backgroundImages
-						.add(Integer.parseInt(eElement.getAttribute("layer")), bL.getImage("levels/level_"+level+"/"+eElement.getAttribute("src")));
+						.add(bL.getImage("levels/level_"+level+"/"+eElement.getAttribute("src")));
 				}
 			}
 			//Add Foreground images
@@ -108,7 +119,7 @@ public class Level {
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element eElement = (Element) nNode;
 					foregroundImages
-						.add(Integer.parseInt(eElement.getAttribute("layer")), bL.getImage("levels/level_"+level+"/"+eElement.getAttribute("src")));
+						.add(bL.getImage("levels/level_"+level+"/"+eElement.getAttribute("src")));
 				}
 			}
 			
@@ -121,37 +132,43 @@ public class Level {
 		}
 		this.bounds = new Dimension(width,game.getGameSize().height);
 	}
-	
+	/**
+	 * Runs the level
+	 */
 	public void start() {
-		System.out.println("Starting level");
-		drawThread = new DrawLevelThread(this);
-		drawThread.setPreferredSize(new Dimension(game.getFrame().getWidth(), game.getFrame().getHeight()));
-		drawThread.setBounds(new Rectangle(0,0,game.getFrame().getWidth(), game.getFrame().getHeight()));
-		game.getFrame().add(drawThread);
-		drawThread.addKeyListener(new LevelKeyboardListener(this));
-		drawThread.start();
-		System.out.println("Started drawThread");
 		mover = new MoveThread(this);
 		mover.start();
-		System.out.println("Started mover");
 		startTime = System.currentTimeMillis();
+		for (Person e : enemies) {
+			e.setAutonomous();
+		}
 	}
-	
+	/**
+	 * Stops all Threads
+	 */
 	public void stop() {
 		System.out.println("Stopping mover");
+		for (Person p : game.getEnemies()) {
+			p.stop();
+		}
 		mover.interrupt();
-		System.out.println("Stopping drawThread");
-		drawThread.interrupt();
-		System.out.println("Stopped");
-		game.getFrame().remove(drawThread);
 	}
-	
+	/**
+	 * Returns if Level is completed
+	 * @return if Level is completed
+	 */
 	public boolean done() {
 		return false;
 	}
 	
-	public String getRemainingTime() {
-		return ""+(levelTime*100-(System.currentTimeMillis()-startTime)/10);
+	public long getRemainingTime() {
+		long tR = levelTime*100-(System.currentTimeMillis()-startTime)/10;
+		if (tR < 0) {
+			synchronized(game) {
+				game.notify();
+			}
+		}
+		return (tR > 0)?tR:0;
 	}
 	
 	public boolean timeUp() {

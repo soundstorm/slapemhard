@@ -6,21 +6,32 @@ import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 //import java.net.URL;
 
+
+
 //import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import de.hshannover.pp.slapemhard.listener.KeyboardListener;
+import de.hshannover.pp.slapemhard.threads.DrawThread;
+/**
+ * Main program to start needed instances and Menu
+ * @author SoundStorm
+ *
+ */
 public class SlapEmHard {
 	private static JFrame frame;
 	private static boolean fullscreen;
 	private static double scale;
 	private static Dimension gameSize;
+	private static DrawThread drawThread;
 	public static void main(String[] args) {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		frame = new JFrame("Slap Em Hard");
@@ -39,7 +50,7 @@ public class SlapEmHard {
 		}
 		gameSize = new Dimension(320,240);
 		
-		scale = 2.5;
+		scale = 2.0;
 		frame.setSize((int)(scale*gameSize.width), (int)(scale*gameSize.height));
 		// http://stackoverflow.com/questions/11225113/change-screen-resolution-in-java
 		GraphicsEnvironment ge = GraphicsEnvironment
@@ -95,7 +106,7 @@ public class SlapEmHard {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				System.out.println("EXIT/ALT+F4/CMD+Q Fired");
+				System.out.println("Quit");
 			}
 		});
 		frame.addWindowListener(new WindowAdapter() {
@@ -103,9 +114,21 @@ public class SlapEmHard {
 				confirmQuit();
 			}
 		});
-		new Menu(frame, gameSize, scale);
+		Menu menu = new Menu(frame, gameSize, scale);
+		KeyboardListener keyboardListener = new KeyboardListener(menu);
+
+		drawThread = new DrawThread(menu);
+		frame.add(drawThread);
+		drawThread.setPreferredSize(new Dimension(frame.getWidth(), frame.getHeight()));
+		drawThread.setBounds(new Rectangle(0,0,frame.getWidth(), frame.getHeight()));
+		drawThread.addKeyListener(keyboardListener);
+		drawThread.setFocusable(true);
+		drawThread.start();
 	}
 	
+	/**
+	 * Shows dialog if trying to close frame by {@link WindowAdapter#windowClosing(WindowEvent)}
+	 */
 	private static void confirmQuit() {
 		Object[] options = {"Quit", "Cancel"};
 		int n = JOptionPane.showOptionDialog(null,
@@ -113,6 +136,7 @@ public class SlapEmHard {
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE,
 				null, options, options[1]);
 		if (n == JOptionPane.OK_OPTION) {
+			//drawThread.interrupt();
 			System.exit(0);
 		} else {
 			return;

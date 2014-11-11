@@ -7,6 +7,8 @@ public class MoveThread extends Thread {
 	private int jumped;
 	private Level level;
 	private boolean running;
+	private int shots;
+	private int lastFired;
 	
 	public MoveThread(Level level) {
 		super("Moving Thread");
@@ -35,11 +37,18 @@ public class MoveThread extends Thread {
 			} else {
 				level.getPlayer().setWalking(false);
 			}
-			boolean[] collision = level.getPlayer().move(0, jump?1:-1, level.getCollisionObjects()); //Gravity
+			boolean[] collision = level.getPlayer().move(0, jump?-1:1, level.getCollisionObjects()); //Gravity
 			if (jump | !collision[1]) {
 				level.getPlayer().setJumping(true);
 			} else {
 				level.getPlayer().setJumping(false);
+			}
+			if (fire && (shots == 0 | level.getPlayer().getWeapon().getType().isAutomatic())) {
+				if (lastFired == 0) {
+					level.getPlayer().fire();
+					shots++;
+				}
+				lastFired = (lastFired+1) % 10;
 			}
 			if (jump && (collision[1] | jumped >= 70)) { //Collision with object above or reached max jump height
 				jump = false;
@@ -55,4 +64,5 @@ public class MoveThread extends Thread {
 	public void setLeft(boolean b) {moveLeft=b;}
 	public void setRight(boolean b) {moveRight=b;}
 	public void setJump(boolean b) {jump=b; jumped = 0;}
+	public void setFire(boolean b) {fire = b; shots = 0; lastFired = 0;}
 }

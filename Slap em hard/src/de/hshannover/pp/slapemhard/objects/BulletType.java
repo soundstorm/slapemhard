@@ -38,13 +38,25 @@ public class BulletType {
 	private SpriteSheet bullet;
 	private ArrayList<Dimension> offsets = new ArrayList<Dimension>();
 	private int tiles;
+	private boolean automatic;
+	private int precision;
 	public BulletType(BulletName name) {
+		//Bullets must be not faster than 70
 		switch (name) {
 			case HANDGUN:
 				this.size = new Dimension(2,1);
-				this.destruction = 2;
+				this.destruction = 5;
 				this.range = 1;
-				this.speed = 100;
+				this.ammo = 60;
+				this.speed = 60;
+				this.tiles = 4;
+				this.explosion = new SpriteSheet(bL.getImage("images/weapons/handgun/explosion.png"),3,3);
+				this.weapon = new SpriteSheet(bL.getImage("images/weapons/handgun/weapon.png"),48,60);
+				this.bullet = new SpriteSheet(bL.getImage("images/weapons/handgun/bullet.png"),2,3);
+				this.offsets.add(new Dimension(17,23));	//Facing down
+				this.offsets.add(new Dimension(20,12));	//Facing straight
+				this.offsets.add(new Dimension(15,3));	//Facing up
+				
 				break;
 			case ROCKETLAUNCHER:
 				this.size = new Dimension(10,7);
@@ -52,21 +64,30 @@ public class BulletType {
 				this.range = 10;
 				this.speed = 40;
 				this.tiles = 24;
-				this.ammo = 25;
+				this.ammo = 20;
 				this.usesGravity = true;
 				this.explosion = new SpriteSheet(bL.getImage("images/weapons/rocketlauncher/explosion.png"),64,64);
 				this.weapon = new SpriteSheet(bL.getImage("images/weapons/rocketlauncher/weapon.png"),48,60);
 				this.bullet = new SpriteSheet(bL.getImage("images/weapons/rocketlauncher/bullet.png"),10,11);
-				offsets.add(new Dimension(2,15)); //Facing down
-				offsets.add(new Dimension(5,6));  //Facing straight
-				offsets.add(new Dimension(2,-5));  //Facing down
+				this.offsets.add(new Dimension(17,17));	//Facing down
+				this.offsets.add(new Dimension(16,6));	//Facing straight
+				this.offsets.add(new Dimension(11,0));	//Facing up
 				break;
 			case MACHINEGUN:
-				this.size = new Dimension(15,20);
-				this.destruction = 4;
+				this.size = new Dimension(2,1);
+				this.destruction = 3;
+				this.precision = 10;
 				this.range = 30;
-				this.speed = 20;
-				this.usesGravity = true;
+				this.speed = 70;
+				this.ammo = 240;
+				this.tiles = 4;
+				this.automatic = true;
+				this.explosion = new SpriteSheet(bL.getImage("images/weapons/machinegun/explosion.png"),3,3);
+				this.weapon = new SpriteSheet(bL.getImage("images/weapons/machinegun/weapon.png"),48,60);
+				this.bullet = new SpriteSheet(bL.getImage("images/weapons/machinegun/bullet.png"),2,3);
+				this.offsets.add(new Dimension(18,24));	//Facing down
+				this.offsets.add(new Dimension(22,13));	//Facing straight
+				this.offsets.add(new Dimension(15,4));	//Facing up
 				break;
 		}
 	}
@@ -102,5 +123,11 @@ public class BulletType {
 	}
 	public int getAmmo() {
 		return ammo;
+	}
+	public int getPrecision() {
+		return precision;
+	}
+	public boolean isAutomatic() {
+		return automatic;
 	}
 }

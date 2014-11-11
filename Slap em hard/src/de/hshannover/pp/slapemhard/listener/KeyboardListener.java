@@ -2,7 +2,7 @@ package de.hshannover.pp.slapemhard.listener;
 
 import java.awt.event.*;
 
-import de.hshannover.pp.slapemhard.SlapEmHard;
+import de.hshannover.pp.slapemhard.*;
 
 /**
  * Implementation of KeyListener for Games.<br />
@@ -36,60 +36,39 @@ import de.hshannover.pp.slapemhard.SlapEmHard;
  */
 public class KeyboardListener implements KeyListener {
 	private boolean spacePressed;	//Only allow jumping once when pressed
-	SlapEmHard game;
+	Menu menu;
 	/**
 	 * 
-	 * @param game Superclass
+	 * @param menu Superclass
 	 */
-	public KeyboardListener (SlapEmHard game) {
+	public KeyboardListener (Menu menu) {
 		//super();
-		this.game = game;
+		this.menu = menu;
 	}
 	/**
 	 * Does nothing, just implemented.
 	 * @see java.awt.event.KeyListener#keyTyped (java.awt.event.KeyEvent)
 	 */
 	@Override
-	public void keyTyped(KeyEvent e){}
+	public void keyTyped(KeyEvent e){
+	}
 	/**
 	 * Sets the moving thread to move accordingly, fires the weapon or maintains the menu.
 	 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
 	 */
 	@Override
 	public void keyPressed(KeyEvent e) {
-		toggleEvent(e.getKeyCode(),true);
-		/*
-		switch (e.getKeyCode()) {
-			case 17: //Ctrl/Strg
-				if (!spacePressed) {
-					boolean collision[] = game.getPlayer().collides(game.getCollisionObjects(),0,1);	//Check if on floor
-					if (collision[1]) {																	//Only Jump, when on floor
-						game.getMoveThread().setJump(true);
-					}
-					spacePressed = true;
-				}
-				break;
-			case 18: //Alt
-				//fire
-				game.getPlayer().fire();
-				break;
-			case 27: //ESC
-				//menu
-				break;
-			case 65: case 37: //A <
-				game.getMoveThread().setLeft(true);
-				break;
-			case 68: case 39: //D >
-				game.getMoveThread().setRight(true);
-				break;
-			case 38: case 87:	//W ^
-				game.getPlayer().getWeapon().setAngle(1);
-			case 40: case 83:	//S v
-				game.getPlayer().getWeapon().setAngle(-1);
-			default:
-				System.out.println(e.getKeyCode());
+		if (e.getKeyCode() == '5') {
+			menu.addCredits();
+			return;
 		}
-		*/
+		if (menu.getLevel() != null) {
+			toggleEvent(e.getKeyCode(),true);
+		} else if (menu.getGame() != null) {
+			menu.getGame().keyEvent(e.getKeyCode());
+		} else {
+			menu.keyEvent(e.getKeyCode());
+		}
 	}
 	/**
 	 * Sets the threads to stop behavior according to the key if any of the keys is released.
@@ -97,64 +76,55 @@ public class KeyboardListener implements KeyListener {
 	 */
 	@Override
 	public void keyReleased(KeyEvent e) {
-		toggleEvent(e.getKeyCode(), false);
-		/*switch (e.getKeyCode()) {
-			case 17: //Ctrl/Strg
-				game.getMoveThread().setJump(false);
-				spacePressed = false;
-				break;
-			case 18: //Alt
-				//fire
-				break;
-			case 27: //ESC
-				//menu
-				break;
-			case 65: case 37: //A <
-				game.getMoveThread().setLeft(false);
-				break;
-			case 68: case 39: //D >
-				game.getMoveThread().setRight(false);
-				break;
-			default:
-				System.out.println(e.getKeyCode());
-		}*/
+		if (menu.getLevel() != null)
+			toggleEvent(e.getKeyCode(), false);
 	}
 	
 	private void toggleEvent(int keyCode, boolean state) {
+		Level level = menu.getLevel();
 		switch (keyCode) {
-			case 17: //Ctrl/Strg
+			case 27: //ESC
+				synchronized (menu.getGame()) {
+					menu.getGame().notify();
+				}
+			case 17: case 16: //Ctrl/Strg Shift
 				if (!spacePressed && state) {
-					boolean collision[] = game.getPlayer().collides(game.getCollisionObjects(),0,1);	//Check if on floor
+					boolean collision[] = level.getPlayer().collides(level.getCollisionObjects(),0,1);	//Check if on floor
 					if (collision[1]) {																	//Only Jump, when on floor
-						game.getMoveThread().setJump(true);
+						level.getMoveThread().setJump(true);
 					}
 				} else if (!state) {
-					game.getMoveThread().setJump(false);
+					level.getMoveThread().setJump(false);
 				}
 				spacePressed = state;
 				break;
-			case 18: //Alt
+			case 18: case 'Y': case ',': //Alt/Y
+				level.getMoveThread().setFire(state);
+				//if (state)
+				//	level.getPlayer().fire();
+				break;
+			case 'L': case 'X': //L X
 				if (state)
-					game.getPlayer().fire();
+					level.getPlayer().changeWapon();
 				break;
-			case 27: //ESC
+			case 37: case 'A': //A <
+				level.getMoveThread().setLeft(state);
 				if (state)
-					return; //return to menu or just do nothing and do everything per pause menu
+					level.getMoveThread().setRight(false);
 				break;
-			case 65: case 37: //A <
-				game.getMoveThread().setLeft(state);
+			case 39: case 'D': //D >
+				level.getMoveThread().setRight(state);
+				if (state)
+					level.getMoveThread().setLeft(false);
 				break;
-			case 68: case 39: //D >
-				game.getMoveThread().setRight(state);
+			case 38: case 'W':	//W ^
+				level.getPlayer().getWeapon().setAngle(state?1:0);
 				break;
-			case 38: case 87:	//W ^
-				game.getPlayer().getWeapon().setAngle(state?1:0);
-				break;
-			case 40: case 83:	//S v
-				game.getPlayer().getWeapon().setAngle(state?-1:0);
+			case 40: case 'S':	//S v
+				level.getPlayer().getWeapon().setAngle(state?-1:0);
 				break;
 			default:
-				System.out.println(keyCode);
+				System.out.println("KeyCode: "+keyCode);
 		}
 	}
 }

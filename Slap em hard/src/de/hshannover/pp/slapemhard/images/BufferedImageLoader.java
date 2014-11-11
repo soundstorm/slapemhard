@@ -8,10 +8,20 @@ import javax.imageio.ImageIO;
 
 import de.hshannover.pp.slapemhard.resources.Resource;
 
+/**
+ * Loads and caches Images as BufferedImage from given relative path.
+ * @author SoundStorm
+ *
+ */
 public class BufferedImageLoader {
 	private static Resource r = new Resource();
 	private static ArrayList<String> paths = new ArrayList<String>();
 	private static ArrayList<BufferedImage> images = new ArrayList<BufferedImage>();
+	/**
+	 * Loads and caches Images as BufferedImage from given relative path.
+	 * @param relPath Relative path to image
+	 * @return {@link BufferedImage} created from path or cached
+	 */
 	public BufferedImage getImage(String relPath) {
 		int index = paths.indexOf(relPath);
 		if (index >= 0) {
