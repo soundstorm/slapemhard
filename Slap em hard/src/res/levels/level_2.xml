@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Level time="80">
+	<CollisionObjects>
+		<CollisionObject x="0" y="205" width="916" height="35"></CollisionObject>
+		<CollisionObject x="306" y="145" width="20" height="95"></CollisionObject>
+		<CollisionObject x="353" y="180" width="87" height="60"></CollisionObject>
+		<CollisionObject x="0" y="102" width="40" height="10"></CollisionObject>
+		<CollisionObject x="462" y="102" width="70" height="10"></CollisionObject>
+		<CollisionObject x="128" y="168" width="80" height="72"></CollisionObject>
+		<CollisionObject x="1070" y="92" width="44" height="13"></CollisionObject>
+		<CollisionObject x="1000" y="195" width="400" height="45"></CollisionObject>
+		<CollisionObject x="700" y="135" width="50" height="105"></CollisionObject>
+		<CollisionObject x="350" y="0" width="40" height="75"></CollisionObject>
+		<CollisionObject x="120" y="0" width="245" height="35"></CollisionObject>
+		<CollisionObject x="1150" y="165" width="40" height="75"></CollisionObject>
+		<CollisionObject x="1238" y="125" width="10" height="115"></CollisionObject>
+		<CollisionObject x="810" y="175" width="105" height="65"></CollisionObject>
+		<CollisionObject x="994" y="168" width="20" height="72"></CollisionObject>
+	</CollisionObjects>
+	
+	<Target x="1390" y="130" width="10" height="110"></Target>
+	
+	<Player x="5" y="35"></Player>
+	
+	<PowerUp x="1232" y="112" type="2"></PowerUp>
+	
+	<Enemies>
+		<Enemy x="5" y="120" look="2" weapon="0" power="1" health="40"></Enemy>
+		<Enemy x="260" y="120" look="2" weapon="0" power="2" health="50"></Enemy>
+		<Enemy x="480" y="20" look="2" weapon="0" power="1" health="45"></Enemy>
+		<Enemy x="800" y="100" look="0" weapon="2" power="2" health="30"></Enemy>
+		<Enemy x="1100" y="115" look="0" weapon="0" power="2" health="70"></Enemy>
+		<Enemy x="1330" y="100" look="0" weapon="1" power="1" health="30"></Enemy>
+	</Enemies>
+		
+	<LandscapeImage src="landscape.png"></LandscapeImage>
+	<ForegroundImage src="foreground_0.png"></ForegroundImage>
+</Level>
