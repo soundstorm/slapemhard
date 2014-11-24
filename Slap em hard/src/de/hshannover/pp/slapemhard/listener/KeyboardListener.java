@@ -58,7 +58,7 @@ public class KeyboardListener implements KeyListener {
 	 */
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == '5') {
+		if (e.getKeyCode() == KeyEvent.VK_5) {
 			menu.addCredits();
 			return;
 		}
@@ -83,44 +83,42 @@ public class KeyboardListener implements KeyListener {
 	private void toggleEvent(int keyCode, boolean state) {
 		Level level = menu.getLevel();
 		switch (keyCode) {
-			case 27: //ESC
+			case KeyEvent.VK_ESCAPE:
 				synchronized (menu.getGame()) {
 					menu.getGame().notify();
 				}
-			case 17: case 16: //Ctrl/Strg Shift
+			case KeyEvent.VK_CONTROL: case KeyEvent.VK_SHIFT:
 				if (!spacePressed && state) {
 					boolean collision[] = level.getPlayer().collides(level.getCollisionObjects(),0,1);	//Check if on floor
 					if (collision[1]) {																	//Only Jump, when on floor
-						level.getMoveThread().setJump(true);
+						level.getPlayer().setJump(true);
 					}
 				} else if (!state) {
-					level.getMoveThread().setJump(false);
+					level.getPlayer().setJump(false);
 				}
 				spacePressed = state;
 				break;
-			case 18: case 'Y': case ',': //Alt/Y
-				level.getMoveThread().setFire(state);
-				//if (state)
-				//	level.getPlayer().fire();
+			case KeyEvent.VK_ALT: case KeyEvent.VK_Y: case KeyEvent.VK_COMMA:
+				level.getPlayer().setFire(state);
 				break;
-			case 'L': case 'X': //L X
+			case KeyEvent.VK_L: case KeyEvent.VK_X:
 				if (state)
 					level.getPlayer().changeWapon();
 				break;
-			case 37: case 'A': //A <
-				level.getMoveThread().setLeft(state);
+			case KeyEvent.VK_LEFT: case KeyEvent.VK_A:
+				level.getPlayer().setLeft(state);
 				if (state)
-					level.getMoveThread().setRight(false);
+					level.getPlayer().setRight(false);
 				break;
-			case 39: case 'D': //D >
-				level.getMoveThread().setRight(state);
+			case KeyEvent.VK_RIGHT: case KeyEvent.VK_D:
+				level.getPlayer().setRight(state);
 				if (state)
-					level.getMoveThread().setLeft(false);
+					level.getPlayer().setLeft(false);
 				break;
-			case 38: case 'W':	//W ^
+			case KeyEvent.VK_UP: case KeyEvent.VK_W:
 				level.getPlayer().getWeapon().setAngle(state?1:0);
 				break;
-			case 40: case 'S':	//S v
+			case KeyEvent.VK_DOWN: case KeyEvent.VK_S:
 				level.getPlayer().getWeapon().setAngle(state?-1:0);
 				break;
 			default:
