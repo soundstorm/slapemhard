@@ -4,8 +4,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 
 import de.hshannover.pp.slapemhard.Game;
 import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
@@ -17,21 +17,33 @@ import de.hshannover.pp.slapemhard.images.SpriteSheet;
  *
  */
 public class Person extends CollisionObject {
-	private static final Logger log = Logger.getLogger(Person.class.getName());
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6475017014140938423L;
+
+	//private static final Logger log = Logger.getLogger(Person.class.getName());
 	
 	private Weapon weapon;
 	private int maxHealth,health;
 	protected boolean heading;
 	//private boolean isPlayer;
-	private boolean walking;
-	private boolean jumping;
+	private boolean walking, jumping;
 	private SpriteSheet animation;
 	private SpriteSheet arm;
 	private int animationFrame;
-	private boolean autonomous;
-	private Thread autonomic;
+	//private boolean autonomous;
+	//private Thread autonomic;
 
 	private double rate;
+
+	private int distance;
+
+	private boolean direction;
+
+	private int sleep;
+
+	private boolean initDone;
 	public enum PersonName {
 		ANDRE,
 		LUCA,
@@ -78,6 +90,12 @@ public class Person extends CollisionObject {
 				
 		}
 	}
+	public void init() {
+		while (!collides(game.getCollisionObjects(),0,1)[1]) {
+			move(0,1,game.getCollisionObjects());
+		}
+		initDone = true;
+	}
 	/**
 	 * Returns if Person is alive (health > 0)
 	 * @return if Person is alive (health > 0)
@@ -93,7 +111,7 @@ public class Person extends CollisionObject {
 		health -= damage;
 		if (health <= 0) {
 			health = 0;
-			stop();
+			//stop();
 		}
 	}
 	/**
@@ -156,7 +174,7 @@ public class Person extends CollisionObject {
 	 * if person collides on that axis with any CollisionObject or left/right bounds
 	 * of map).
 	 */
-	public boolean[] move(int x, int y, ArrayList<CollisionObject> collisions) {
+	protected boolean[] move(int x, int y, ArrayList<CollisionObject> collisions) {
 		if (x != 0) {
 			heading = x<0;
 			//Change heading of person
@@ -168,12 +186,12 @@ public class Person extends CollisionObject {
 			collision[0] = true;
 		}
 		if (!collision[0]) {
-			super.setPosition(super.getPosition().x+x,
-							  super.getPosition().y);
+			super.setPosition(this.x+x,
+							  this.y);
 		}
 		if (!collision[1]) {
-			super.setPosition(super.getPosition().x,
-							  super.getPosition().y + y);
+			super.setPosition(this.x,
+							  this.y + y);
 		}
 		if (this.outOfWindow()[3]) {
 			//to notify Player that health has been set to zero and player is dead
@@ -182,11 +200,48 @@ public class Person extends CollisionObject {
 		return collision;
 	}
 	public void setPower(int power) {
-		rate = power/100.0;
+		this.rate = power/100.0;
 	}
+	public void move() {
+		if (!initDone) return;
+		if (this.distance <= 0 && this.sleep <= 0) {
+			this.distance = (int)(Math.random()*100);
+			this.direction = Math.random() < 0.5;
+			this.sleep = (int)(Math.random()*20);
+			this.setWalking(true);
+		}
+		if (distance > 0) {
+			boolean collision[] = {false, false};
+			Rectangle check = new Rectangle(this.x+this.width*(this.direction?1:-1),this.y+1,this.width,this.height);
+			for (CollisionObject collide : game.getCollisionObjects()) {
+				if (check.intersects(collide)) {
+					collision[1] = true;
+					break;
+				}
+			}
+			if (collision[1]) {//Person will not fall off
+				collision = this.move((direction?1:-1),0,game.getCollisionObjects());
+				this.distance--;
+				if (collision[0])
+					this.distance = 0;
+			} else
+				this.distance = 0;
+			if (this.distance <= 0)
+				this.setWalking(false);
+		} else {
+			this.sleep--;
+		}
+
+		if (Math.random() < this.rate) {
+			this.fire();
+		}
+	}
+	
 	/**
 	 * Sets a Person to act autonomously (Enemy, Bot)
+	 * @Deprecated Replaced by external call of {@link #move()}
 	 */
+	/*@Deprecated
 	public void setAutonomous() {
 		if (autonomous) return;
 		autonomous = true;
@@ -234,25 +289,27 @@ public class Person extends CollisionObject {
 			}
 		};
 		autonomic.start();
-	}
+	}*/
 	/**
-	 * Stops autonimic movement thread
+	 * Stops autonomic movement thread
 	 */
+	/*
 	public void stop() {
-		if (autonomous) {
+		if (this.autonomous) {
 			try {
-				autonomic.interrupt();
+				this.autonomic.interrupt();
 			} catch (NullPointerException e) {
 				log.log(Level.WARNING,"Autonomous person could not be stopped",e);
 			}
 		}
 	}
+	*/
 	/**
 	 * Returns active weapon
 	 * @return active weapon
 	 */
 	public Weapon getWeapon() {
-		return weapon;
+		return this.weapon;
 	}
 	/**
 	 * Sets the active weapon
@@ -266,7 +323,7 @@ public class Person extends CollisionObject {
 	 * @see de.hshannover.pp.slapemhard.objects.Weapon
 	 */
 	public void fire() {
-		weapon.fire(new Dimension(super.getPosition().x+super.getPosition().width/2,super.getPosition().y), heading);
+		weapon.fire(new Dimension(this.x+this.width/2,this.y), heading);
 	}
 	/**
 	 * Renders the Person (Enemy). Job is processed by {@link #render(Graphics, int, int) with
@@ -275,7 +332,7 @@ public class Person extends CollisionObject {
 	 */
 	@Override
 	public void render (Graphics g) {
-		render(g,super.getPosition().x,super.getPosition().y);
+		render(g,this.x,this.y);
 	}
 	/**
 	 * Renders the Person (Enemy/Player) at a specific position.<br />
@@ -294,21 +351,24 @@ public class Person extends CollisionObject {
 	public void render (Graphics g, int x, int y) {
 		boolean heading = this.heading;
 		//draw person
-		if (jumping) {
-			g.drawImage(animation.getTile(2, (heading?7:0)), x, y, super.getPosition().width, super.getPosition().height, null);
-		} else if (walking) {
-			g.drawImage(animation.getTile(1, (heading?7-animationFrame/2:animationFrame/2)), x, y, super.getPosition().width, super.getPosition().height, null);
-			animationFrame = (animationFrame+1)%8;
+		if (this.jumping) {
+			g.drawImage(this.animation.getTile(2, (heading?7:0)), x, y, this.width, this.height, null);
+		} else if (this.walking) {
+			g.drawImage(this.animation.getTile(1, (heading?7-animationFrame/2:animationFrame/2)), x, y, this.width, this.height, null);
+			this.animationFrame = (this.animationFrame+1)%8;
 		} else {
-			g.drawImage(animation.getTile(0, (heading?7:0)), x, y, super.getPosition().width, super.getPosition().height, null);
+			g.drawImage(this.animation.getTile(0, (heading?7:0)), x, y, this.width, this.height, null);
 		}
 		//draw arm
 		if (weapon == null) {
-			g.drawImage(arm.getTile(heading?7:0), x-11, y-6, null);
+			g.drawImage(this.arm.getTile(heading?7:0), x-11, y-6, null);
 		} else {
-			g.drawImage(arm.getTile(heading?5-weapon.getAngle():2+weapon.getAngle()), x-11, y-6,null);
-			g.drawImage(weapon.getType().getWeapon().getTile(heading?4-weapon.getAngle():1+weapon.getAngle()), x-16, y-6, null);
+			g.drawImage(this.arm.getTile(this.heading?5-this.weapon.getAngle():2+this.weapon.getAngle()), x-11, y-6,null);
+			g.drawImage(this.weapon.getType().getWeapon().getTile(this.heading?4-this.weapon.getAngle():1+this.weapon.getAngle()), x-16, y-6, null);
 		}
 		
+	}
+	public int getPower() {
+		return (int)(this.rate*100);
 	}
 }

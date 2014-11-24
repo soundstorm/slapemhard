@@ -39,14 +39,37 @@ public class DrawThread extends Canvas implements Runnable {
 	private void init(){
 	}
 	
-	
-	/*public void interrupt() {
-		running = false;
-		for (Person p : level.getEnemies()) {
-			p.stop();
+	private void move() {
+		menu.getGame().getPlayer().move();
+		for (int i = 0; i < menu.getGame().getBullets().size(); i++) {
+			try {
+				Bullet obj = menu.getGame().getBullets().get(i);
+				obj.move();
+				if (obj.isExploded()) {
+					menu.getGame().getBullets().remove(obj);
+					i--;
+				}
+			} catch (Exception e) {
+				log.warning("Cant modify Bullet:\n"+e.toString());
+			}
 		}
-		//thread.interrupt();
-	}*/
+		for (int i = 0; i < menu.getGame().getEnemies().size(); i++) {
+			try {
+				Person obj = menu.getGame().getEnemies().get(i);
+				obj.move();
+				if (!obj.isAlive()) {
+					//obj.stop();
+					menu.getGame().addPoints(obj.getPower()*40);
+					menu.getGame().getPowerUps().add(new PowerUp(menu.getGame(),new Dimension(obj.x,obj.y+30),1));
+					menu.getGame().getEnemies().remove(obj);
+					i--;
+					//continue;
+				}
+			} catch (Exception e) {
+				log.warning("Cant modify Bullet:\n"+e.toString());
+			}
+		}
+	}
 	
 	public synchronized void start(){
 		if(running){
@@ -61,24 +84,25 @@ public class DrawThread extends Canvas implements Runnable {
 	public synchronized void run() {
 		init();
 		this.requestFocus();
-		//long lastTime = System.nanoTime();
-		//double amountOfTicks = 60.0;
-		//double ns = 1000000000 / amountOfTicks;
-		//double delta = 0;
+		long lastTime = System.nanoTime();
+		double amountOfTicks = 180.0;
+		double ns = 1000000000 / amountOfTicks;
+		double delta = 0;
 		long timer = System.currentTimeMillis();
 		int frames = 0;
-		//int waitDuration = 0;
 		long waitDuration = 0L;
+		int ticks = 0;
 		while(running){
 			long now = System.nanoTime();
-			//delta += (now - lastTime) / ns;
-			//lastTime = now;
-			//while(delta > 0) {
-				if (menu.getLevel() != null) {
-					tick(menu.getLevel());
-				}
-			//	delta--;
-			//}
+			delta += (now - lastTime) / ns;
+			lastTime = now;
+			while(delta > 0) {
+				//tick();
+				if (menu.getLevel() != null)
+					move();
+				delta--;
+				ticks++;
+			}
 			render();
 			frames++;
 					
@@ -86,6 +110,8 @@ public class DrawThread extends Canvas implements Runnable {
 				timer += 1000;
 				fps = frames;
 				frames = 0;
+				System.out.println("Ticks: "+ticks);
+				ticks = 0;
 			}
 			if (fps < 20) {
 				//Don't wait if frame rate drops
@@ -94,44 +120,16 @@ public class DrawThread extends Canvas implements Runnable {
 			} else {
 				//33.3ms for 30fps. Reduced to 30ms to get a more constant framerate of 30fps, otherwise it will likely drop to 27fps.
 				//Automatic compensation for elapsed time while rendering.
-				//waitDuration = 30-(int)((System.nanoTime()-now)/1000000);
 				waitDuration = 30000000-(System.nanoTime()-now);
 				if (waitDuration < 0) {
 					waitDuration = 0;
 				}
 			}
 			try {
-				//more precise than int:
 				Thread.sleep((int)(waitDuration/1000000), (int)(waitDuration%1000000));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
-	}
-	
-	private void tick(Level level){
-		try {
-			for (int i = 0; i < level.getBullets().size(); i++) {
-				Bullet obj = level.getBullets().get(i);
-				obj.move();
-				boolean[] oow = obj.outOfWindow();
-				if (obj.isExploded() | oow[0] | (!obj.getGravity() && oow[1]) | oow[2] | oow[3]) {
-					level.getBullets().remove(obj);
-					i--;
-					//continue;
-				}
-			}
-			for (int i = 0; i < level.getEnemies().size(); i++) {
-				Person obj = level.getEnemies().get(i);
-				if (!obj.isAlive()) {
-					obj.stop();
-					level.getEnemies().remove(obj);
-					i--;
-					//continue;
-				}
-			}
-		} catch (NullPointerException e) {
-			log.warning(e.toString());
 		}
 	}
 	
@@ -163,84 +161,91 @@ public class DrawThread extends Canvas implements Runnable {
 	}
 
 	private void render(Level level, Graphics g, Graphics2D g2d) {
-		Rectangle activePosition = level.getPlayer().getPosition();
-		
-		int xoffset = activePosition.x-100;
-		if (xoffset < 0) {
-			xoffset = 0;
-		} else if (xoffset > level.getBounds().width-gameSize.width) {
-			xoffset = level.getBounds().width-gameSize.width;
-		}
-		
-		for (BufferedImage bI : level.getBackgroundImages()) {
-			g.drawImage(bI, -xoffset*(bI.getWidth()-gameSize.width)/(level.getBounds().width-gameSize.width), 0, null);
-		}
-		
-		//Move to active clip
-		g2d.translate(-xoffset, 0);
-		g.drawImage(level.getLandscapeImage(),0,0,null);
-
-		/*for (CollisionObject ro : level.getCollisionObjects()) {
-			ro.render(g);
-		}*/
-		
-		for (int i = 0; i < level.getBullets().size(); i++) {
-			try {
-				Bullet obj =  level.getBullets().get(i);
-				//if (obj.getPosition().x > xoffset-100 | obj.getPosition().x+obj.getPosition().width < xoffset+220)
-					obj.render(g);
-			} catch (Exception e) {
-				System.out.println("Cant render Bullet");
+		try {
+			Rectangle activePosition = level.getPlayer();// = new Dimension(level.getPlayer().x,level.getPlayer().y);
+			
+			int xoffset = level.getPlayer().x-100;
+			if (xoffset < 0) {
+				xoffset = 0;
+			} else if (xoffset > level.getBounds().width-gameSize.width) {
+				xoffset = level.getBounds().width-gameSize.width;
 			}
-		}
-		
-		for (int i = 0; i < level.getPowerUps().size(); i++) {
-			try {
-				PowerUp obj =  level.getPowerUps().get(i);
-				//if (obj.getPosition().x > xoffset-100 | obj.getPosition().x+obj.getPosition().width < xoffset+220)
-					obj.render(g);
-			} catch (Exception e) {
-				System.out.println("Cant render Powerup");
+			
+			for (BufferedImage bI : level.getBackgroundImages()) {
+				g.drawImage(bI, -xoffset*(bI.getWidth()-gameSize.width)/(level.getBounds().width-gameSize.width), 0, null);
 			}
-		}
-		
-		for (int i = 0; i < level.getEnemies().size(); i++) {
-			try {
-				Person obj =  level.getEnemies().get(i);
-				//if (obj.getPosition().x > xoffset-100 | obj.getPosition().x+obj.getPosition().width < xoffset+220)
+			
+			//Move to active clip
+			g2d.translate(-xoffset, 0);
+			g.drawImage(level.getLandscapeImage(),0,0,null);
+			
+			
+			for (int i = 0; i < level.getBullets().size(); i++) {
+				try {
+					Bullet obj =  level.getBullets().get(i);
 					obj.render(g);
-			} catch (Exception e) {}
-		}
-		//Render at position previously determined
-		//Prevents shaking, if Player moved in the meantime of rendering
-		level.getPlayer().render(g,activePosition.x,activePosition.y);
-		
-		//
-		g2d.translate(xoffset, 0);
-		
-		for (BufferedImage fI : level.getForegroundImages()) {
-			g.drawImage(fI, -xoffset*(fI.getWidth()-gameSize.width)/(level.getBounds().width-gameSize.width), 0, null);
-		}
-		
-		//Draw HUD
-		g.setColor(new Color(255, 255, 255, 127));
-		g.fillRect(5,5,50,40);
-		g.setColor(Color.BLACK);
-		g.setFont(level.getFont().deriveFont(Font.PLAIN,8));
-		g.drawString("BULLETS: "+level.getPlayer().getWeapon().getAmmo(), 10, 13);
-		g.drawString("FPS: "+fps, 10, 20);
-		long timeRemaining = level.getRemainingTime();
-		g.drawString(""+timeRemaining, 50-(""+timeRemaining).length()*4, 27);
-		for (int i=0; i < level.getPlayer().getLives(); i++) {
-			if (i != level.getPlayer().getLives()-1) {
-				g.drawImage(lives.getTile(9), 60+i*12, 10, null);
-			} else {
-				if (level.getPlayer().isInvincible()) {
-					g.drawImage(lives.getTile(10), 60+i*12, 10, null);
-				} else {
-					g.drawImage(lives.getTile(9*level.getPlayer().getHealth()/level.getPlayer().getMaxHealth()), 60+i*12, 10, null);
+				} catch (Exception e) {
+					System.out.println("Cant render Bullet");
 				}
 			}
+			
+			for (int i = 0; i < level.getPowerUps().size(); i++) {
+				try {
+					PowerUp obj =  level.getPowerUps().get(i);
+					obj.render(g);
+				} catch (Exception e) {
+					System.out.println("Cant render PowerUp");
+				}
+			}
+			
+			for (int i = 0; i < level.getEnemies().size(); i++) {
+				try {
+					Person obj =  level.getEnemies().get(i);
+					//if (obj.getPosition().x > xoffset-100 | obj.getPosition().x+obj.getPosition().width < xoffset+220)
+						obj.render(g);
+				} catch (Exception e) {
+					System.out.println("Cant render Enemy");
+				}
+			}
+			//Render at position previously determined
+			//Prevents shaking, if Player moved in the meantime of rendering
+			level.getPlayer().render(g,activePosition.x,activePosition.y);
+			
+			//
+			g2d.translate(xoffset, 0);
+			
+			for (BufferedImage fI : level.getForegroundImages()) {
+				g.drawImage(fI, -xoffset*(fI.getWidth()-gameSize.width)/(level.getBounds().width-gameSize.width), 0, null);
+			}
+			
+			/*for (CollisionObject ro : level.getCollisionObjects()) {
+				ro.render(g);
+			}*/
+			
+			//Draw HUD
+			g.setColor(new Color(255, 255, 255, 127));
+			g.fillRect(5,5,50,40);
+			g.setColor(Color.BLACK);
+			g.setFont(level.getFont().deriveFont(Font.PLAIN,8));
+			g.drawString("AMMO: "+level.getPlayer().getWeapon().getAmmo(), 10, 13);
+			g.drawString("FPS:  "+fps, 10, 20);
+			g.drawString("COIN: "+menu.getGame().getCoins(), 10, 27);
+			g.drawString("PTS:  "+menu.getGame().getPoints(), 10, 34);
+			long timeRemaining = level.getRemainingTime();
+			g.drawString(""+timeRemaining, 50-(""+timeRemaining).length()*5, 41);
+			for (int i=0; i < level.getPlayer().getLives(); i++) {
+				if (i != level.getPlayer().getLives()-1) {
+					g.drawImage(lives.getTile(9), 60+i*12, 10, null);
+				} else {
+					if (level.getPlayer().isInvincible()) {
+						g.drawImage(lives.getTile(10), 60+i*12, 10, null);
+					} else {
+						g.drawImage(lives.getTile(9*level.getPlayer().getHealth()/level.getPlayer().getMaxHealth()), 60+i*12, 10, null);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

@@ -83,7 +83,8 @@ public class Weapon {
 			origin.width -= type.getSize().width/2; //Center
 			origin.width += type.getOffsets().get(1+angle).width*(heading?-1:1);
 			origin.height+= type.getOffsets().get(1+angle).height;
-			game.getBullets().add(new Bullet(game, origin, type, (360+(heading?-angle*45+180:angle*45)+(int)(type.getPrecision()*Math.random()-type.getPrecision()/2))%360, fromPlayer));
+			Bullet blt = new Bullet(game, origin, type, (360+(heading?-angle*45+180:angle*45)+(int)(type.getPrecision()*Math.random()-type.getPrecision()/2))%360, fromPlayer);
+			game.getBullets().add(blt);
 			if (fromPlayer)
 				ammo--;
 		} else {

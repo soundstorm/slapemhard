@@ -2,11 +2,13 @@ package de.hshannover.pp.slapemhard;
 
 import javax.swing.*;
 
+import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.listener.*;
 import de.hshannover.pp.slapemhard.objects.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -21,14 +23,18 @@ public class Menu implements Runnable {
 	private Thread thread;
 	private Game game;
 	private Font font;
+	private int positionFrame;
 	private ArrayList<Integer> activeSelection = new ArrayList<Integer>();
+	private final BufferedImageLoader bL = new BufferedImageLoader();
+	private final BufferedImage howtoplay = bL.getImage("/controls.png");
+	private final BufferedImage background = bL.getImage("/startscreen.png");
 
 	public Menu(JFrame frame, Dimension gameSize, double scale) {
 		this.frame = frame;
 		this.gameSize = gameSize;
 		this.scale = scale;
 		try {
-			font = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/res/fonts/VCR_OSD_MONO.ttf"));
+			font = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/res/fonts/8-BIT-WONDER.TTF"));
 		} catch (IOException|FontFormatException e) {
 			System.out.println("Failed to load font");
 		}
@@ -67,58 +73,55 @@ public class Menu implements Runnable {
 	
 	public void render(Graphics g) {
 		//Main Menu
+		//Background
+		g.drawImage(background, 0, 0, null);
 		if (activeSelection.size()==1) {
-			//Background
-			g.setColor(Color.RED);
-			g.fillRect(0,0,gameSize.width,gameSize.height);
 			//Header
-			g.setColor(Color.WHITE);
-			g.setFont(font.deriveFont(Font.PLAIN,28));
-			g.drawString("Slap Em Hard",2,50);
-			
 			g.setFont(font.deriveFont(Font.PLAIN,18));
 			
 			g.setColor(getActiveOption()==0?Color.YELLOW:Color.WHITE);
-				g.fillRect((gameSize.width-200)/2, 100, 200, 20);
+				g.fillRect((gameSize.width-200)/2, 80, 200, 20);
 				g.setColor(Color.BLACK);
-				drawStringCentered(g,"New Game",118);
+				drawStringCentered(g,"New Game",98);
 				//g.drawString("New Game",(gameSize.width-160)/2+2,118);
 			
 			g.setColor(getActiveOption()==1?Color.YELLOW:Color.WHITE);
-				g.fillRect((gameSize.width-200)/2, 140, 200, 20);
+				g.fillRect((gameSize.width-200)/2, 105, 200, 20);
 				g.setColor(Color.BLACK);
-				drawStringCentered(g,"How to play",158);
+				drawStringCentered(g,"How to play",123);
 				//g.drawString("How to play",(gameSize.width-190)/2+2,158);
 				
 			g.setColor(getActiveOption()==2?Color.YELLOW:Color.WHITE);
-				g.fillRect((gameSize.width-200)/2, 180, 200, 20);
+				g.fillRect((gameSize.width-200)/2, 130, 200, 20);
 				g.setColor(Color.BLACK);
-				drawStringCentered(g,"Credits",198);
+				drawStringCentered(g,"Credits",148);
 				//g.drawString("Credits",(gameSize.width-120)/2+2,198);
 				
 			g.setColor(getActiveOption()==3?Color.YELLOW:Color.WHITE);
-				g.fillRect((gameSize.width-200)/2, 210, 200, 20);
+				g.fillRect((gameSize.width-200)/2, 155, 200, 20);
 				g.setColor(Color.BLACK);
-				drawStringCentered(g,"Quit",230);
+				drawStringCentered(g,"Run away",173);
 				//g.drawString("Credits",(gameSize.width-120)/2+2,198);
 		} else
 			//SUBMENUS
-		if (activeSelection.get(0) == 1) {
-			g.setFont(font.deriveFont(Font.PLAIN,20));
-			String howToPlay = "Controls:\n"
-					+ "Left/Right  Move left/right\n"
-					+ "Up/Down     Weapon up/down\n"
-					+ "Strg/Ctrl   Fire\n"
-					+ "Alt         Jump\n"
-					+ "Space       Change Weapon\n"
-					+ "P           Pause\n"
-					+ "5           Insert Coin\n"
-					+ "";
-			String[] htp = howToPlay.split("\n");
-			for (int i = 0; i < htp.length; i++) {
-				g.drawString(htp[i], 10, 10+g.getFontMetrics().getHeight()*(i+1));
+			if (activeSelection.get(0) == 1) {
+				g.drawImage(howtoplay, 0-positionFrame, 40, null);
+				if (positionFrame != activeSelection.get(1)*320) {
+					positionFrame += Math.signum(activeSelection.get(1)*320-positionFrame)*20;
+				}
+			} else {
+				g.setColor(Color.BLACK);
+				g.setFont(font.deriveFont(Font.PLAIN,18));
+				drawStringCentered(g,"* * Credits * *",90);
+				drawStringCentered(g,"Patrick Defayay",120);
+				drawStringCentered(g,"Andre Schmidt",150);
+				drawStringCentered(g,"Steffen Schulz",180);
+				drawStringCentered(g,"Luca Zimmermann",210);
 			}
-		}
+	}
+	
+	public BufferedImage getBackground() {
+		return background;
 	}
 	
 	private void drawStringCentered(Graphics g, String string, int y) {
@@ -164,17 +167,27 @@ public class Menu implements Runnable {
 	 */
 	public void keyEvent(int keyCode) {
 		switch (keyCode) {
-			case 38: //Up
+			case KeyEvent.VK_UP:
 				if (activeSelection.size() == 1) {
 					activeSelection.set(0,(activeSelection.get(0)+3)%4);
 				}
 				break;
-			case 40: //Down
+			case KeyEvent.VK_DOWN:
 				if (activeSelection.size() == 1) {
 					activeSelection.set(0,(activeSelection.get(0)+1)%4);
 				}
 				break;
-			case '\n': case 17: case 16: //Enter/Ctrl/Shift
+			case KeyEvent.VK_LEFT:
+				if (activeSelection.get(0) == 1 && activeSelection.size()!=1) {
+					activeSelection.set(1,(activeSelection.get(1)+1)%2);
+				}
+				break;
+			case KeyEvent.VK_RIGHT:
+				if (activeSelection.get(0) == 1 && activeSelection.size()!=1) {
+					activeSelection.set(1,(activeSelection.get(1)+1)%2);
+				}
+				break;
+			case KeyEvent.VK_ENTER: case KeyEvent.VK_CONTROL: case KeyEvent.VK_SHIFT:
 				if (activeSelection.get(0) == 0) {
 					start();
 					break;
@@ -184,9 +197,10 @@ public class Menu implements Runnable {
 				}
 				if (activeSelection.size() == 1) {
 					activeSelection.add(0);
+					positionFrame = 0;
 				}
 				break;
-			case 27: case 18: case 'Y': //ESC/Alt/Y
+			case KeyEvent.VK_ESCAPE: case KeyEvent.VK_ALT: case KeyEvent.VK_Y:
 				if (activeSelection.size() == 1) {
 					if (keyCode == 27) {
 						close();

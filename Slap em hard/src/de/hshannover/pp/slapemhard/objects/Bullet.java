@@ -8,33 +8,34 @@ import java.util.ArrayList;
 import de.hshannover.pp.slapemhard.Game;
 
 public class Bullet extends CollisionObject {
-	private double originAngle;
-	private int angle;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5128320310814817590L;
 	private BulletType type;
-	private Dimension origin;
 	private ArrayList<Person> persons;
 	private Game game;
 	private boolean explode,exploded;
-	private long firstMove;
 	private boolean heading;
 	private int animationFrame;
-	private static final double g = 9.81;
 	private boolean fromPlayer;
-	private double cosAngle;
-	private double sinAngle;
-	private double tanAngle;
+	
+	private double cosAngle,tanAngle,sinAngle,gFactor,angleFactor,xFactor,yFactor;
+	private int offsetX,offsetY;
+	private double t;
 	public Bullet(Game game, Dimension origin, BulletType type, int degree) {
 		this(game, origin, type, degree, false);
 	}
 	public Bullet(Game game,Dimension origin, BulletType type, int degree, boolean fromPlayer) {
-		super(game, new Rectangle(origin.width,origin.height,type.getSize().width,type.getSize().height));
+		super(game, origin.width,origin.height,type.getSize().width,type.getSize().height);
 		this.game = game;
-		this.origin = origin;
 		this.type = type;
-		this.originAngle = Math.toRadians(degree);
+		double originAngle = Math.toRadians(degree);
 		cosAngle = Math.cos(originAngle);
 		sinAngle = Math.sin(originAngle);
 		tanAngle = Math.tan(originAngle);
+		offsetX = origin.width;
+		offsetY = origin.height;
 		if (fromPlayer) {
 			this.persons = game.getEnemies();
 		} else {
@@ -42,19 +43,14 @@ public class Bullet extends CollisionObject {
 			this.persons.add(game.getPlayer());
 		}
 		heading = 90<degree && degree<270;
-		double an = this.originAngle;
-		if (heading) {
-			an = (Math.PI+an)%(2*Math.PI);
-		}
-		if (an < Math.PI/8.0 | an > Math.PI*15/8.0) {// | (angle > Math.PI*7/8.0 && angle < Math.PI*9/8.0)) {
-			angle = 0; //straight
-		} else if (an <= Math.PI*7/8.0) {
-			angle = heading?-1:1; //upwards
-		} else {
-			angle = heading?1:-1; //downwards
-		}
+		
 		this.fromPlayer = fromPlayer;
-		firstMove = System.currentTimeMillis();
+		double speed = type.getSpeed();//20.0;
+		final double g = 9.81;
+		gFactor = type.getGravity()?(int)(g/1.5):0;
+		xFactor = type.getSpeed()*cosAngle;
+		yFactor = type.getSpeed()*sinAngle;
+		angleFactor = type.getGravity()?g*2/(cosAngle*speed*speed):0;
 	}
 	/**
 	 * Moves the bullet in steps in direction of flight and checks if it collides with any obstacle or hostile
@@ -80,38 +76,29 @@ public class Bullet extends CollisionObject {
 	 */
 	public void move() {
 		if (explode | exploded) return;
-		double t = (System.currentTimeMillis()-firstMove)/100.0;
-		int x = (int)(origin.width + type.getSpeed() * cosAngle * t)-super.getPosition().x;
-		int y = super.getPosition().y-(int)(origin.height - type.getSpeed() * sinAngle * t);
-		if (type.getGravity()) {
-			y -=  (int)((g/2.0) * t * t);
-			//angle = (2*Math.PI-Math.atan(Math.abs(super.getPosition().x-origin.width)*g*2/cosAngle/type.getSpeed()/type.getSpeed()-tanAngle))%(2*Math.PI);
-			double m = Math.abs(super.getPosition().x-origin.width)*g*2/cosAngle/type.getSpeed()/type.getSpeed()-tanAngle;
-			if (Math.abs(m) <= 0.4142) {
-				angle = 0;
-			} else {
-				angle = (heading^m < 0.4142)?1:-1;
-			}
+		t += 0.05;
+		this.x = offsetX+(int)(xFactor*t);
+		this.y = offsetY+(int)(gFactor*t*t-yFactor*t);
+		//super.setPosition(offsetX+x, offsetY+y);
+		if (super.collides(game.getCollisionObjects())) {
+			explode();
+			return;
 		}
-		
-		//only check if bullet has moved
-		if (x != 0 | y != 0) {
-			boolean collision[] = super.collides(game.getCollisionObjects(), x, -y);
-			if (collision[0] | collision[1]) {
+		if (super.outOfWindow(type.getGravity())) {
+			exploded = true;
+			return;
+		}
+		for (Person person : persons) {
+			if (this.intersects(person)) {
+				person.reduceHealth(type.getDestruction());
 				explode();
 				return;
 			}
-			super.setPosition(super.getPosition().x + x,
-							  super.getPosition().y - y);
-			Rectangle pos = super.getPosition();
-			for (Person person : persons) {
-				if (pos.intersects(person.getPosition())) {
-					person.reduceHealth(type.getDestruction());
-					explode();
-					return;
-				}
-			}
 		}
+	}
+	private int getRelativeAngle() {
+		double m = Math.abs(this.x)*angleFactor-tanAngle;
+		return Math.abs(m) <= 0.4142?0:(heading^m < 0.4142)?1:-1;
 	}
 	@Override
 	public void render(Graphics g) {
@@ -121,45 +108,32 @@ public class Bullet extends CollisionObject {
 				exploded = true;
 				return;
 			}
-			g.drawImage(type.getExplosion().getTile(animationFrame), super.getPosition().x-(type.getExplosion().getWidth()-super.getPosition().width)/2, super.getPosition().y-(type.getExplosion().getHeight()-super.getPosition().height)/2, null);
+			g.drawImage(type.getExplosion().getTile(animationFrame), this.x-(type.getExplosion().getWidth()-this.width)/2, this.y-(type.getExplosion().getHeight()-this.height)/2, null);
 			animationFrame++;
 			return;
 		} else {
-			g.drawImage(type.getBulletImage().getTile(heading?4-getRelativeAngle():1+getRelativeAngle()), super.getPosition().x, super.getPosition().y, null);
+			g.drawImage(type.getBulletImage().getTile(heading?4-getRelativeAngle():1+getRelativeAngle()), this.x, this.y, null);
 		}
-	}
-	private int getRelativeAngle() {
-		return angle;
-		/*if (angle < Math.PI/8.0 | angle > Math.PI*15/8.0) {// | (angle > Math.PI*7/8.0 && angle < Math.PI*9/8.0)) {
-			return 0; //straight
-		} else if (angle <= Math.PI*7/8.0) {
-			return heading?-1:1; //upwards
-		} else {
-			return heading?1:-1; //downwards
-		}*/
 	}
 	public Dimension getSize() {
 		return type.getSize();
 	}
 	private void explode() {
 		explode = true;
-		Rectangle explosion = new Rectangle(super.getPosition().x-(type.getExplosion().getWidth()-super.getPosition().width)/2, super.getPosition().y-(type.getExplosion().getHeight()-super.getPosition().height)/2, type.getExplosion().getWidth(), type.getExplosion().getHeight());
+		Rectangle explosion = new Rectangle(this.x-(type.getExplosion().getWidth()-this.width)/2, this.y-(type.getExplosion().getHeight()-this.height)/2, type.getExplosion().getWidth(), type.getExplosion().getHeight());
 		if (fromPlayer)
 		for (int i = 0; i < game.getEnemies().size(); i++) {
-			if (game.getEnemies().get(i).getPosition().intersects(explosion)) {
+			if (game.getEnemies().get(i).intersects(explosion)) {
 				game.getEnemies().get(i).reduceHealth(type.getDestruction());
 			}
 		}
-		if (game.getPlayer().getPosition().intersects(explosion)) {
+		if (game.getPlayer().intersects(explosion)) {
 			game.getPlayer().reduceHealth(type.getDestruction());
 		}
 		
 	}
 	public boolean isExploded() {
 		return exploded;
-	}
-	public double getAngle() {
-		return angle;
 	}
 	public boolean getGravity() {
 		return type.getGravity();

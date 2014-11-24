@@ -13,15 +13,14 @@ import org.w3c.dom.*;
 
 import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.objects.*;
-import de.hshannover.pp.slapemhard.threads.MoveThread;
 
 public class Level {
 	private ArrayList<CollisionObject> collisionObjects = new ArrayList<CollisionObject>();
+	private ArrayList<CollisionObject> maliciousObjects = new ArrayList<CollisionObject>();
 	private ArrayList<Person> enemies = new ArrayList<Person>();
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();
 	private ArrayList<PowerUp> powerups = new ArrayList<PowerUp>();
 	private Game game;
-	private MoveThread mover;
 	private int levelTime;
 	private BufferedImage landscapeImage;
 	private ArrayList<BufferedImage> backgroundImages = new ArrayList<BufferedImage>();
@@ -29,6 +28,9 @@ public class Level {
 	private int width;
 	private Dimension bounds;
 	private long startTime;
+	private Rectangle targetArea;
+	private boolean completed;
+	private boolean created;
 	
 	public Level(Game game, int level) {
 		this.game = game;
@@ -48,6 +50,24 @@ public class Level {
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element eElement = (Element) nNode;
 					collisionObjects
+						.add(new CollisionObject(
+								game,
+								new Rectangle(
+										Integer.parseInt(eElement.getAttribute("x")),
+										Integer.parseInt(eElement.getAttribute("y")),
+										Integer.parseInt(eElement.getAttribute("width")),
+										Integer.parseInt(eElement.getAttribute("height"))
+								)
+						));
+				}
+			}
+			
+			nList = doc.getElementsByTagName("MaliciousObject");
+			for (int temp = 0; temp < nList.getLength(); temp++) {
+				Node nNode = nList.item(temp);
+				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+					Element eElement = (Element) nNode;
+					maliciousObjects
 						.add(new CollisionObject(
 								game,
 								new Rectangle(
@@ -81,7 +101,10 @@ public class Level {
 			//Place player
 			Element playerElement = (Element)doc.getElementsByTagName("Player").item(0);
 			game.getPlayer().setPosition(Integer.parseInt(playerElement.getAttribute("x")), Integer.parseInt(playerElement.getAttribute("y")));
-			
+			game.getPlayer().setLeft(false);
+			game.getPlayer().setRight(false);
+			game.getPlayer().setFire(false);
+			game.getPlayer().setJump(false);
 			
 			nList = doc.getElementsByTagName("Enemy");
 			for (int temp = 0; temp < nList.getLength(); temp++) {
@@ -101,6 +124,15 @@ public class Level {
 					enemies.add(enemy);
 				}
 			}
+			
+			final Element targetElement = (Element)doc.getElementsByTagName("Target").item(0);
+			targetArea = new Rectangle(
+					Integer.parseInt(targetElement.getAttribute("x")),
+					Integer.parseInt(targetElement.getAttribute("y")),
+					Integer.parseInt(targetElement.getAttribute("width")),
+					Integer.parseInt(targetElement.getAttribute("height"))
+			);
+			
 			//Add Background images
 			BufferedImageLoader bL = new BufferedImageLoader();
 			nList = doc.getElementsByTagName("BackgroundImage");
@@ -127,38 +159,42 @@ public class Level {
 			Element landscapeElement = (Element)doc.getElementsByTagName("LandscapeImage").item(0);
 			landscapeImage = bL.getImage("levels/level_"+level+"/"+landscapeElement.getAttribute("src"));
 			width = landscapeImage.getWidth();
+			this.bounds = new Dimension(width,game.getGameSize().height);
+			created = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		this.bounds = new Dimension(width,game.getGameSize().height);
+		
+	}
+	
+	public boolean isCreated() {
+		return created;
 	}
 	/**
 	 * Runs the level
 	 */
 	public void start() {
-		mover = new MoveThread(this);
-		mover.start();
 		startTime = System.currentTimeMillis();
 		for (Person e : enemies) {
-			e.setAutonomous();
+			//e.setAutonomous();
+			e.init();
 		}
 	}
 	/**
 	 * Stops all Threads
 	 */
 	public void stop() {
-		System.out.println("Stopping mover");
+		/*System.out.println("Stopping mover");
 		for (Person p : game.getEnemies()) {
 			p.stop();
-		}
-		mover.interrupt();
+		}*/
 	}
 	/**
 	 * Returns if Level is completed
 	 * @return if Level is completed
 	 */
-	public boolean done() {
-		return false;
+	public boolean isCompleted() {
+		return completed;
 	}
 	
 	public long getRemainingTime() {
@@ -191,6 +227,10 @@ public class Level {
 		return collisionObjects;
 	}
 	
+	public ArrayList<CollisionObject> getMaliciousObjects() {
+		return maliciousObjects;
+	}
+	
 	public ArrayList<PowerUp> getPowerUps() {
 		return powerups;
 	}
@@ -198,9 +238,9 @@ public class Level {
 	public Player getPlayer() {
 		return game.getPlayer();
 	}
-
-	public MoveThread getMoveThread() {
-		return mover;
+	
+	public Rectangle getTargetArea() {
+		return targetArea;
 	}
 
 	public Font getFont() {
@@ -221,5 +261,8 @@ public class Level {
 
 	public ArrayList<BufferedImage> getForegroundImages() {
 		return foregroundImages;
+	}
+	public void setCompleted() {
+		completed = true;
 	}
 }

@@ -12,6 +12,10 @@ import de.hshannover.pp.slapemhard.*;
  *
  */
 public class Player extends Person {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3174758635500981208L;
 	ArrayList<Weapon> weapons = new ArrayList<Weapon>();
 	Game game;
 	private int activeWeapon;
@@ -19,6 +23,9 @@ public class Player extends Person {
 	private boolean invincible;
 	private long invincibleTime;
 	private Thread invincibleThread;
+	private ArrayList<Integer> holds = new ArrayList<Integer>();
+	private boolean moveLeft,moveRight,jump,fire;
+	private int shots, lastFired, jumped;
 	
 	public Player(Game game, int person) {
 		super(game, 100, new Dimension(), Person.PersonName.values()[person], false);
@@ -53,18 +60,63 @@ public class Player extends Person {
 	 * player is touching any {@link PowerUp PowerUp}. 
 	 */
 	@Override
-	public boolean[] move(int x, int y, ArrayList<CollisionObject> collisions) {
+	protected boolean[] move(int x, int y, ArrayList<CollisionObject> collisions) {
 		boolean collision[] = super.move(x, y, collisions);
-		
-		for (int i = 0; i < game.getPowerUps().size(); i++) {
-			if (game.getPowerUps().get(i).getPosition().intersects(super.getPosition())) {
-				game.getPowerUps().get(i).collect();
-				game.getPowerUps().remove(i);
-				i--;
+		try {
+			for (int i = 0; i < game.getPowerUps().size(); i++) {
+				if (game.getPowerUps().get(i).intersects(this)) {
+					game.getPowerUps().get(i).collect();
+					game.getPowerUps().remove(i);
+					i--;
+				}
 			}
-		}
+			if (collides(game.getMaliciousObjects(), 0, 0)[0]) { //any axis would be sufficient
+				reduceHealth(getHealth()); //Die if not invincible
+			}
+			if (this.intersects(game.getTargetArea()))
+				synchronized (game) {
+					game.getLevel().setCompleted();
+					game.notify();
+				}
+		} catch (NullPointerException e) {}
 		return collision;
 	}
+	@Override
+	public void move() {
+		if (moveRight | moveLeft) {
+			setWalking(true);
+			if (moveLeft) {
+				move(-1, 0, game.getCollisionObjects());
+			} else {
+				move(1, 0, game.getCollisionObjects());
+			}
+		} else {
+			setWalking(false);
+		}
+		boolean[] collision = move(0, jump?-1:1, game.getCollisionObjects()); //Gravity
+		if (jump | !collision[1]) {
+			setJumping(true);
+		} else {
+			setJumping(false);
+		}
+		if (fire && (shots == 0 | getWeapon().getType().isAutomatic())) {
+			if (lastFired == 0) {
+				fire();
+				shots++;
+			}
+			lastFired = (lastFired+1) % 10;
+		}
+		if (jump && (collision[1] | jumped >= 70)) { //Collision with object above or reached max jump height
+			jump = false;
+			jumped = 0;
+		} else if (jump) {//Jumped less than max jump height
+			jumped++;
+		}
+	}
+	public void setLeft(boolean b) {moveLeft=b;}
+	public void setRight(boolean b) {moveRight=b;}
+	public void setJump(boolean b) {jump=b; jumped = 0;}
+	public void setFire(boolean b) {fire = b; shots = 0; lastFired = 0;}
 	/**
 	 * Changes the amount of remaining lives
 	 * @param lives number of lives
@@ -81,6 +133,7 @@ public class Player extends Person {
 		//activate weapon immediately
 		activeWeapon = weapons.size()-1;
 		super.setWeapon(weapons.get(activeWeapon));
+		holds.add(type.getId());
 	}
 	/**
 	 * Sets active weapon to the next available
@@ -129,5 +182,8 @@ public class Player extends Person {
 	 */
 	public boolean isInvincible() {
 		return invincible;
+	}
+	public boolean hasWeapon(int weaponId) {
+		return holds.contains(weaponId);
 	}
 }

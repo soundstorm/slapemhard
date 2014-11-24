@@ -11,11 +11,8 @@ import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-//import java.net.URL;
-
-
-
-//import javax.swing.ImageIcon;
+import java.net.URL;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -27,24 +24,26 @@ import de.hshannover.pp.slapemhard.threads.DrawThread;
  *
  */
 public class SlapEmHard {
-	private static JFrame frame;
+	private final static JFrame frame = new JFrame("Slap Em Hard");
 	private static boolean fullscreen;
 	private static double scale;
 	private static Dimension gameSize;
 	private static DrawThread drawThread;
 	public static void main(String[] args) {
 		JFrame.setDefaultLookAndFeelDecorated(true);
-		frame = new JFrame("Slap Em Hard");
 		frame.setUndecorated(true);
-		//URL iconURL = getClass().getResource("/res/images/icon.png");
-		//ImageIcon icon = new ImageIcon(iconURL);
-		//frame.setIconImage(icon.getImage());
+		frame.setFocusable(true);
+		frame.setResizable(false);
+		
+		URL iconURL = SlapEmHard.class.getResource("/res/logo.png");
+		ImageIcon icon = new ImageIcon(iconURL);
+		frame.setIconImage(icon.getImage());
 
 		Object[] options = { "Ja", "Nein" };
 		int n = JOptionPane.showOptionDialog(null,
 				"Switch to fullscreen?", "Fullscreen",
 				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
-				null, options, options[0]);
+				icon, options, options[0]);
 		if (n == JOptionPane.YES_OPTION) {
 			fullscreen = true;
 		}
@@ -59,7 +58,7 @@ public class SlapEmHard {
 		GraphicsDevice device = gs[0];
 		DisplayMode oldDisplayMode = device.getDisplayMode();
 		frame.setVisible(true);
-		frame.setResizable(false);
+		Menu menu = new Menu(frame, gameSize, scale);
 		/*Preferred sizes:
 		SCALEFACTOR	NAME	RESOLUTION
 		5			UXGA	1600x1200
@@ -114,9 +113,8 @@ public class SlapEmHard {
 				confirmQuit();
 			}
 		});
-		Menu menu = new Menu(frame, gameSize, scale);
 		KeyboardListener keyboardListener = new KeyboardListener(menu);
-
+		
 		drawThread = new DrawThread(menu);
 		frame.add(drawThread);
 		drawThread.setPreferredSize(new Dimension(frame.getWidth(), frame.getHeight()));
@@ -130,6 +128,7 @@ public class SlapEmHard {
 	 * Shows dialog if trying to close frame by {@link WindowAdapter#windowClosing(WindowEvent)}
 	 */
 	private static void confirmQuit() {
+		System.exit(0);
 		Object[] options = {"Quit", "Cancel"};
 		int n = JOptionPane.showOptionDialog(null,
 				"Do you really want to quit?", "Quit game",

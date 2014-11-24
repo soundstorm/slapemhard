@@ -13,6 +13,10 @@ import de.hshannover.pp.slapemhard.images.SpriteSheet;
  *
  */
 public class PowerUp extends CollisionObject {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5421297144258706369L;
 	private static SpriteSheet ss = new SpriteSheet((new BufferedImageLoader()).getImage("images/powerups.png"),12,12);
 	private int type;
 	private int animationFrame;
@@ -38,7 +42,7 @@ public class PowerUp extends CollisionObject {
 	 * Renders the power up to the {@link java.awt.Graphics Graphics} object.
 	 */
 	public void render(Graphics g) {
-		g.drawImage(ss.getTile(type, animationFrame/2), super.getPosition().x, super.getPosition().y, null);
+		g.drawImage(ss.getTile(type, animationFrame/2), this.x, this.y, null);
 		animationFrame = (animationFrame+1)%(ss.getCols()*2);
 	}
 	/**
@@ -64,6 +68,7 @@ public class PowerUp extends CollisionObject {
 				game.getPlayer().setInvincible();
 				break;
 		}
+		game.addPoints(20);
 		collected = true;
 	}
 	/**
