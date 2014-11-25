@@ -4,14 +4,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.InputStream;
 import java.util.ArrayList;
 
-import javax.xml.parsers.*;
-
-import org.w3c.dom.*;
-
-import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.images.BufferedImageReference;
 import de.hshannover.pp.slapemhard.objects.*;
 
@@ -86,135 +80,6 @@ public class Level {
 			
 			created = true;
 		}
-		/*try {
-			InputStream fXmlFile = this.getClass().getResourceAsStream(("/res/levels/level_"+level+".xml"));
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(fXmlFile);
-			doc.getDocumentElement().normalize();
-			
-			levelTime = Integer.parseInt(doc.getDocumentElement().getAttribute("time"));
-
-			//Add collision objects
-			NodeList nList = doc.getElementsByTagName("CollisionObject");
-			for (int temp = 0; temp < nList.getLength(); temp++) {
-				Node nNode = nList.item(temp);
-				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-					Element eElement = (Element) nNode;
-					collisionObjects
-						.add(new CollisionObject(
-								game,
-								new Rectangle(
-										Integer.parseInt(eElement.getAttribute("x")),
-										Integer.parseInt(eElement.getAttribute("y")),
-										Integer.parseInt(eElement.getAttribute("width")),
-										Integer.parseInt(eElement.getAttribute("height"))
-								)
-						));
-				}
-			}
-			
-			nList = doc.getElementsByTagName("MaliciousObject");
-			for (int temp = 0; temp < nList.getLength(); temp++) {
-				Node nNode = nList.item(temp);
-				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-					Element eElement = (Element) nNode;
-					maliciousObjects
-						.add(new CollisionObject(
-								game,
-								new Rectangle(
-										Integer.parseInt(eElement.getAttribute("x")),
-										Integer.parseInt(eElement.getAttribute("y")),
-										Integer.parseInt(eElement.getAttribute("width")),
-										Integer.parseInt(eElement.getAttribute("height"))
-								)
-						));
-				}
-			}
-			
-			nList = doc.getElementsByTagName("PowerUp");
-			for (int temp = 0; temp < nList.getLength(); temp++) {
-				Node nNode = nList.item(temp);
-				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-					Element eElement = (Element) nNode;
-					powerups
-						.add(new PowerUp(
-								game,
-								new Dimension(
-										Integer.parseInt(eElement.getAttribute("x")),
-										Integer.parseInt(eElement.getAttribute("y"))
-								),
-								Integer.parseInt(eElement.getAttribute("type"))
-						));
-				}
-			}
-			
-			//Place player
-			Element playerElement = (Element)doc.getElementsByTagName("Player").item(0);
-			game.getPlayer().setPosition(Integer.parseInt(playerElement.getAttribute("x")), Integer.parseInt(playerElement.getAttribute("y")));
-			game.getPlayer().setLeft(false);
-			game.getPlayer().setRight(false);
-			game.getPlayer().setFire(false);
-			game.getPlayer().setJump(false);
-			
-			nList = doc.getElementsByTagName("Enemy");
-			for (int temp = 0; temp < nList.getLength(); temp++) {
-				Node nNode = nList.item(temp);
-				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-					Element eElement = (Element) nNode;
-					Person enemy = new Person(game,
-						Integer.parseInt(eElement.getAttribute("health")),
-						new Dimension(
-							Integer.parseInt(eElement.getAttribute("x")),
-							Integer.parseInt(eElement.getAttribute("y"))
-						),
-						Person.PersonName.values()[Integer.parseInt(eElement.getAttribute("look"))]
-					);
-					enemy.setPower(Integer.parseInt(eElement.getAttribute("power")));
-					enemy.setWeapon(new Weapon(game, new BulletType(BulletType.BulletName.values()[Integer.parseInt(eElement.getAttribute("weapon"))])));
-					enemies.add(enemy);
-				}
-			}
-			
-			final Element targetElement = (Element)doc.getElementsByTagName("Target").item(0);
-			targetArea = new Rectangle(
-					Integer.parseInt(targetElement.getAttribute("x")),
-					Integer.parseInt(targetElement.getAttribute("y")),
-					Integer.parseInt(targetElement.getAttribute("width")),
-					Integer.parseInt(targetElement.getAttribute("height"))
-			);
-			
-			//Add Background images
-			BufferedImageLoader bL = new BufferedImageLoader();
-			nList = doc.getElementsByTagName("BackgroundImage");
-			for (int temp = 0; temp < nList.getLength(); temp++) {
-				Node nNode = nList.item(temp);
-				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-					Element eElement = (Element) nNode;
-					backgroundImages
-						.add(bL.getImage("levels/level_"+level+"/"+eElement.getAttribute("src")));
-				}
-			}
-			//Add Foreground images
-			nList = doc.getElementsByTagName("ForegroundImage");
-			for (int temp = 0; temp < nList.getLength(); temp++) {
-				Node nNode = nList.item(temp);
-				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-					Element eElement = (Element) nNode;
-					foregroundImages
-						.add(bL.getImage("levels/level_"+level+"/"+eElement.getAttribute("src")));
-				}
-			}
-			
-			//Add main landscape
-			Element landscapeElement = (Element)doc.getElementsByTagName("LandscapeImage").item(0);
-			landscapeImage = bL.getImage("levels/level_"+level+"/"+landscapeElement.getAttribute("src"));
-			width = landscapeImage.getWidth();
-			created = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		*/
 	}
 	
 	public boolean isCreated() {
