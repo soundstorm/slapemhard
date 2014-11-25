@@ -30,8 +30,12 @@
 		<Enemy x="140" y="0" look="2" weapon="0" power="2" health="40"></Enemy>
 		<Enemy x="420" y="100" look="2" weapon="1" power="1" health="50"></Enemy>
 		<Enemy x="700" y="100" look="2" weapon="2" power="3" health="100"></Enemy>
-		<Enemy x="600" y="0" look="0" weapon="1" power="50" health="30"></Enemy>
+		<Enemy x="600" y="0" look="0" weapon="1" power="2" health="30"></Enemy>
 	</Enemies>
+	<Target x="894" y="178" width="17" height="34"></Target>
+	
+	<MaliciousObject x="520" y="124" width="17" height="17"></MaliciousObject>
+	
 	<LandscapeImage src="landscape.png"></LandscapeImage>
 	<BackgroundImage src="background_0.png"></BackgroundImage>
 	<BackgroundImage src="background_1.png"></BackgroundImage>
