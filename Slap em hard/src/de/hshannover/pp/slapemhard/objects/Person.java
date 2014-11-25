@@ -7,6 +7,7 @@ import java.util.ArrayList;
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
 
+
 import de.hshannover.pp.slapemhard.Game;
 import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.images.SpriteSheet;
@@ -21,6 +22,8 @@ public class Person extends CollisionObject {
 	 * 
 	 */
 	private static final long serialVersionUID = -6475017014140938423L;
+	public static final int WIDTH = 16;
+	public static final int HEIGHT = 52;
 
 	//private static final Logger log = Logger.getLogger(Person.class.getName());
 	
@@ -44,6 +47,8 @@ public class Person extends CollisionObject {
 	private int sleep;
 
 	private boolean initDone;
+
+	private int personId;
 	public enum PersonName {
 		ANDRE,
 		LUCA,
@@ -67,27 +72,34 @@ public class Person extends CollisionObject {
 		this(game,health,new Dimension(size.x,size.y),name,isPlayer);
 	}
 	public Person(Game game, int health, Dimension position, PersonName name, boolean isPlayer) {
-		super(game,new Rectangle(position.width,position.height,16,52));
+		super(game,new Rectangle(position.width,position.height,WIDTH,HEIGHT));
 		this.health = this.maxHealth = health;
 		//this.isPlayer = isPlayer;
 		BufferedImageLoader bL = new BufferedImageLoader();
 		switch (name) {
 			case ANDRE:
-				
+				personId = 0;
 			case LUCA:
+				personId = 1;
 				animation = new SpriteSheet(bL.getImage("images/persons/luca/person.png"),16,56);
 				arm = new SpriteSheet(bL.getImage("images/persons/luca/arm.png"),38,60);
 				break;
 			case PATRICK:
+				personId = 2;
 			case STEFFEN:
+				personId = 3;
 				animation = new SpriteSheet(bL.getImage("images/persons/patrick/person.png"),16,56);
 				arm = new SpriteSheet(bL.getImage("images/persons/patrick/arm.png"),38,60);
 				break;
 				
 			case ENEMY0:
+				personId = 4;
 				
 			default:
-				
+				personId = 5;
+				animation = new SpriteSheet(bL.getImage("images/persons/patrick/person.png"),16,56);
+				arm = new SpriteSheet(bL.getImage("images/persons/patrick/arm.png"),38,60);
+				break;
 		}
 	}
 	public void init() {
@@ -174,7 +186,7 @@ public class Person extends CollisionObject {
 	 * if person collides on that axis with any CollisionObject or left/right bounds
 	 * of map).
 	 */
-	protected boolean[] move(int x, int y, ArrayList<CollisionObject> collisions) {
+	protected boolean[] move(int x, int y, ArrayList<Rectangle> collisions) {
 		if (x != 0) {
 			heading = x<0;
 			//Change heading of person
@@ -213,7 +225,7 @@ public class Person extends CollisionObject {
 		if (distance > 0) {
 			boolean collision[] = {false, false};
 			Rectangle check = new Rectangle(this.x+this.width*(this.direction?1:-1),this.y+1,this.width,this.height);
-			for (CollisionObject collide : game.getCollisionObjects()) {
+			for (Rectangle collide : game.getCollisionObjects()) {
 				if (check.intersects(collide)) {
 					collision[1] = true;
 					break;
@@ -370,5 +382,8 @@ public class Person extends CollisionObject {
 	}
 	public int getPower() {
 		return (int)(this.rate*100);
+	}
+	public int getType() {
+		return personId;
 	}
 }

@@ -16,6 +16,8 @@ public class PowerUp extends CollisionObject {
 	/**
 	 * 
 	 */
+	public static final int WIDTH = 12;
+	public static final int HEIGHT = 12;
 	private static final long serialVersionUID = 5421297144258706369L;
 	private static SpriteSheet ss = new SpriteSheet((new BufferedImageLoader()).getImage("images/powerups.png"),12,12);
 	private int type;
@@ -77,5 +79,8 @@ public class PowerUp extends CollisionObject {
 	 */
 	public boolean collected() {
 		return collected;
+	}
+	public int getType() {
+		return type;
 	}
 }

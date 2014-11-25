@@ -12,11 +12,12 @@ import javax.xml.parsers.*;
 import org.w3c.dom.*;
 
 import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
+import de.hshannover.pp.slapemhard.images.BufferedImageReference;
 import de.hshannover.pp.slapemhard.objects.*;
 
 public class Level {
-	private ArrayList<CollisionObject> collisionObjects = new ArrayList<CollisionObject>();
-	private ArrayList<CollisionObject> maliciousObjects = new ArrayList<CollisionObject>();
+	private ArrayList<Rectangle> collisionObjects = new ArrayList<Rectangle>();
+	private ArrayList<Rectangle> maliciousObjects = new ArrayList<Rectangle>();
 	private ArrayList<Person> enemies = new ArrayList<Person>();
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();
 	private ArrayList<PowerUp> powerups = new ArrayList<PowerUp>();
@@ -26,15 +27,66 @@ public class Level {
 	private ArrayList<BufferedImage> backgroundImages = new ArrayList<BufferedImage>();
 	private ArrayList<BufferedImage> foregroundImages = new ArrayList<BufferedImage>();
 	private int width;
-	private Dimension bounds;
 	private long startTime;
 	private Rectangle targetArea;
 	private boolean completed;
 	private boolean created;
+	private static LevelManager levelManager = new LevelManager();
 	
 	public Level(Game game, int level) {
 		this.game = game;
-		try {
+		if (levelManager.load(level)) {
+			levelTime = levelManager.getLevelTime();
+			
+			for (ObjectPrototype o : levelManager.getCollisionObjects()) {
+				collisionObjects.add(o);
+			}
+			
+			for (ObjectPrototype o : levelManager.getMaliciousObjects()) {
+				maliciousObjects.add(o);
+			}
+			
+			for (ObjectPrototype o : levelManager.getEnemies()) {
+				Person e = new Person(game, o.getHealth(), new Dimension(o.x, o.y), Person.PersonName.values()[o.getLook()]);
+				e.setPower(o.getPower());
+				e.setWeapon(new Weapon(game, new BulletType(BulletType.BulletName.values()[o.getWeapon()])));
+				enemies.add(e);
+			}
+			
+			for (ObjectPrototype o : levelManager.getPowerups()) {
+				powerups.add(
+					new PowerUp(
+						game,
+						new Dimension(
+								o.x,
+								o.y
+						),
+						o.getType()
+					)
+				);
+			}
+			
+			for (BufferedImageReference bR : levelManager.getBackgroundImages())
+				backgroundImages.add(bR.getImage());
+			
+			for (BufferedImageReference bR : levelManager.getForegroundImages())
+				foregroundImages.add(bR.getImage());
+			
+			landscapeImage = levelManager.getLandscapeImage().getImage();
+			
+			targetArea = levelManager.getTargetArea();
+			
+			game.getPlayer().setPosition(levelManager.getPlayer().x,levelManager.getPlayer().y);
+			game.getPlayer().setLeft(false);
+			game.getPlayer().setRight(false);
+			game.getPlayer().setFire(false);
+			game.getPlayer().setJump(false);
+			
+			width = landscapeImage.getWidth();
+			
+			created = true;
+		}
+		/*try {
 			InputStream fXmlFile = this.getClass().getResourceAsStream(("/res/levels/level_"+level+".xml"));
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -94,7 +146,6 @@ public class Level {
 								),
 								Integer.parseInt(eElement.getAttribute("type"))
 						));
-					System.out.println("Added Powerup.");
 				}
 			}
 			
@@ -159,12 +210,11 @@ public class Level {
 			Element landscapeElement = (Element)doc.getElementsByTagName("LandscapeImage").item(0);
 			landscapeImage = bL.getImage("levels/level_"+level+"/"+landscapeElement.getAttribute("src"));
 			width = landscapeImage.getWidth();
-			this.bounds = new Dimension(width,game.getGameSize().height);
 			created = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+		*/
 	}
 	
 	public boolean isCreated() {
@@ -223,11 +273,11 @@ public class Level {
 		return bullets;
 	}
 
-	public ArrayList<CollisionObject> getCollisionObjects() {
+	public ArrayList<Rectangle> getCollisionObjects() {
 		return collisionObjects;
 	}
 	
-	public ArrayList<CollisionObject> getMaliciousObjects() {
+	public ArrayList<Rectangle> getMaliciousObjects() {
 		return maliciousObjects;
 	}
 	
@@ -251,8 +301,8 @@ public class Level {
 		return backgroundImages;
 	}
 	
-	public Dimension getBounds() {
-		return bounds;
+	public int getWidth() {
+		return width;
 	}
 
 	public Game getGame() {

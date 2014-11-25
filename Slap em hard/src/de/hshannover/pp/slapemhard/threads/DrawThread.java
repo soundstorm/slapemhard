@@ -26,13 +26,11 @@ public class DrawThread extends Canvas implements Runnable {
 	private int fps = 30;
 	private static SpriteSheet lives = new SpriteSheet((new BufferedImageLoader()).getImage("images/lives.png"),11,11);
 	private double scale;
-	private Dimension gameSize;
 	
 	public DrawThread(Menu menu) {
 		super();
 		this.menu = menu;
 		this.scale = menu.getScale();
-		this.gameSize = menu.getGameSize();
 		setIgnoreRepaint(true);
 	}
 	
@@ -41,33 +39,37 @@ public class DrawThread extends Canvas implements Runnable {
 	
 	private void move() {
 		menu.getGame().getPlayer().move();
-		for (int i = 0; i < menu.getGame().getBullets().size(); i++) {
-			try {
-				Bullet obj = menu.getGame().getBullets().get(i);
-				obj.move();
-				if (obj.isExploded()) {
-					menu.getGame().getBullets().remove(obj);
-					i--;
+		try {
+			for (int i = 0; i < menu.getGame().getBullets().size(); i++) {
+				try {
+					Bullet obj = menu.getGame().getBullets().get(i);
+					obj.move();
+					if (obj.isExploded()) {
+						menu.getGame().getBullets().remove(obj);
+						i--;
+					}
+				} catch (Exception e) {
+					log.warning("Cant modify Bullet:\n"+e.toString());
 				}
-			} catch (Exception e) {
-				log.warning("Cant modify Bullet:\n"+e.toString());
 			}
-		}
-		for (int i = 0; i < menu.getGame().getEnemies().size(); i++) {
-			try {
-				Person obj = menu.getGame().getEnemies().get(i);
-				obj.move();
-				if (!obj.isAlive()) {
-					//obj.stop();
-					menu.getGame().addPoints(obj.getPower()*40);
-					menu.getGame().getPowerUps().add(new PowerUp(menu.getGame(),new Dimension(obj.x,obj.y+30),1));
-					menu.getGame().getEnemies().remove(obj);
-					i--;
-					//continue;
+			for (int i = 0; i < menu.getGame().getEnemies().size(); i++) {
+				try {
+					Person obj = menu.getGame().getEnemies().get(i);
+					obj.move();
+					if (!obj.isAlive()) {
+						//obj.stop();
+						menu.getGame().addPoints(obj.getPower()*40);
+						menu.getGame().getPowerUps().add(new PowerUp(menu.getGame(),new Dimension(obj.x,obj.y+30),1));
+						menu.getGame().getEnemies().remove(obj);
+						i--;
+						//continue;
+					}
+				} catch (Exception e) {
+					log.warning("Cant modify Bullet:\n"+e.toString());
 				}
-			} catch (Exception e) {
-				log.warning("Cant modify Bullet:\n"+e.toString());
 			}
+		} catch (NullPointerException e) {
+			log.warning("Level was destroyed, movement stopped.");
 		}
 	}
 	
@@ -167,12 +169,12 @@ public class DrawThread extends Canvas implements Runnable {
 			int xoffset = level.getPlayer().x-100;
 			if (xoffset < 0) {
 				xoffset = 0;
-			} else if (xoffset > level.getBounds().width-gameSize.width) {
-				xoffset = level.getBounds().width-gameSize.width;
+			} else if (xoffset > level.getWidth()-SlapEmHard.WIDTH) {
+				xoffset = level.getWidth()-SlapEmHard.WIDTH;
 			}
 			
 			for (BufferedImage bI : level.getBackgroundImages()) {
-				g.drawImage(bI, -xoffset*(bI.getWidth()-gameSize.width)/(level.getBounds().width-gameSize.width), 0, null);
+				g.drawImage(bI, -xoffset*(bI.getWidth()-SlapEmHard.WIDTH)/(level.getWidth()-SlapEmHard.WIDTH), 0, null);
 			}
 			
 			//Move to active clip
@@ -215,7 +217,7 @@ public class DrawThread extends Canvas implements Runnable {
 			g2d.translate(xoffset, 0);
 			
 			for (BufferedImage fI : level.getForegroundImages()) {
-				g.drawImage(fI, -xoffset*(fI.getWidth()-gameSize.width)/(level.getBounds().width-gameSize.width), 0, null);
+				g.drawImage(fI, -xoffset*(fI.getWidth()-SlapEmHard.WIDTH)/(level.getWidth()-SlapEmHard.WIDTH), 0, null);
 			}
 			
 			/*for (CollisionObject ro : level.getCollisionObjects()) {

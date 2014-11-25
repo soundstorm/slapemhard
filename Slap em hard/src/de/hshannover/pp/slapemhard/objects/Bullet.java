@@ -26,8 +26,8 @@ public class Bullet extends CollisionObject {
 	public Bullet(Game game, Dimension origin, BulletType type, int degree) {
 		this(game, origin, type, degree, false);
 	}
-	public Bullet(Game game,Dimension origin, BulletType type, int degree, boolean fromPlayer) {
-		super(game, origin.width,origin.height,type.getSize().width,type.getSize().height);
+	public Bullet(Game game, Dimension origin, BulletType type, int degree, boolean fromPlayer) {
+		super(game, origin.width, origin.height, type.getSize().width, type.getSize().height);
 		this.game = game;
 		this.type = type;
 		double originAngle = Math.toRadians(degree);

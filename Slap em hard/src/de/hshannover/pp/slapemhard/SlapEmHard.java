@@ -12,6 +12,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -25,9 +26,10 @@ import de.hshannover.pp.slapemhard.threads.DrawThread;
  */
 public class SlapEmHard {
 	private final static JFrame frame = new JFrame("Slap Em Hard");
+	public static final int WIDTH = 320;
+	public static final int HEIGHT = 240;
 	private static boolean fullscreen;
 	private static double scale;
-	private static Dimension gameSize;
 	private static DrawThread drawThread;
 	public static void main(String[] args) {
 		JFrame.setDefaultLookAndFeelDecorated(true);
@@ -47,10 +49,9 @@ public class SlapEmHard {
 		if (n == JOptionPane.YES_OPTION) {
 			fullscreen = true;
 		}
-		gameSize = new Dimension(320,240);
 		
 		scale = 2.0;
-		frame.setSize((int)(scale*gameSize.width), (int)(scale*gameSize.height));
+		frame.setSize((int)(scale*WIDTH), (int)(scale*HEIGHT));
 		// http://stackoverflow.com/questions/11225113/change-screen-resolution-in-java
 		GraphicsEnvironment ge = GraphicsEnvironment
 				.getLocalGraphicsEnvironment();
@@ -58,7 +59,7 @@ public class SlapEmHard {
 		GraphicsDevice device = gs[0];
 		DisplayMode oldDisplayMode = device.getDisplayMode();
 		frame.setVisible(true);
-		Menu menu = new Menu(frame, gameSize, scale);
+		Menu menu = new Menu(frame, scale);
 		/*Preferred sizes:
 		SCALEFACTOR	NAME	RESOLUTION
 		5			UXGA	1600x1200
@@ -78,7 +79,7 @@ public class SlapEmHard {
 				try {
 					//throw new Exception("");
 					//device.setDisplayMode(new DisplayMode(frame.getWidth(), frame.getHeight(), 32, 0));
-					device.setDisplayMode(new DisplayMode((int)(gameSize.width*scales[i]), (int)(gameSize.height*scales[i]), 32, 0));
+					device.setDisplayMode(new DisplayMode((int)(SlapEmHard.WIDTH*scales[i]), (int)(SlapEmHard.HEIGHT*scales[i]), 32, 0));
 					device.setFullScreenWindow(frame);
 					Toolkit toolkit = Toolkit.getDefaultToolkit();
 					Point hotSpot = new Point(0, 0);

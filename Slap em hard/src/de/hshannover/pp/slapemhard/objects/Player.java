@@ -1,6 +1,7 @@
 package de.hshannover.pp.slapemhard.objects;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.util.*;
 
 import de.hshannover.pp.slapemhard.*;
@@ -16,8 +17,8 @@ public class Player extends Person {
 	 * 
 	 */
 	private static final long serialVersionUID = 3174758635500981208L;
-	ArrayList<Weapon> weapons = new ArrayList<Weapon>();
-	Game game;
+	private ArrayList<Weapon> weapons = new ArrayList<Weapon>();
+	private Game game;
 	private int activeWeapon;
 	private int lives = 3;
 	private boolean invincible;
@@ -60,7 +61,7 @@ public class Player extends Person {
 	 * player is touching any {@link PowerUp PowerUp}. 
 	 */
 	@Override
-	protected boolean[] move(int x, int y, ArrayList<CollisionObject> collisions) {
+	protected boolean[] move(int x, int y, ArrayList<Rectangle> collisions) {
 		boolean collision[] = super.move(x, y, collisions);
 		try {
 			for (int i = 0; i < game.getPowerUps().size(); i++) {
@@ -81,6 +82,7 @@ public class Player extends Person {
 		} catch (NullPointerException e) {}
 		return collision;
 	}
+	
 	@Override
 	public void move() {
 		if (moveRight | moveLeft) {

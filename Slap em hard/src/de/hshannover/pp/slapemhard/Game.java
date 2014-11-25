@@ -29,7 +29,6 @@ public class Game implements Runnable {
 	private int activeLevel = 1;
 	private Level level;
 	private double scale;
-	private Dimension gameSize;
 	private Menu menu;
 	private int character;
 	private Thread thread;
@@ -51,7 +50,6 @@ public class Game implements Runnable {
 		
 	public Game(Menu menu) {
 		this.menu = menu;
-		this.gameSize = menu.getGameSize();
 		this.scale = menu.getScale();
 		try {
 			font = Font.createFont(Font.TRUETYPE_FONT, r.getInputStream("fonts/04b.ttf"));
@@ -213,7 +211,7 @@ public class Game implements Runnable {
 				drawStringCentered(g,"INSERT COIN",234);
 			}
 			for (int i = 0; i < 4; i++)
-				characters.get(i).render(g,gameSize.width/2-128+i*80,80);
+				characters.get(i).render(g,SlapEmHard.WIDTH/2-128+i*80,80);
 			for (int i = 0; i < 8; i++) {
 				g.drawString(i+1+".",10+160*(i/4),165+17*(i%4));
 				g.drawString(highscore.getName(i),30+160*(i/4),165+17*(i%4));
@@ -225,20 +223,16 @@ public class Game implements Runnable {
 		drawStringCentered(g,string,0,y);
 	}
 	private void drawStringCentered(Graphics g, String string, int relX, int y) {
-		g.drawString(string, (gameSize.width-g.getFontMetrics().stringWidth(string))/2+relX, y);
+		g.drawString(string, (SlapEmHard.WIDTH-g.getFontMetrics().stringWidth(string))/2+relX, y);
 	}
 	
 	private void openStore() {
 		Level tmplevel;
-		try {
-			tmplevel = new Level(this, activeLevel);
-			if (tmplevel.isCreated()) {
-				store = true;
-				level = tmplevel;
-				return;
-			}
-		} catch (Exception e) {
-			System.out.println("Level cannot be created");
+		tmplevel = new Level(this, activeLevel);
+		if (tmplevel.isCreated()) {
+			store = true;
+			level = tmplevel;
+			return;
 		}
 		if (points > highscore.getScore(7))
 			inputName = true;
@@ -376,10 +370,6 @@ public class Game implements Runnable {
 		return font;
 	}
 	
-	public Dimension getGameSize() {
-		return gameSize;
-	}
-	
 	public ArrayList<Person> getEnemies() {
 		return level.getEnemies();
 	}
@@ -388,11 +378,11 @@ public class Game implements Runnable {
 		return level.getBullets();
 	}
 
-	public ArrayList<CollisionObject> getCollisionObjects() {
+	public ArrayList<Rectangle> getCollisionObjects() {
 		return level.getCollisionObjects();
 	}
 	
-	public ArrayList<CollisionObject> getMaliciousObjects() {
+	public ArrayList<Rectangle> getMaliciousObjects() {
 		return level.getMaliciousObjects();
 	}
 
@@ -412,8 +402,12 @@ public class Game implements Runnable {
 		return level.getTargetArea();
 	}
 	
-	public Dimension getBounds() {
-		return level.getBounds();
+	public int getWidth() {
+		try {
+			return level.getWidth();
+		} catch (NullPointerException e) {
+			return 0;
+		}
 	}
 	
 	public double getScale() {

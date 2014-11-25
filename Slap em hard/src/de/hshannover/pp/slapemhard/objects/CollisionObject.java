@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import de.hshannover.pp.slapemhard.Game;
+import de.hshannover.pp.slapemhard.SlapEmHard;
 
 /**
  * General object, which can collide.
@@ -31,13 +32,11 @@ public class CollisionObject extends Rectangle {
 		super(x,y,width,height);
 		this.game = game;
 	}
-	/**
-	 * Returns position and size
-	 * @return position and size
-	 */
-	@Deprecated
-	public Rectangle getPosition () {
-		return this;
+	public CollisionObject (Rectangle size) {
+		super(size);
+	}
+	public CollisionObject(int x, int y, int width, int height) {
+		super(x,y,width,height);
 	}
 	/**
 	 * Checks if and on which axis the Object collides with any other of the List given
@@ -46,13 +45,13 @@ public class CollisionObject extends Rectangle {
 	 * @param y Check at different (relative) y-position
 	 * @return
 	 */
-	public boolean[] collides(ArrayList<CollisionObject> collisions, int x, int y) {
+	public boolean[] collides(ArrayList<Rectangle> collisions, int x, int y) {
 		boolean collision[] = {false,false};
 
 		Rectangle xColl = new Rectangle(this.x+x,this.y,this.width,this.height);
 		Rectangle yColl = new Rectangle(this.x,this.y+y,this.width,this.height);
 		
-		for (CollisionObject collide : collisions) {
+		for (Rectangle collide : collisions) {
 
 			//Collision Detected. Now determine in which Direction:
 			if (collide.intersects(xColl)) {
@@ -70,9 +69,9 @@ public class CollisionObject extends Rectangle {
 		}
 		return collision;
 	}
-	public boolean collides(ArrayList<CollisionObject> collisions) {
-		for (CollisionObject collide : collisions) {
-			if (this.intersects(collide.getPosition()))
+	public boolean collides(ArrayList<Rectangle> collisions) {
+		for (Rectangle collide : collisions) {
+			if (this.intersects(collide))
 				return true;
 		}
 		return false;
@@ -86,17 +85,17 @@ public class CollisionObject extends Rectangle {
 		//return new boolean[] {this.x+this.width < 0, this.y+this.height < 0, this.x > game.getBounds().width, this.y > game.getBounds().height};
 	}
 	public boolean[] outOfWindow(int x, int y) {
-		return new boolean[] {this.x+this.width+x < 0, this.y+this.height+y < 0, this.x+x > game.getBounds().width, this.y+y > game.getBounds().height};
+		return new boolean[] {this.x+this.width+x < 0, this.y+this.height+y < 0, this.x+x > game.getWidth(), this.y+y > SlapEmHard.HEIGHT};
 	}
 	public boolean outOfWindow(boolean ignoreTop) {
-		return this.x+width < 0 | (!ignoreTop && this.y+this.height < 0) | this.x > game.getBounds().width | this.y > game.getBounds().height;
+		return this.x+width < 0 | (!ignoreTop && this.y+this.height < 0) | this.x > game.getWidth() | this.y > SlapEmHard.HEIGHT;
 	}
 	/**
 	 * Returns if the object is touching the bounds of the window, starting on the left, going clockwise.
 	 * @return if the object is touching the bounds of the window, starting on the left, going clockwise.
 	 */
 	public boolean[] collidesWithBounds() {
-		return new boolean[] {this.x <= 0, this.y <= 0, this.x+this.width >= game.getBounds().width, this.y+this.width >= game.getBounds().height};
+		return new boolean[] {this.x <= 0, this.y <= 0, this.x+this.width >= game.getWidth(), this.y+this.width >= SlapEmHard.HEIGHT};
 	}
 	/**
 	 * Places the object to different (absolute) position.
@@ -113,7 +112,7 @@ public class CollisionObject extends Rectangle {
 	 */
 	public void render(Graphics g) {
 		//TODO remove fillRect as it's just for debugging
-		g.setColor(new Color(255, 0, 0, 50));
+		g.setColor(new Color(255, 0, 0, 100));
 		g.fillRect(this.x, this.y, this.width, this.height);
 	}
 }

@@ -18,7 +18,6 @@ public class Menu implements Runnable {
 	
 	private JFrame frame;
 	private double scale;
-	private Dimension gameSize;
 	private int credits;
 	private Thread thread;
 	private Game game;
@@ -29,9 +28,8 @@ public class Menu implements Runnable {
 	private final BufferedImage howtoplay = bL.getImage("/controls.png");
 	private final BufferedImage background = bL.getImage("/startscreen.png");
 
-	public Menu(JFrame frame, Dimension gameSize, double scale) {
+	public Menu(JFrame frame, double scale) {
 		this.frame = frame;
-		this.gameSize = gameSize;
 		this.scale = scale;
 		try {
 			font = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/res/fonts/8-BIT-WONDER.TTF"));
@@ -80,28 +78,28 @@ public class Menu implements Runnable {
 			g.setFont(font.deriveFont(Font.PLAIN,18));
 			
 			g.setColor(getActiveOption()==0?Color.YELLOW:Color.WHITE);
-				g.fillRect((gameSize.width-200)/2, 80, 200, 20);
+				g.fillRect((SlapEmHard.WIDTH-200)/2, 80, 200, 20);
 				g.setColor(Color.BLACK);
 				drawStringCentered(g,"New Game",98);
-				//g.drawString("New Game",(gameSize.width-160)/2+2,118);
+				//g.drawString("New Game",(SlapEmHard.WIDTH-160)/2+2,118);
 			
 			g.setColor(getActiveOption()==1?Color.YELLOW:Color.WHITE);
-				g.fillRect((gameSize.width-200)/2, 105, 200, 20);
+				g.fillRect((SlapEmHard.WIDTH-200)/2, 105, 200, 20);
 				g.setColor(Color.BLACK);
 				drawStringCentered(g,"How to play",123);
-				//g.drawString("How to play",(gameSize.width-190)/2+2,158);
+				//g.drawString("How to play",(SlapEmHard.WIDTH-190)/2+2,158);
 				
 			g.setColor(getActiveOption()==2?Color.YELLOW:Color.WHITE);
-				g.fillRect((gameSize.width-200)/2, 130, 200, 20);
+				g.fillRect((SlapEmHard.WIDTH-200)/2, 130, 200, 20);
 				g.setColor(Color.BLACK);
 				drawStringCentered(g,"Credits",148);
-				//g.drawString("Credits",(gameSize.width-120)/2+2,198);
+				//g.drawString("Credits",(SlapEmHard.WIDTH-120)/2+2,198);
 				
 			g.setColor(getActiveOption()==3?Color.YELLOW:Color.WHITE);
-				g.fillRect((gameSize.width-200)/2, 155, 200, 20);
+				g.fillRect((SlapEmHard.WIDTH-200)/2, 155, 200, 20);
 				g.setColor(Color.BLACK);
 				drawStringCentered(g,"Run away",173);
-				//g.drawString("Credits",(gameSize.width-120)/2+2,198);
+				//g.drawString("Credits",(SlapEmHard.WIDTH-120)/2+2,198);
 		} else
 			//SUBMENUS
 			if (activeSelection.get(0) == 1) {
@@ -125,14 +123,11 @@ public class Menu implements Runnable {
 	}
 	
 	private void drawStringCentered(Graphics g, String string, int y) {
-		g.drawString(string, (gameSize.width-g.getFontMetrics().stringWidth(string))/2, y);
+		g.drawString(string, (SlapEmHard.WIDTH-g.getFontMetrics().stringWidth(string))/2, y);
 	}
 
 	public JFrame getFrame() {
 		return frame;
-	}
-	public Dimension getGameSize() {
-		return gameSize;
 	}
 	public double getScale() {
 		return scale;
