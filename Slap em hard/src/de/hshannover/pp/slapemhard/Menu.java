@@ -1,20 +1,25 @@
 package de.hshannover.pp.slapemhard;
 
-import javax.swing.*;
-
-import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
-import de.hshannover.pp.slapemhard.listener.*;
-import de.hshannover.pp.slapemhard.objects.*;
-
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.Graphics;
+import java.awt.Window;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import javax.swing.JFrame;
+
+import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
+import de.hshannover.pp.slapemhard.listener.KeyboardListener;
+
 public class Menu implements Runnable {
-	private static final Logger log = Logger.getLogger(Person.class.getName());
+	private static final Logger log = Logger.getLogger(Menu.class.getName());
 	
 	private JFrame frame;
 	private double scale;
@@ -27,6 +32,7 @@ public class Menu implements Runnable {
 	private final BufferedImageLoader bL = new BufferedImageLoader();
 	private final BufferedImage howtoplay = bL.getImage("/controls.png");
 	private final BufferedImage background = bL.getImage("/startscreen.png");
+	private LevelDesigner levelDesigner;
 
 	public Menu(JFrame frame, double scale) {
 		this.frame = frame;
@@ -69,7 +75,22 @@ public class Menu implements Runnable {
 		return activeSelection.get(activeSelection.size()-1);
 	}
 	
+	public void tick() {
+		if (game != null) {
+			game.tick();
+		} else if (this.levelDesigner != null) {
+			this.levelDesigner.tick();
+		}
+	}
+	
 	public void render(Graphics g) {
+		if (game != null) {
+			game.render(g);
+			return;
+		} else if (levelDesigner != null) {
+			levelDesigner.render(g);
+			return;
+		}
 		//Main Menu
 		//Background
 		g.drawImage(background, 0, 0, null);
@@ -161,7 +182,18 @@ public class Menu implements Runnable {
 	 * @param keyCode corresponding code of the key.
 	 */
 	public void keyEvent(int keyCode) {
+		if (game != null) {
+			game.keyEvent(keyCode);
+			return;
+		} else if (levelDesigner != null) {
+			levelDesigner.keyEvent(keyCode);
+			return;
+		}
 		switch (keyCode) {
+			case KeyEvent.VK_G:
+				System.out.println("creating leveldesigner");
+				levelDesigner = new LevelDesigner(this);
+				break;
 			case KeyEvent.VK_UP:
 				if (activeSelection.size() == 1) {
 					activeSelection.set(0,(activeSelection.get(0)+3)%4);
@@ -211,5 +243,25 @@ public class Menu implements Runnable {
 	 */
 	private void close() {
 		((Window)frame).getToolkit().getSystemEventQueue().postEvent(new WindowEvent((Window)frame, WindowEvent.WINDOW_CLOSING));
+	}
+
+	public void mouseWheel(int wheelRotation) {
+		if (levelDesigner != null)
+			levelDesigner.mouseWheel(wheelRotation);
+	}
+
+	public void mousePressed(MouseEvent e) {
+		if (levelDesigner != null)
+			levelDesigner.mousePressed(e);
+	}
+
+	public void mouseReleased(MouseEvent e) {
+		if (levelDesigner != null)
+			levelDesigner.mouseReleased(e);
+	}
+
+	public void mouseDragged(MouseEvent e) {
+		if (levelDesigner != null)
+			levelDesigner.mouseDragged(e);
 	}
 }

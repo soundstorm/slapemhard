@@ -8,8 +8,8 @@ public class ObjectPrototype extends Rectangle {
 	 */
 	private static final long serialVersionUID = -5409040342889408530L;
 	private int look;
-	private int power;
-	private int health;
+	private int power = 1;
+	private int health = 20;
 	private int weapon;
 	private int type;
 

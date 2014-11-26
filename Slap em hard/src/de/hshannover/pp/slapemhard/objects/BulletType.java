@@ -40,6 +40,7 @@ public class BulletType {
 	private boolean automatic;
 	private int precision;
 	private int bulletId;
+	private String audioFile;
 	public BulletType(BulletName name) {
 		//Bullets must be not faster than 70;
 		switch (name) {
@@ -52,6 +53,7 @@ public class BulletType {
 				this.explosion = new SpriteSheet(bL.getImage("images/weapons/handgun/explosion.png"),3,3);
 				this.weapon = new SpriteSheet(bL.getImage("images/weapons/handgun/weapon.png"),48,60);
 				this.bullet = new SpriteSheet(bL.getImage("images/weapons/handgun/bullet.png"),2,3);
+				this.audioFile = "images/weapons/handgun/explosion.wav";
 				this.offsets.add(new Dimension(17,23));	//Facing down
 				this.offsets.add(new Dimension(20,12));	//Facing straight
 				this.offsets.add(new Dimension(15,3));	//Facing up
@@ -67,6 +69,8 @@ public class BulletType {
 				this.explosion = new SpriteSheet(bL.getImage("images/weapons/rocketlauncher/explosion.png"),64,64);
 				this.weapon = new SpriteSheet(bL.getImage("images/weapons/rocketlauncher/weapon.png"),48,60);
 				this.bullet = new SpriteSheet(bL.getImage("images/weapons/rocketlauncher/bullet.png"),10,11);
+				//this.audioFile = "images/weapons/rocketlauncher/explosion.mp3";
+				this.audioFile = "images/weapons/handgun/explosion.wav";
 				this.offsets.add(new Dimension(17,17));	//Facing down
 				this.offsets.add(new Dimension(16,6));	//Facing straight
 				this.offsets.add(new Dimension(11,0));	//Facing up
@@ -83,6 +87,7 @@ public class BulletType {
 				this.explosion = new SpriteSheet(bL.getImage("images/weapons/machinegun/explosion.png"),3,3);
 				this.weapon = new SpriteSheet(bL.getImage("images/weapons/machinegun/weapon.png"),48,60);
 				this.bullet = new SpriteSheet(bL.getImage("images/weapons/machinegun/bullet.png"),2,3);
+				this.audioFile = "images/weapons/machinegun/explosion.mp3";
 				this.offsets.add(new Dimension(18,24));	//Facing down
 				this.offsets.add(new Dimension(22,13));	//Facing straight
 				this.offsets.add(new Dimension(15,4));	//Facing up
@@ -128,5 +133,8 @@ public class BulletType {
 	}
 	public boolean isAutomatic() {
 		return automatic;
+	}
+	public String getAudioFile() {
+		return audioFile;
 	}
 }

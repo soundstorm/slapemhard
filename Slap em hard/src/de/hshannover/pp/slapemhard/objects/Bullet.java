@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import de.hshannover.pp.slapemhard.Game;
+import de.hshannover.pp.slapemhard.resources.SoundPlayer;
 
 public class Bullet extends CollisionObject {
 	/**
@@ -23,6 +24,7 @@ public class Bullet extends CollisionObject {
 	private double cosAngle,tanAngle,sinAngle,gFactor,angleFactor,xFactor,yFactor;
 	private int offsetX,offsetY;
 	private double t;
+	private static SoundPlayer soundPlayer = new SoundPlayer();
 	public Bullet(Game game, Dimension origin, BulletType type, int degree) {
 		this(game, origin, type, degree, false);
 	}
@@ -130,7 +132,7 @@ public class Bullet extends CollisionObject {
 		if (game.getPlayer().intersects(explosion)) {
 			game.getPlayer().reduceHealth(type.getDestruction());
 		}
-		
+		soundPlayer.play(type.getAudioFile(),0);//-Math.log(Math.abs(this.getCenterX()-game.getPlayer().getCenterX())));
 	}
 	public boolean isExploded() {
 		return exploded;

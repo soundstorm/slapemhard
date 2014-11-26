@@ -1,7 +1,6 @@
 package de.hshannover.pp.slapemhard.images;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -22,21 +21,28 @@ public class BufferedImageLoader {
 	 * @param relPath Relative path to image
 	 * @return {@link BufferedImage} created from path or cached
 	 */
-	public BufferedImage getImage(String relPath) {
-		int index = paths.indexOf(relPath);
+	public BufferedImage getImage(String path, boolean absolute) {
+		int index = paths.indexOf(path);
 		if (index >= 0) {
 			//Image is already cached
-			System.out.println("Got cached image "+relPath);
+			System.out.println("Got cached image "+path);
 			return images.get(index);
 		}
 		try {
-			BufferedImage bi = ImageIO.read(r.getInputStream(relPath));
+			BufferedImage bi;
+			if (absolute)
+				bi = ImageIO.read(r.getAbsoluteInputStream(path));
+			else
+				bi = ImageIO.read(r.getInputStream(path));
 			//add to cache
-			paths.add(relPath);
+			paths.add(path);
 			images.add(bi);
 			return bi;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			return null;
 		}
+	}
+	public BufferedImage getImage(String relPath) {
+		return getImage(relPath,false);
 	}
 }

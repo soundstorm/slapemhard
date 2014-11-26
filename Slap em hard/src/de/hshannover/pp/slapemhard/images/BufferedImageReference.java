@@ -7,7 +7,11 @@ public class BufferedImageReference {
 	private String path;
 	private BufferedImage bI;
 	public BufferedImageReference(String path) {
-		bI = bL.getImage(path);
+		this(path,false);
+	}
+	public BufferedImageReference(String path, boolean absolute) {
+		System.out.println(path);
+		bI = bL.getImage(path, absolute);
 		if (bI != null) {
 			this.path = path;
 		}

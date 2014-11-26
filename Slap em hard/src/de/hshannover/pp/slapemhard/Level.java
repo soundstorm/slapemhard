@@ -1,15 +1,22 @@
 package de.hshannover.pp.slapemhard;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
+import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.images.BufferedImageReference;
+import de.hshannover.pp.slapemhard.images.SpriteSheet;
 import de.hshannover.pp.slapemhard.objects.*;
 
 public class Level {
+	private static final Logger log = Logger.getLogger(Level.class.getName());
 	private ArrayList<Rectangle> collisionObjects = new ArrayList<Rectangle>();
 	private ArrayList<Rectangle> maliciousObjects = new ArrayList<Rectangle>();
 	private ArrayList<Person> enemies = new ArrayList<Person>();
@@ -25,7 +32,9 @@ public class Level {
 	private Rectangle targetArea;
 	private boolean completed;
 	private boolean created;
+	private boolean debug = true;
 	private static LevelManager levelManager = new LevelManager();
+	private static SpriteSheet lives = new SpriteSheet((new BufferedImageLoader()).getImage("images/lives.png"),11,11);
 	
 	public Level(Game game, int level) {
 		this.game = game;
@@ -126,6 +135,94 @@ public class Level {
 		return System.currentTimeMillis() > startTime+levelTime*1000;
 	}
 	
+	public void render(Graphics g) {
+		Rectangle activePosition = this.getPlayer();// = new Dimension(level.getPlayer().x,level.getPlayer().y);
+		
+		int xoffset = this.getPlayer().x-100;
+		if (xoffset < 0) {
+			xoffset = 0;
+		} else if (xoffset > this.getWidth()-SlapEmHard.WIDTH) {
+			xoffset = this.getWidth()-SlapEmHard.WIDTH;
+		}
+		
+		for (BufferedImage bI : this.getBackgroundImages()) {
+			g.drawImage(bI, -xoffset*(bI.getWidth()-SlapEmHard.WIDTH)/(this.getWidth()-SlapEmHard.WIDTH), 0, null);
+		}
+		Graphics2D g2d = (Graphics2D)g;
+		//Move to active clip
+		g2d.translate(-xoffset, 0);
+		g.drawImage(this.getLandscapeImage(),0,0,null);
+		
+		
+		for (int i = 0; i < this.getBullets().size(); i++) {
+			try {
+				Bullet obj =  this.getBullets().get(i);
+				obj.render(g);
+			} catch (Exception e) {
+				System.out.println("Cant render Bullet");
+			}
+		}
+		
+		for (int i = 0; i < this.getPowerUps().size(); i++) {
+			try {
+				PowerUp obj =  this.getPowerUps().get(i);
+				obj.render(g);
+			} catch (Exception e) {
+				System.out.println("Cant render PowerUp");
+			}
+		}
+		
+		for (int i = 0; i < this.getEnemies().size(); i++) {
+			try {
+				Person obj =  this.getEnemies().get(i);
+				//if (obj.getPosition().x > xoffset-100 | obj.getPosition().x+obj.getPosition().width < xoffset+220)
+					obj.render(g);
+			} catch (Exception e) {
+				System.out.println("Cant render Enemy");
+			}
+		}
+		//Render at position previously determined
+		//Prevents shaking, if Player moved in the meantime of rendering
+		this.getPlayer().render(g,activePosition.x,activePosition.y);
+
+		//
+		g2d.translate(xoffset, 0);
+		
+		for (BufferedImage fI : this.getForegroundImages()) {
+			g.drawImage(fI, -xoffset*(fI.getWidth()-SlapEmHard.WIDTH)/(this.getWidth()-SlapEmHard.WIDTH), 0, null);
+		}
+		if (debug) {
+			g.setColor(new Color(255, 0, 0, 100));
+			for (Rectangle ro : this.getCollisionObjects()) {
+				g.fillRect(ro.x-xoffset, ro.y, ro.width, ro.height);
+			}
+		}
+		
+		
+		//Draw HUD
+		g.setColor(new Color(255, 255, 255, 127));
+		g.fillRect(5,5,50,40);
+		g.setColor(Color.BLACK);
+		g.setFont(this.getFont().deriveFont(Font.PLAIN,8));
+		g.drawString("AMMO: "+this.getPlayer().getWeapon().getAmmo(), 10, 13);
+		//g.drawString("FPS:  "+fps, 10, 20);
+		g.drawString("COIN: "+game.getCoins(), 10, 27);
+		g.drawString("PTS:  "+game.getPoints(), 10, 34);
+		long timeRemaining = getRemainingTime();
+		g.drawString(""+timeRemaining, 50-(""+timeRemaining).length()*5, 41);
+		for (int i=0; i < getPlayer().getLives(); i++) {
+			if (i != getPlayer().getLives()-1) {
+				g.drawImage(lives.getTile(9), 60+i*12, 10, null);
+			} else {
+				if (this.getPlayer().isInvincible()) {
+					g.drawImage(lives.getTile(10), 60+i*12, 10, null);
+				} else {
+					g.drawImage(lives.getTile(9*this.getPlayer().getHealth()/this.getPlayer().getMaxHealth()), 60+i*12, 10, null);
+				}
+			}
+		}
+	}
+	
 	public BufferedImage getLandscapeImage() {
 		return landscapeImage;
 	}
@@ -179,5 +276,37 @@ public class Level {
 	}
 	public void setCompleted() {
 		completed = true;
+	}
+
+	public void tick() {
+		game.getPlayer().move();
+		for (int i = 0; i < this.getBullets().size(); i++) {
+			try {
+				Bullet obj = this.getBullets().get(i);
+				obj.move();
+				if (obj.isExploded()) {
+					this.getBullets().remove(obj);
+					i--;
+				}
+			} catch (Exception e) {
+				log.warning("Cant modify Bullet:\n"+e.toString());
+			}
+		}
+		for (int i = 0; i < this.getEnemies().size(); i++) {
+			try {
+				Person obj = this.getEnemies().get(i);
+				obj.move();
+				if (!obj.isAlive()) {
+					//obj.stop();
+					game.addPoints(obj.getPower()*40);
+					this.getPowerUps().add(new PowerUp(game,new Dimension(obj.x,obj.y+30),1));
+					this.getEnemies().remove(obj);
+					i--;
+					//continue;
+				}
+			} catch (Exception e) {
+				log.warning("Cant modify Bullet:\n"+e.toString());
+			}
+		}
 	}
 }

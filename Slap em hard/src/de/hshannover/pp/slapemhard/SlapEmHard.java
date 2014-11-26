@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import de.hshannover.pp.slapemhard.listener.KeyboardListener;
+import de.hshannover.pp.slapemhard.listener.Mouse;
 import de.hshannover.pp.slapemhard.threads.DrawThread;
 /**
  * Main program to start needed instances and Menu
@@ -115,12 +116,16 @@ public class SlapEmHard {
 			}
 		});
 		KeyboardListener keyboardListener = new KeyboardListener(menu);
+		Mouse mouse = new Mouse(menu);
 		
 		drawThread = new DrawThread(menu);
 		frame.add(drawThread);
 		drawThread.setPreferredSize(new Dimension(frame.getWidth(), frame.getHeight()));
 		drawThread.setBounds(new Rectangle(0,0,frame.getWidth(), frame.getHeight()));
 		drawThread.addKeyListener(keyboardListener);
+		drawThread.addMouseListener(mouse);
+		drawThread.addMouseWheelListener(mouse);
+		drawThread.addMouseMotionListener(mouse);
 		drawThread.setFocusable(true);
 		drawThread.start();
 	}

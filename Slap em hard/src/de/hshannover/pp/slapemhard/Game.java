@@ -154,6 +154,11 @@ public class Game implements Runnable {
 	}
 	
 	public void render(Graphics g) {
+		if (getLevel() != null) {
+			level.render(g);
+			return;
+		}
+		
 		//Background
 		if (!store)
 			g.drawImage(menu.getBackground(), 0, 0, null);
@@ -371,23 +376,23 @@ public class Game implements Runnable {
 	}
 	
 	public ArrayList<Person> getEnemies() {
-		return level.getEnemies();
+		try{return level.getEnemies();}catch(NullPointerException e){return null;}
 	}
 
 	public ArrayList<Bullet> getBullets() {
-		return level.getBullets();
+		try{return level.getBullets();}catch(NullPointerException e){return null;}
 	}
 
 	public ArrayList<Rectangle> getCollisionObjects() {
-		return level.getCollisionObjects();
+		try{return level.getCollisionObjects();}catch(NullPointerException e){return null;}
 	}
 	
 	public ArrayList<Rectangle> getMaliciousObjects() {
-		return level.getMaliciousObjects();
+		try{return level.getMaliciousObjects();}catch(NullPointerException e){return null;}
 	}
 
 	public ArrayList<PowerUp> getPowerUps() {
-		return level.getPowerUps();
+		try{return level.getPowerUps();}catch(NullPointerException e){return null;}
 	}
 
 	/*public MoveThread getMoveThread() {
@@ -399,18 +404,21 @@ public class Game implements Runnable {
 	}
 	
 	public Rectangle getTargetArea() {
-		return level.getTargetArea();
+		try{return level.getTargetArea();}catch(NullPointerException e){return null;}
 	}
 	
 	public int getWidth() {
-		try {
-			return level.getWidth();
-		} catch (NullPointerException e) {
+		try {return level.getWidth();} catch (NullPointerException e) {
 			return 0;
 		}
 	}
 	
 	public double getScale() {
 		return scale;
+	}
+	public void tick() {
+		if (getLevel() != null) {
+			level.tick();
+		}
 	}
 }
