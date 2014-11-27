@@ -18,6 +18,7 @@ import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.objects.*;
 import de.hshannover.pp.slapemhard.resources.Resource;
 //import de.hshannover.pp.slapemhard.threads.MoveThread;
+import de.hshannover.pp.slapemhard.resources.SoundPlayer;
 
 public class Game implements Runnable {
 	private static final Logger log = Logger.getLogger(Game.class.getName());
@@ -120,6 +121,7 @@ public class Game implements Runnable {
 	 */
 	@Override
 	public void run() {
+		menu.getBgm().stopAudio();
 		while (level != null) {
 			log.info("Starting level "+activeLevel);
 			level.start();
@@ -151,6 +153,7 @@ public class Game implements Runnable {
 				level = null;
 			}
 		}
+		menu.getBgm().play();
 	}
 	
 	public void render(Graphics g) {
@@ -333,6 +336,7 @@ public class Game implements Runnable {
 							me.restoreAmmo();break;
 						}
 						coins -= price[storeItem];
+						(new SoundPlayer("sounds/bought.wav",0)).play();
 					}
 				} else if (menu.getCredits() > 0) {
 					me = new Player(this, character);

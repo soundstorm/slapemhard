@@ -79,7 +79,6 @@ public class Weapon {
 	 */
 	public void fire(Dimension origin, boolean heading) {
 		if (ammo > 0 || !fromPlayer) {
-			//TODO play sound
 			origin.width -= type.getSize().width/2; //Center
 			origin.width += type.getOffsets().get(1+angle).width*(heading?-1:1);
 			origin.height+= type.getOffsets().get(1+angle).height;
@@ -87,8 +86,6 @@ public class Weapon {
 			game.getBullets().add(blt);
 			if (fromPlayer)
 				ammo--;
-		} else {
-			//play click sound
 		}
 	}
 	/**

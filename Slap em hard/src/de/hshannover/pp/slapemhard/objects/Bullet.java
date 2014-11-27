@@ -24,7 +24,6 @@ public class Bullet extends CollisionObject {
 	private double cosAngle,tanAngle,sinAngle,gFactor,angleFactor,xFactor,yFactor;
 	private int offsetX,offsetY;
 	private double t;
-	private static SoundPlayer soundPlayer = new SoundPlayer();
 	public Bullet(Game game, Dimension origin, BulletType type, int degree) {
 		this(game, origin, type, degree, false);
 	}
@@ -53,6 +52,7 @@ public class Bullet extends CollisionObject {
 		xFactor = type.getSpeed()*cosAngle;
 		yFactor = type.getSpeed()*sinAngle;
 		angleFactor = type.getGravity()?g*2/(cosAngle*speed*speed):0;
+		(new SoundPlayer(type.getShotSound(),(float)-Math.abs(this.getCenterX()-game.getPlayer().getCenterX())/7-10)).play();
 	}
 	/**
 	 * Moves the bullet in steps in direction of flight and checks if it collides with any obstacle or hostile
@@ -132,7 +132,7 @@ public class Bullet extends CollisionObject {
 		if (game.getPlayer().intersects(explosion)) {
 			game.getPlayer().reduceHealth(type.getDestruction());
 		}
-		soundPlayer.play(type.getAudioFile(),0);//-Math.log(Math.abs(this.getCenterX()-game.getPlayer().getCenterX())));
+		(new SoundPlayer(type.getExplosionSound(),(float)-Math.abs(this.getCenterX()-game.getPlayer().getCenterX())/15)).play();//-Math.log(Math.abs(this.getCenterX()-game.getPlayer().getCenterX())));
 	}
 	public boolean isExploded() {
 		return exploded;

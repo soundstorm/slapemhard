@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 
 import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.listener.KeyboardListener;
+import de.hshannover.pp.slapemhard.resources.SoundPlayer;
 
 public class Menu implements Runnable {
 	private static final Logger log = Logger.getLogger(Menu.class.getName());
@@ -34,6 +35,8 @@ public class Menu implements Runnable {
 	private final BufferedImage background = bL.getImage("/startscreen.png");
 	private LevelDesigner levelDesigner;
 
+	private SoundPlayer bgm;
+
 	public Menu(JFrame frame, double scale) {
 		this.frame = frame;
 		this.scale = scale;
@@ -43,6 +46,9 @@ public class Menu implements Runnable {
 			System.out.println("Failed to load font");
 		}
 		activeSelection.add(0);
+		bgm = new SoundPlayer("sounds/main_menu.wav");
+		bgm.setRepeat(true);
+		bgm.play();
 	}
 
 	public synchronized void start(){
@@ -171,6 +177,9 @@ public class Menu implements Runnable {
 	public Game getGame() {
 		return game;
 	}
+	public SoundPlayer getBgm() {
+		return bgm;
+	}
 	public Level getLevel() {
 		if (game != null) {
 			return game.getLevel();
@@ -215,6 +224,7 @@ public class Menu implements Runnable {
 				}
 				break;
 			case KeyEvent.VK_ENTER: case KeyEvent.VK_CONTROL: case KeyEvent.VK_SHIFT:
+				(new SoundPlayer("sounds/select.wav",-10)).play();
 				if (activeSelection.get(0) == 0) {
 					start();
 					break;

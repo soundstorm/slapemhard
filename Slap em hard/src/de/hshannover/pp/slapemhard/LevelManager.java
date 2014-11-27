@@ -368,21 +368,23 @@ public class LevelManager {
 
 	private void copyFile(String inputPath, String baseDir) {
 		File iF = new File(inputPath);
+		File oF = new File(baseDir + iF.getName());
+		if (iF.equals(oF))
+			return;
 		FileInputStream iS = null;
 		FileOutputStream oS = null;
 		try {
+			oF.createNewFile();
 			iS = new FileInputStream(iF);
-			oS = new FileOutputStream(baseDir + iF.getName());
+			oS = new FileOutputStream(oF);
 			byte[] buffer = new byte[1024];
 			int length;
 			while ((length = iS.read(buffer)) > 0) {
 				oS.write(buffer, 0, length);
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			try {

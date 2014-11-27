@@ -5,23 +5,27 @@ import java.awt.Cursor;
 import java.awt.FileDialog;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.images.BufferedImageReference;
 import de.hshannover.pp.slapemhard.listener.Mouse;
 import de.hshannover.pp.slapemhard.objects.ObjectPrototype;
@@ -32,27 +36,9 @@ public class LevelDesigner {
 	private Menu menu;
 	private LevelManager levelManager;
 	private boolean dialogOpen;
-	private static BufferedImage gui = (new BufferedImageLoader()).getImage("images/editor_gui.png");
 	private int tool;
 	private int object;
-	private Rectangle tools[] = {
-			new Rectangle(5,5,20,20),
-			new Rectangle(25,5,20,20),
-			new Rectangle(45,5,20,20)
-	};
-	private Rectangle objects[] = {
-			new Rectangle(68,1,13,13),
-			new Rectangle(81,1,13,13),
-			new Rectangle(68,14,13,13),
-			new Rectangle(81,14,13,13),
-			new Rectangle(68,27,13,13),
-			new Rectangle(81,27,13,13)
-	};
-	private Rectangle fileOperations[] = {
-			new Rectangle(6,27,13,13),
-			new Rectangle(19,27,13,13),
-			new Rectangle(32,27,13,13)
-	};
+	
 	private enum objectTypes {
 		PLAYER,
 		TARGETAREA,
@@ -62,26 +48,233 @@ public class LevelDesigner {
 		MALICIOUSOBJECT
 	};
 	
-	int xoffset;
 	Mouse mouse;
 	private ObjectPrototype activeObject;
 	private objectTypes activeGroup;
 	private Point objectOffset = new Point();
 	private ObjectPrototype newObject;
 	private Point newObjectOrigin;
-
-	// private CollisionObject activeObject;
+	private JFrame frame = new JFrame();
+	private JSpinner power = new JSpinner(new SpinnerNumberModel(0,0,4,1));
+	private JSpinner health = new JSpinner(new SpinnerNumberModel(20,20,100,5));
+	private JSpinner look = new JSpinner(new SpinnerNumberModel(0,0,10,1));
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private JComboBox weapon = new JComboBox(new String[] {"Handgun","Rocketlauncher","Machinegun"});
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private JComboBox powerup = new JComboBox(new String[] {"MediKit","Coin","Magazine","Live","Invincible"});
+	private JButton applyButton = new JButton("Apply");
+	private JButton resetButton = new JButton("Reset");
+	private JSlider offsetSlider = new JSlider(JSlider.HORIZONTAL,0,1,0);
+	
 	@SuppressWarnings("deprecation")
 	public LevelDesigner(Menu menu) {
 		this.menu = menu;
 		levelManager = new LevelManager();
 		levelManager.load(1);
+		
+		offsetSlider.setMaximum(levelManager.getWidth()-SlapEmHard.WIDTH);
+		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		panel.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
 		menu.getFrame().setCursor(Cursor.CROSSHAIR_CURSOR);
+		c.gridy = 0;
+		c.gridwidth = 6;
+		panel.add(new JLabel("Selected Object:"),c);
+		c.gridy++;
+		c.gridwidth = 2;
+		panel.add(new JLabel("Power:"),c);
+		c.gridwidth = 4;
+		panel.add(power,c);
+		c.gridy++;
+		c.gridwidth = 2;
+		panel.add(new JLabel("Health:"),c);
+		c.gridwidth = 4;
+		panel.add(health,c);
+		c.gridy++;
+		c.gridwidth = 2;
+		panel.add(new JLabel("Look:"),c);
+		c.gridwidth = 4;
+		panel.add(look,c);
+		c.gridy++;
+		c.gridwidth = 2;
+		panel.add(new JLabel("Weapon:"),c);
+		c.gridwidth = 4;
+		panel.add(weapon,c);
+		c.gridy++;
+		c.gridwidth = 2;
+		panel.add(new JLabel("Type:"),c);
+		c.gridwidth = 4;
+		panel.add(powerup,c);
+		c.gridy++;
+		c.gridwidth = 2;
+		panel.add(resetButton,c);
+		c.gridwidth = 4;
+		panel.add(applyButton,c);
+		c.gridy++;
+		
+		applyButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				activeObject.setPower((int)power.getValue());
+				activeObject.setHealth((int)health.getValue());
+				activeObject.setWeapon(weapon.getSelectedIndex());
+				activeObject.setLook((int)look.getValue());
+				activeObject.setType(powerup.getSelectedIndex());
+			}
+		});
+		resetButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateGui();
+			}
+		});
+		
+		final JButton toolButtons[] = {
+				new JButton("Draw"),
+				new JButton("Edit"),
+				new JButton("Resize")
+		};
+		final JButton objectButtons[] = {
+				new JButton("Start"),
+				new JButton("Target"),
+				new JButton("Enemy"),
+				new JButton("PowerUp"),
+				new JButton("Collision"),
+				new JButton("Trap")
+		};
+		c.gridy++;
+		c.gridwidth = 6;
+		panel.add(new JSeparator(),c);
+		c.gridy++;
+		panel.add(new JLabel("Tools"),c);
+		c.gridwidth = 2;
+		c.gridy++;
+		final Menu fmenu = this.menu;
+		toolButtons[0].setEnabled(false);
+		for (int i = 0; i < toolButtons.length; i++) {
+			final int a = i;
+			toolButtons[i].addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					System.out.println(e.getID());
+					tool = a;
+					newObject = null;
+					if (tool == 0) {
+						fmenu.getFrame().setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+					} else if (tool == 1) {
+						fmenu.getFrame().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+					} else {
+						fmenu.getFrame().setCursor(new Cursor(Cursor.E_RESIZE_CURSOR));
+					}
+					for (int i = 0; i < toolButtons.length; i++) {
+						toolButtons[i].setEnabled(i!=a);
+					}
+				}
+			});
+			panel.add(toolButtons[i],c);
+		}
+		c.gridy++;
+		c.gridwidth = 6;
+		panel.add(new JSeparator(),c);
+		c.gridy++;
+		panel.add(new JLabel("Objects"),c);
+		c.gridwidth = 2;
+		objectButtons[0].setEnabled(false);
+		for (int i = 0; i < objectButtons.length; i++) {
+			final int a = i;
+			objectButtons[i].addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					object = a;
+					newObject = null;
+					for (int i = 0; i < objectButtons.length; i++) {
+						objectButtons[i].setEnabled(a!=i);
+					}
+				}
+			});
+			if (i%3 == 0)
+				c.gridy++;
+			panel.add(objectButtons[i],c);
+		}
+		c.gridy++;
+		c.gridwidth = 6;
+		panel.add(new JSeparator(),c);
+		c.gridy++;
+		panel.add(offsetSlider,c);
+		c.gridy++;
+		panel.add(new JSeparator(),c);
+		c.gridy++;
+		c.gridwidth = 2;
+		JButton saveButton = new JButton("Save");
+		saveButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				levelManager.save();
+			}
+		});
+		panel.add(saveButton,c);
+		//c.gridx += 2;
+		JButton loadButton = new JButton("Open");
+		loadButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				levelManager.load();
+				offsetSlider.setMaximum(levelManager.getWidth()-SlapEmHard.WIDTH);
+			}
+		});
+		panel.add(loadButton,c);
+		//c.gridx += 2;
+		JButton newButton = new JButton("New");
+		newButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				createLevel();
+				offsetSlider.setMaximum(levelManager.getWidth()-SlapEmHard.WIDTH);
+			}
+		});
+		panel.add(newButton,c);
+		
+		frame.add(panel);
+		frame.pack();
+		System.out.println(offsetSlider.getSize().toString());
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame.setVisible(true);
+		updateGui();
+	}
+	
+	private void updateGui() {
+		if (activeGroup == objectTypes.POWERUP) {
+			powerup.setEnabled(true);
+			powerup.setSelectedIndex(activeObject.getType());
+		} else {
+			powerup.setEnabled(false);
+		}
+		if (activeGroup == objectTypes.ENEMY) {
+			power.setEnabled(true);
+			power.setValue(activeObject.getPower());
+			health.setEnabled(true);
+			health.setValue(activeObject.getHealth());
+			weapon.setEnabled(true);
+			weapon.setSelectedIndex(activeObject.getWeapon());
+			look.setEnabled(true);
+			look.setValue(activeObject.getLook());
+		} else {
+			power.setEnabled(false);
+			health.setEnabled(false);
+			weapon.setEnabled(false);
+			look.setEnabled(false);
+		}
+		if (activeObject == null) {
+			applyButton.setEnabled(false);
+			resetButton.setEnabled(false);
+		} else {
+			applyButton.setEnabled(true);
+			resetButton.setEnabled(true);
+		}
 	}
 	
 	public void mouseWheel(int wheelRotation) {
-		if (xoffset+wheelRotation >= 0 && xoffset+SlapEmHard.WIDTH+wheelRotation <= levelManager.getWidth()) {
-			xoffset += wheelRotation;
+		if (offsetSlider.getValue()+wheelRotation >= 0 && offsetSlider.getValue()+wheelRotation <= offsetSlider.getMaximum()) {
+			offsetSlider.setValue(offsetSlider.getValue()+wheelRotation);
 		}
 	}
 	
@@ -96,7 +289,7 @@ public class LevelDesigner {
 			Graphics2D g2d = (Graphics2D) g;
 			// g2d.scale(.5, .5);
 
-			int xoffset = this.xoffset;
+			int xoffset = offsetSlider.getValue();
 
 			for (BufferedImageReference bI : levelManager.getBackgroundImages()) {
 				try {
@@ -159,21 +352,6 @@ public class LevelDesigner {
 			if (newObject != null) {
 				drawPrototype(g,newObject);
 			}
-			
-			g2d.translate(xoffset, 0);
-			// Draw UI
-			g.setColor(new Color(0, 0, 255, 150));
-			g.fillRect(0, 0, 100, 50);
-			g.setColor(new Color(0, 255, 0, 150));
-			fillRect(g,tools[tool]);
-			fillRect(g,objects[object]);
-			g.drawImage(gui, 0, 0, 100, 50, null);
-			g.setColor(Color.WHITE);
-			g.drawLine(5, 45, 95, 45);
-			if (levelManager.getWidth() >= SlapEmHard.WIDTH) {
-				int xpos = xoffset*90/(levelManager.getWidth()-SlapEmHard.WIDTH);
-				g.drawLine(5+xpos, 42, 5+xpos, 48);
-			}
 		}
 	}
 
@@ -202,10 +380,6 @@ public class LevelDesigner {
 		return null;
 	}
 	
-	private void fillRect(Graphics g, Rectangle r) {
-		g.fillRect(r.x, r.y, r.width, r.height);
-	}
-	
 	private void drawPrototype(Graphics g, ObjectPrototype r) {
 		Color c = g.getColor();
 		g.fillRect(r.x, r.y, r.width, r.height);
@@ -230,59 +404,28 @@ public class LevelDesigner {
 		);
 	}
 	
-	@SuppressWarnings("deprecation")
+	private void createLevel() {
+		String url = openFileDialog();
+		BufferedImageReference tmp = new BufferedImageReference(url,true);
+		if (tmp.getImage() == null) {
+			return;
+		}
+		if (tmp.getImage().getHeight() < SlapEmHard.HEIGHT) {
+			JOptionPane.showMessageDialog(menu.getFrame(), "Image is too small. Minumum height is "+SlapEmHard.HEIGHT);
+			return;
+		}
+		levelManager.create();
+		levelManager.setLandscapeImage(tmp);
+	}
+	
 	public void mousePressed(MouseEvent e) {
+		if (levelManager.getLandscapeImage() == null | levelManager.getLandscapeImage().getImage() == null) {
+			createLevel();
+		}
 		Point coord = getCoord(e.getPoint());
 		this.activeGroup = null;
 		this.activeObject = null;
-		for (int i = 0; i < fileOperations.length; i++) {
-			if (fileOperations[i].contains(coord)) {
-				switch (i) {
-				case 0:
-					String url = openFileDialog();
-					BufferedImageReference tmp = new BufferedImageReference(url,true);
-					if (tmp.getImage() == null) {
-						return;
-					}
-					if (tmp.getImage().getHeight() < SlapEmHard.HEIGHT) {
-						JOptionPane.showMessageDialog(menu.getFrame(), "Image is too small. Minumum height is "+SlapEmHard.HEIGHT);
-						return;
-					}
-					levelManager.create();
-					levelManager.setLandscapeImage(tmp);
-					break;
-				case 1:
-					levelManager.load();
-					break;
-				case 2:
-					levelManager.save();
-				}
-				newObject = null;
-				return;
-			}
-		}
-		for (int i = 0; i < tools.length; i++) {
-			if (tools[i].contains(coord)) {
-				tool = i;
-				newObject = null;
-				if (tool == 0) {
-					menu.getFrame().setCursor(Cursor.CROSSHAIR_CURSOR);
-				} else if (tool == 1) {
-					menu.getFrame().setCursor(Cursor.DEFAULT_CURSOR);
-				} else {
-					menu.getFrame().setCursor(Cursor.E_RESIZE_CURSOR);
-				}
-				return;
-			}
-		}
-		for (int i = 0; i < objects.length; i++) {
-			if (objects[i].contains(coord)) {
-				object = i;
-				newObject = null;
-				return;
-			}
-		}
-		coord.x += xoffset;
+		coord.x += offsetSlider.getValue();
 		if (tool == 0 && e.getButton() == MouseEvent.BUTTON1) {
 			switch (object) {
 				case 0:
@@ -344,53 +487,15 @@ public class LevelDesigner {
 			this.activeGroup = objectTypes.PLAYER;
 		}
 		if (activeGroup == null)
-		if (levelManager.getTargetArea().contains(coord)) {
+		if (levelManager.getTargetArea() != null && levelManager.getTargetArea().contains(coord)) {
 			this.activeObject = levelManager.getTargetArea();
 			this.activeGroup = objectTypes.TARGETAREA;
 		}
 		if (activeGroup != null) {
 			objectOffset.x = coord.x-activeObject.x;
 			objectOffset.y = coord.y-activeObject.y;
-			if (e.getButton() == MouseEvent.BUTTON3) {
-				JPanel panel = new JPanel();
-				panel.setLayout(new GridLayout(0,2));
-				switch (activeGroup) {
-				case ENEMY:
-					panel.add(new JLabel("Power"));
-					JSpinner power = new JSpinner(new SpinnerNumberModel(activeObject.getPower(),0,4,1));
-					panel.add(power);
-					panel.add(new JLabel("Look"));
-					JSpinner look = new JSpinner(new SpinnerNumberModel(activeObject.getLook(),0,10,1));
-					panel.add(look);
-					panel.add(new JLabel("Weapon"));
-					@SuppressWarnings({ "rawtypes", "unchecked" })
-					JComboBox weapon = new JComboBox(new String[] {"Handgun","Rocketlauncher","Machinegun"});
-					weapon.setSelectedIndex(activeObject.getWeapon());
-					panel.add(weapon);
-					if (JOptionPane.showConfirmDialog(null, panel, "Enemy", JOptionPane.OK_CANCEL_OPTION,-1,null) == JOptionPane.OK_OPTION) {
-						activeObject.setPower((int)power.getValue());
-						activeObject.setLook((int)look.getValue());
-						activeObject.setWeapon((int)weapon.getSelectedIndex());
-					}
-					break;
-				case POWERUP:
-					panel.add(new JLabel("Type"));
-					@SuppressWarnings({ "rawtypes", "unchecked" })
-					JComboBox powerup = new JComboBox(new String[] {"MediKit","Coin","Magazine","Live","Invincible"});
-					powerup.setSelectedIndex(activeObject.getType());
-					panel.add(powerup);
-					if (JOptionPane.showConfirmDialog(null, panel, "Enemy", JOptionPane.OK_CANCEL_OPTION,-1,null) == JOptionPane.OK_OPTION) {
-						activeObject.setType((int)powerup.getSelectedIndex());
-					}
-					break;
-				default:
-					break;
-				}
-				activeObject = null;
-				activeGroup = null;
-			}
-			
 		}
+		updateGui();
 	}
 
 	public void mouseReleased(MouseEvent e) {
@@ -414,13 +519,14 @@ public class LevelDesigner {
 				break;
 			}
 			activeObject = newObject;
+			updateGui();
 			newObject = null;
 		}
 	}
 
 	public void mouseDragged(MouseEvent e) {
 		Point coord = getCoord(e.getPoint());
-		coord.x += xoffset;
+		coord.x += offsetSlider.getValue();
 		if (tool == 0) {
 			try {
 				if (coord.x < newObjectOrigin.x) {

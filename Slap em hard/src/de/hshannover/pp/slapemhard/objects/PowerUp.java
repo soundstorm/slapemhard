@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import de.hshannover.pp.slapemhard.Game;
 import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.images.SpriteSheet;
+import de.hshannover.pp.slapemhard.resources.SoundPlayer;
 /**
  * A power up can be collected to let the {@link Player player} get different advantages. 
  * @author SoundStorm
@@ -56,18 +57,22 @@ public class PowerUp extends CollisionObject {
 		switch (type) {
 			case 0:
 				game.getPlayer().restoreHealth();
+				(new SoundPlayer("sounds/medikit.wav",-10)).play();
 				break;
 			case 1:
 				game.addCoins(50);
+				(new SoundPlayer("sounds/coin.wav",-10)).play();
 				break;
 			case 2:
 				game.getPlayer().restoreAmmo();
+				(new SoundPlayer("sounds/magazine.wav",-10)).play();
 				break;
 			case 3:
 				game.getPlayer().setLives(game.getPlayer().getLives()+1);
 				break;
 			case 4:
 				game.getPlayer().setInvincible();
+				(new SoundPlayer("sounds/invincible.wav",-10)).play();
 				break;
 		}
 		game.addPoints(20);

@@ -31,9 +31,6 @@ public class DrawThread extends Canvas implements Runnable {
 		setIgnoreRepaint(true);
 	}
 	
-	private void init(){
-	}
-	
 	public synchronized void start(){
 		if(running){
 			System.out.println("Draw Thread alread running");
@@ -45,7 +42,6 @@ public class DrawThread extends Canvas implements Runnable {
 	}
 	@Override
 	public synchronized void run() {
-		init();
 		this.requestFocus();
 		long lastTime = System.nanoTime();
 		double amountOfTicks = 180.0;
@@ -54,6 +50,7 @@ public class DrawThread extends Canvas implements Runnable {
 		long timer = System.currentTimeMillis();
 		int frames = 0;
 		long waitDuration = 0L;
+		@SuppressWarnings("unused")
 		int ticks = 0;
 		while(running){
 			long now = System.nanoTime();

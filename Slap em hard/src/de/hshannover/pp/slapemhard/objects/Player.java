@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 import java.util.*;
 
 import de.hshannover.pp.slapemhard.*;
+import de.hshannover.pp.slapemhard.resources.SoundPlayer;
 
 /**
  * Special type of person. Has lives, can hold more than one weapon and may be
@@ -103,8 +104,13 @@ public class Player extends Person {
 		}
 		if (fire && (shots == 0 | getWeapon().getType().isAutomatic())) {
 			if (lastFired == 0) {
-				fire();
-				shots++;
+				if (getWeapon().getAmmo()==0) {
+					(new SoundPlayer("sounds/empty_shot.wav")).play();
+					fire = false;
+				} else {
+					fire();
+					shots++;
+				}
 			}
 			lastFired = (lastFired+1) % 10;
 		}
