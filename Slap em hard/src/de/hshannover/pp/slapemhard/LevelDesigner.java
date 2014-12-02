@@ -66,7 +66,6 @@ public class LevelDesigner {
 	private JButton resetButton = new JButton("Reset");
 	private JSlider offsetSlider = new JSlider(JSlider.HORIZONTAL,0,1,0);
 	
-	@SuppressWarnings("deprecation")
 	public LevelDesigner(Menu menu) {
 		this.menu = menu;
 		levelManager = new LevelManager();
@@ -78,7 +77,7 @@ public class LevelDesigner {
 		panel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
-		menu.getFrame().setCursor(Cursor.CROSSHAIR_CURSOR);
+		menu.getFrame().setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
 		c.gridy = 0;
 		c.gridwidth = 6;
 		panel.add(new JLabel("Selected Object:"),c);
@@ -419,7 +418,7 @@ public class LevelDesigner {
 	}
 	
 	public void mousePressed(MouseEvent e) {
-		if (levelManager.getLandscapeImage() == null | levelManager.getLandscapeImage().getImage() == null) {
+		if (levelManager.getLandscapeImage() == null || levelManager.getLandscapeImage().getImage() == null) {
 			createLevel();
 		}
 		Point coord = getCoord(e.getPoint());
