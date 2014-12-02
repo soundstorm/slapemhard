@@ -196,6 +196,11 @@ public class SoundPlayer implements Runnable {
 			}
 			sourceLine.drain();
 			sourceLine.close();
+			try {
+				audioStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		} while (repeat && playing);
 	}
 }
