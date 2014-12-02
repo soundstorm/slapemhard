@@ -9,8 +9,10 @@ import de.hshannover.pp.slapemhard.images.SpriteSheet;
 /**
   * Objekt für verschiedene Projektile
   *
-  *
-  * @author
+  *@author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
   * @version
   * @param	name		Name des Projektils
   * @param	size		Größe des Projektils

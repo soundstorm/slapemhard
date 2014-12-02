@@ -15,6 +15,14 @@ import de.hshannover.pp.slapemhard.images.BufferedImageReference;
 import de.hshannover.pp.slapemhard.images.SpriteSheet;
 import de.hshannover.pp.slapemhard.objects.*;
 
+/**
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
+ *
+ */
+
 public class Level {
 	private static final Logger log = Logger.getLogger(Level.class.getName());
 	private ArrayList<Rectangle> collisionObjects = new ArrayList<Rectangle>();

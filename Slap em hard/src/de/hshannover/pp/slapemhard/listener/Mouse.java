@@ -7,7 +7,12 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
 import de.hshannover.pp.slapemhard.Menu;
-
+/**
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
+ */
 public class Mouse implements MouseWheelListener, MouseListener, MouseMotionListener {
 	
 	private Menu menu;

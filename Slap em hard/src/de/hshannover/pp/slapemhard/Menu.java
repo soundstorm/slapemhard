@@ -19,6 +19,12 @@ import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.listener.KeyboardListener;
 import de.hshannover.pp.slapemhard.resources.SoundPlayer;
 
+/**
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
+ */
 public class Menu implements Runnable {
 	private static final Logger log = Logger.getLogger(Menu.class.getName());
 	
@@ -35,7 +41,7 @@ public class Menu implements Runnable {
 	private final BufferedImage background = bL.getImage("/startscreen.png");
 	private LevelDesigner levelDesigner;
 
-	private SoundPlayer bgm;
+	private static final SoundPlayer bgm = new SoundPlayer("sounds/main_menu.wav");
 
 	public Menu(JFrame frame, double scale) {
 		this.frame = frame;
@@ -46,7 +52,6 @@ public class Menu implements Runnable {
 			System.out.println("Failed to load font");
 		}
 		activeSelection.add(0);
-		bgm = new SoundPlayer("sounds/main_menu.wav");
 		bgm.setRepeat(true);
 		bgm.play();
 	}

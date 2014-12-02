@@ -1,7 +1,12 @@
 package de.hshannover.pp.slapemhard.resources;
 import java.io.FileInputStream;
 import java.io.InputStream;
-
+/**
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
+ */
 public class Resource {
 	public InputStream getAbsoluteInputStream(String absolutePath) {
 		try {

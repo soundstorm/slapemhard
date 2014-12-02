@@ -34,6 +34,12 @@ import de.hshannover.pp.slapemhard.objects.Person;
 import de.hshannover.pp.slapemhard.objects.Player;
 import de.hshannover.pp.slapemhard.objects.PowerUp;
 
+/**
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
+ */
 public class LevelManager {
 	private ArrayList<ObjectPrototype> collisionObjects;
 	private ArrayList<ObjectPrototype> maliciousObjects;
@@ -303,12 +309,12 @@ public class LevelManager {
 
 			Element maliciousElements = doc.createElement("MaliciousObjects");
 			for (ObjectPrototype o : maliciousObjects) {
-				Element e = doc.createElement("CollisionObject");
+				Element e = doc.createElement("MaliciousObject");
 				e.setAttribute("x", "" + o.x);
 				e.setAttribute("y", "" + o.y);
 				e.setAttribute("width", "" + o.width);
 				e.setAttribute("height", "" + o.height);
-				collisionElements.appendChild(e);
+				maliciousElements.appendChild(e);
 			}
 			rootElement.appendChild(maliciousElements);
 
@@ -318,7 +324,7 @@ public class LevelManager {
 				e.setAttribute("x", "" + o.x);
 				e.setAttribute("y", "" + o.y);
 				e.setAttribute("type", "" + o.getType());
-				collisionElements.appendChild(e);
+				powerupElements.appendChild(e);
 			}
 			rootElement.appendChild(powerupElements);
 
@@ -331,7 +337,7 @@ public class LevelManager {
 				e.setAttribute("weapon", "" + o.getWeapon());
 				e.setAttribute("power", "" + o.getPower());
 				e.setAttribute("health", "" + o.getHealth());
-				collisionElements.appendChild(e);
+				enemyElements.appendChild(e);
 			}
 			rootElement.appendChild(enemyElements);
 

@@ -2,6 +2,13 @@ package de.hshannover.pp.slapemhard;
 
 import java.util.ArrayList;
 
+/**
+ * 
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
+ */
 public class Highscore implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private ArrayList<String> names;

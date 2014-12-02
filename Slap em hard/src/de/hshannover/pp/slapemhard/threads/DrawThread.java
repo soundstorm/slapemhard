@@ -8,9 +8,10 @@ import java.awt.image.BufferStrategy;
 
 import de.hshannover.pp.slapemhard.Menu;
 /**
- * 
- * @author SoundStorm
- *
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
  */
 public class DrawThread extends Canvas implements Runnable {
 	

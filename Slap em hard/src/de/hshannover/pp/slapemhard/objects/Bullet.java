@@ -8,10 +8,14 @@ import java.util.ArrayList;
 import de.hshannover.pp.slapemhard.Game;
 import de.hshannover.pp.slapemhard.resources.SoundPlayer;
 
+/**
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
+ */
+
 public class Bullet extends CollisionObject {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 5128320310814817590L;
 	private BulletType type;
 	private ArrayList<Person> persons;

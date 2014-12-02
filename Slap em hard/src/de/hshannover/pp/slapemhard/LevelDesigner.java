@@ -32,6 +32,12 @@ import de.hshannover.pp.slapemhard.objects.ObjectPrototype;
 import de.hshannover.pp.slapemhard.objects.Person;
 import de.hshannover.pp.slapemhard.objects.PowerUp;
 
+/**
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
+ */
 public class LevelDesigner {
 	private Menu menu;
 	private LevelManager levelManager;

@@ -10,13 +10,12 @@ import de.hshannover.pp.slapemhard.images.SpriteSheet;
 import de.hshannover.pp.slapemhard.resources.SoundPlayer;
 /**
  * A power up can be collected to let the {@link Player player} get different advantages. 
- * @author SoundStorm
- *
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
  */
 public class PowerUp extends CollisionObject {
-	/**
-	 * 
-	 */
 	public static final int WIDTH = 12;
 	public static final int HEIGHT = 12;
 	private static final long serialVersionUID = 5421297144258706369L;

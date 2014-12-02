@@ -22,8 +22,10 @@ import de.hshannover.pp.slapemhard.listener.Mouse;
 import de.hshannover.pp.slapemhard.threads.DrawThread;
 /**
  * Main program to start needed instances and Menu
- * @author SoundStorm
- *
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
  */
 public class SlapEmHard {
 	private final static JFrame frame = new JFrame("Slap Em Hard");

@@ -33,6 +33,10 @@ import de.hshannover.pp.slapemhard.*;
  * <tr><td>Alt		</td><td>Fire</td></tr>
  * </table>
  * @see java.awt.event.KeyListener (java.awt.event.KeyEvent)
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
  */
 public class KeyboardListener implements KeyListener {
 	private boolean spacePressed;	//Only allow jumping once when pressed

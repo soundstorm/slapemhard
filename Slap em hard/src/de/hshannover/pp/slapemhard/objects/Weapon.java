@@ -5,8 +5,10 @@ import java.awt.Dimension;
 import de.hshannover.pp.slapemhard.Game;
 /**
  * A weapon can be fired.
- * @author SoundStorm
- *
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
  */
 public class Weapon {
 	private int ammo;

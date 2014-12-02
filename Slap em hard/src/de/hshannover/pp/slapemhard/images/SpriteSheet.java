@@ -5,7 +5,10 @@ import java.awt.image.BufferedImage;
 /**
  * A SpriteSheet merges many images or frames of a animation into one big image.
  * This image is processed by this class to get the subimages.
- * @author SoundStorm
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
  */
 
 public class SpriteSheet {

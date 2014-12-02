@@ -2,10 +2,13 @@ package de.hshannover.pp.slapemhard.objects;
 
 import java.awt.Rectangle;
 
+/**
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
+ */
 public class ObjectPrototype extends Rectangle {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -5409040342889408530L;
 	private int look;
 	private int power = 1;

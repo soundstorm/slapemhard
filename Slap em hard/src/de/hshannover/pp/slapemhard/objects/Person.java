@@ -14,8 +14,10 @@ import de.hshannover.pp.slapemhard.images.SpriteSheet;
 /**
  * A person is an actor, holding a weapon. A Person can move, shoot and may die.
  * @see de.hshannover.pp.slapemhard.objects.CollisionObject
- * @author SoundStorm
- *
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
  */
 public class Person extends CollisionObject {
 	/**

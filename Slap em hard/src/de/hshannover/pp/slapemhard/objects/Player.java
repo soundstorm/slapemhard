@@ -10,13 +10,12 @@ import de.hshannover.pp.slapemhard.resources.SoundPlayer;
 /**
  * Special type of person. Has lives, can hold more than one weapon and may be
  * invincible.
- * @author SoundStorm
- *
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
  */
 public class Player extends Person {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 3174758635500981208L;
 	private ArrayList<Weapon> weapons = new ArrayList<Weapon>();
 	private Game game;

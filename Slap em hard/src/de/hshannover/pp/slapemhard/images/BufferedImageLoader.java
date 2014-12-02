@@ -9,8 +9,10 @@ import de.hshannover.pp.slapemhard.resources.Resource;
 
 /**
  * Loads and caches Images as BufferedImage from given relative path.
- * @author SoundStorm
- *
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
  */
 public class BufferedImageLoader {
 	private static Resource r = new Resource();

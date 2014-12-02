@@ -10,8 +10,10 @@ import de.hshannover.pp.slapemhard.SlapEmHard;
 
 /**
  * General object, which can collide.
- * @author SoundStorm
- *
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
  */
 public class CollisionObject extends Rectangle {
 	/**

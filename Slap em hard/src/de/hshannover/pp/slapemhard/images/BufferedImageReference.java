@@ -2,6 +2,12 @@ package de.hshannover.pp.slapemhard.images;
 
 import java.awt.image.BufferedImage;
 
+/**
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
+ */
 public class BufferedImageReference {
 	private static BufferedImageLoader bL = new BufferedImageLoader();
 	private String path;
