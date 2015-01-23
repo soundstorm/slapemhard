@@ -53,25 +53,26 @@ public class PowerUp extends CollisionObject {
 	public void collect() {
 		//Prevent item from being collected twice or more.
 		if (collected) return;
+		(new SoundPlayer("pickup.wav",-10)).play();
 		switch (type) {
 			case 0:
 				game.getPlayer().restoreHealth();
-				(new SoundPlayer("sounds/medikit.wav",-10)).play();
+				//(new SoundPlayer("sounds/medikit.wav",-10)).play();
 				break;
 			case 1:
 				game.addCoins(50);
-				(new SoundPlayer("sounds/coin.wav",-10)).play();
+				//(new SoundPlayer("coin.wav",-10)).play();
 				break;
 			case 2:
 				game.getPlayer().restoreAmmo();
-				(new SoundPlayer("sounds/magazine.wav",-10)).play();
+				//(new SoundPlayer("magazine.wav",-10)).play();
 				break;
 			case 3:
 				game.getPlayer().setLives(game.getPlayer().getLives()+1);
 				break;
 			case 4:
 				game.getPlayer().setInvincible();
-				(new SoundPlayer("sounds/invincible.wav",-10)).play();
+				//(new SoundPlayer("invincible.wav",-10)).play();
 				break;
 		}
 		game.addPoints(20);

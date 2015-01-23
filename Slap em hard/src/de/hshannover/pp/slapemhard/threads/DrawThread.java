@@ -24,6 +24,7 @@ public class DrawThread extends Canvas implements Runnable {
 	private Thread thread;
 	private int fps = 30;
 	private double scale;
+	public static final int amountOfTicks = 180;
 	
 	public DrawThread(Menu menu) {
 		super();
@@ -45,7 +46,6 @@ public class DrawThread extends Canvas implements Runnable {
 	public synchronized void run() {
 		this.requestFocus();
 		long lastTime = System.nanoTime();
-		double amountOfTicks = 180.0;
 		double ns = 1000000000 / amountOfTicks;
 		double delta = 0;
 		long timer = System.currentTimeMillis();

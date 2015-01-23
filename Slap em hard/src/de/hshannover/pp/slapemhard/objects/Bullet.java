@@ -6,7 +6,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import de.hshannover.pp.slapemhard.Game;
-import de.hshannover.pp.slapemhard.resources.SoundPlayer;
+//import de.hshannover.pp.slapemhard.resources.SoundPlayer;
 
 /**
  * @author	Patrick Defayay<br />
@@ -56,7 +56,7 @@ public class Bullet extends CollisionObject {
 		xFactor = type.getSpeed()*cosAngle;
 		yFactor = type.getSpeed()*sinAngle;
 		angleFactor = type.getGravity()?g*2/(cosAngle*speed*speed):0;
-		(new SoundPlayer(type.getShotSound(),(float)-Math.abs(this.getCenterX()-game.getPlayer().getCenterX())/7-10)).play();
+		//(new SoundPlayer(type.getShotSound(),(float)-Math.abs(this.getCenterX()-game.getPlayer().getCenterX())/7-10)).play();
 	}
 	/**
 	 * Moves the bullet in steps in direction of flight and checks if it collides with any obstacle or hostile
@@ -136,7 +136,7 @@ public class Bullet extends CollisionObject {
 		if (game.getPlayer().intersects(explosion)) {
 			game.getPlayer().reduceHealth(type.getDestruction());
 		}
-		(new SoundPlayer(type.getExplosionSound(),(float)-Math.abs(this.getCenterX()-game.getPlayer().getCenterX())/15)).play();//-Math.log(Math.abs(this.getCenterX()-game.getPlayer().getCenterX())));
+		//(new SoundPlayer(type.getExplosionSound(),(float)-Math.abs(this.getCenterX()-game.getPlayer().getCenterX())/15)).play();//-Math.log(Math.abs(this.getCenterX()-game.getPlayer().getCenterX())));
 	}
 	public boolean isExploded() {
 		return exploded;

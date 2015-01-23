@@ -13,7 +13,14 @@ import java.util.logging.Logger;
 import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.images.BufferedImageReference;
 import de.hshannover.pp.slapemhard.images.SpriteSheet;
-import de.hshannover.pp.slapemhard.objects.*;
+import de.hshannover.pp.slapemhard.objects.Bullet;
+import de.hshannover.pp.slapemhard.objects.BulletType;
+import de.hshannover.pp.slapemhard.objects.ObjectPrototype;
+import de.hshannover.pp.slapemhard.objects.Person;
+import de.hshannover.pp.slapemhard.objects.Player;
+import de.hshannover.pp.slapemhard.objects.PowerUp;
+import de.hshannover.pp.slapemhard.objects.Weapon;
+import de.hshannover.pp.slapemhard.threads.DrawThread;
 
 /**
  * @author	Patrick Defayay<br />
@@ -36,11 +43,13 @@ public class Level {
 	private ArrayList<BufferedImage> backgroundImages = new ArrayList<BufferedImage>();
 	private ArrayList<BufferedImage> foregroundImages = new ArrayList<BufferedImage>();
 	private int width;
-	private long startTime;
+	//private long startTime;
+	private int timeElapsed;
 	private Rectangle targetArea;
 	private boolean completed;
 	private boolean created;
-	private boolean debug = true;
+	private boolean debug = false;// = true;
+	private boolean spacePressed;
 	private static LevelManager levelManager = new LevelManager();
 	private static SpriteSheet lives = new SpriteSheet((new BufferedImageLoader()).getImage("images/lives.png"),11,11);
 	
@@ -106,7 +115,7 @@ public class Level {
 	 * Runs the level
 	 */
 	public void start() {
-		startTime = System.currentTimeMillis();
+		//startTime = System.currentTimeMillis();
 		for (Person e : enemies) {
 			//e.setAutonomous();
 			e.init();
@@ -129,18 +138,21 @@ public class Level {
 		return completed;
 	}
 	
-	public long getRemainingTime() {
-		long tR = levelTime*100-(System.currentTimeMillis()-startTime)/10;
-		if (tR < 0) {
+	public int getRemainingTime() {
+		//long tR = levelTime*100-(System.currentTimeMillis()-startTime)/10;
+		if (timeUp()) {
 			synchronized(game) {
 				game.notify();
 			}
+			return 0;
 		}
-		return (tR > 0)?tR:0;
+		return levelTime*100-timeElapsed*100/DrawThread.amountOfTicks;
+		//return ( > 0)?tR:0;
 	}
 	
 	public boolean timeUp() {
-		return System.currentTimeMillis() > startTime+levelTime*1000;
+		return timeElapsed >= levelTime*DrawThread.amountOfTicks;
+		//return System.currentTimeMillis() > startTime+levelTime*1000;
 	}
 	
 	public void render(Graphics g) {
@@ -209,15 +221,17 @@ public class Level {
 		
 		//Draw HUD
 		g.setColor(new Color(255, 255, 255, 127));
-		g.fillRect(5,5,50,40);
+		g.fillRect(5,5,50,33);
 		g.setColor(Color.BLACK);
-		g.setFont(this.getFont().deriveFont(Font.PLAIN,8));
-		g.drawString("AMMO: "+this.getPlayer().getWeapon().getAmmo(), 10, 13);
-		//g.drawString("FPS:  "+fps, 10, 20);
-		g.drawString("COIN: "+game.getCoins(), 10, 27);
-		g.drawString("PTS:  "+game.getPoints(), 10, 34);
-		long timeRemaining = getRemainingTime();
-		g.drawString(""+timeRemaining, 50-(""+timeRemaining).length()*5, 41);
+		g.setFont(this.getFont().deriveFont(Font.PLAIN,5));
+		g.drawString("A", 10, 13);
+		drawIntAligned(g, this.getPlayer().getWeapon().getAmmo(), 50, 13);
+		g.drawString("C", 10, 20);
+		drawIntAligned(g, game.getCoins(), 50, 20);
+		g.drawString("P", 10, 27);
+		drawIntAligned(g, game.getPoints(), 50, 27);
+		g.drawString("T", 10, 34);
+		drawIntAligned(g, (int)(getRemainingTime()/100), 50, 34);
 		for (int i=0; i < getPlayer().getLives(); i++) {
 			if (i != getPlayer().getLives()-1) {
 				g.drawImage(lives.getTile(9), 60+i*12, 10, null);
@@ -229,6 +243,14 @@ public class Level {
 				}
 			}
 		}
+	}
+	
+	private void drawIntAligned(Graphics g, int i, int x, int y) {
+		drawStringAligned(g, ""+i, x, y);
+	}
+	
+	private void drawStringAligned(Graphics g, String s, int x, int y) {
+		g.drawString(s, x-(""+s).length()*5, y);
 	}
 	
 	public BufferedImage getLandscapeImage() {
@@ -287,6 +309,8 @@ public class Level {
 	}
 
 	public void tick() {
+		if (!this.timeUp())
+			timeElapsed++;
 		game.getPlayer().move();
 		for (int i = 0; i < this.getBullets().size(); i++) {
 			try {
@@ -316,5 +340,50 @@ public class Level {
 				log.warning("Cant modify Bullet:\n"+e.toString());
 			}
 		}
+	}
+	
+	public void keyEvent(int keyCode, boolean type) {
+		switch (keyCode) {
+		case KeyMap.ESCAPE:
+			synchronized (getGame()) {
+				getGame().notify();
+			}
+		case KeyMap.BUTTON1:
+			if (!spacePressed && type) {
+				boolean collision[] = getPlayer().collides(getCollisionObjects(),0,1);	//Check if on floor
+				if (collision[1]) {														//Only Jump, when on floor
+					getPlayer().setJump(true);
+				}
+			} else if (!type) {
+				getPlayer().setJump(false);
+			}
+			spacePressed = type;
+			break;
+		case KeyMap.BUTTON2:
+			getPlayer().setFire(type);
+			break;
+		case KeyMap.BUTTON3:
+			if (type)
+				getPlayer().changeWapon();
+			break;
+		case KeyMap.LEFT:
+			getPlayer().setLeft(type);
+			if (type)
+				getPlayer().setRight(false);
+			break;
+		case KeyMap.RIGHT:
+			getPlayer().setRight(type);
+			if (type)
+				getPlayer().setLeft(false);
+			break;
+		case KeyMap.UP:
+			getPlayer().getWeapon().setAngle(type?1:0);
+			break;
+		case KeyMap.DOWN:
+			getPlayer().getWeapon().setAngle(type?-1:0);
+			break;
+		default:
+			System.out.println("KeyCode: "+keyCode);
+	}
 	}
 }

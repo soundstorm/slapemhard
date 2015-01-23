@@ -552,7 +552,8 @@ public class LevelDesigner {
 		}
 	}
 
-	public void keyEvent(int keyCode) {
+	public void rawKeyEvent(int keyCode, boolean type) {
+		if (type)
 		switch (keyCode) {
 			case KeyEvent.VK_UP:
 				try {

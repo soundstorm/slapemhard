@@ -56,6 +56,9 @@ public class SpriteSheet {
 	public int getCols() {
 		return cols;
 	}
+	public int getRows() {
+		return rows;
+	}
 	/**
 	 * Returns the width of each tile
 	 * @return the width of each tile

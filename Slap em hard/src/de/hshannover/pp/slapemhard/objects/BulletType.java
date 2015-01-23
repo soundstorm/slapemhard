@@ -50,7 +50,7 @@ public class BulletType {
 			case HANDGUN:
 				this.size = new Dimension(2,1);
 				this.destruction = 5;
-				this.ammo = 60;
+				this.ammo = 80;
 				this.speed = 60;
 				this.tiles = 4;
 				this.explosion = new SpriteSheet(bL.getImage("images/weapons/handgun/explosion.png"),3,3);

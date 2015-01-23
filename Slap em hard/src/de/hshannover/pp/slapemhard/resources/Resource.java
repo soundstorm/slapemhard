@@ -1,6 +1,8 @@
 package de.hshannover.pp.slapemhard.resources;
 import java.io.FileInputStream;
 import java.io.InputStream;
+
+import de.hshannover.pp.slapemhard.SlapEmHard;
 /**
  * @author	Patrick Defayay<br />
  * 			Andre Schmidt<br />
@@ -19,10 +21,14 @@ public class Resource {
 	}
 	
 	public InputStream getInputStream(String relativePath) {
-		if (this.getClass().getResource("/res/"+relativePath) == null) {
-			System.out.println("Resource \""+relativePath+"\" is not valid. Check if you updated package.");
+		if (relativePath.startsWith("/")) {
+			System.out.println("Shorting out leading \"/\"");
+			relativePath = relativePath.substring(1);
+		}
+		if (SlapEmHard.class.getResource("/res/"+relativePath) == null) {
+			System.out.println("Resource \"/res/"+relativePath+"\" is not valid. Check if you updated package.");
 			return null;
 		}
-		return this.getClass().getResourceAsStream("/res/"+relativePath);
+		return SlapEmHard.class.getResourceAsStream("/res/"+relativePath);
 	}
 }

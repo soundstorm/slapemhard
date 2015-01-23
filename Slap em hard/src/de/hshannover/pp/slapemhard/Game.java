@@ -8,18 +8,32 @@ import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
-import de.hshannover.pp.slapemhard.objects.*;
+import de.hshannover.pp.slapemhard.objects.Bullet;
+import de.hshannover.pp.slapemhard.objects.BulletType;
+import de.hshannover.pp.slapemhard.objects.Person;
+import de.hshannover.pp.slapemhard.objects.Player;
+import de.hshannover.pp.slapemhard.objects.PowerUp;
 import de.hshannover.pp.slapemhard.resources.Resource;
-//import de.hshannover.pp.slapemhard.threads.MoveThread;
 import de.hshannover.pp.slapemhard.resources.SoundPlayer;
-
+/**
+ * 
+ * @author	Patrick Defayay<br />
+ * 			Andre Schmidt<br />
+ * 			Steffen Schulz<br />
+ * 			Luca Zimmermann
+ *
+ */
 public class Game implements Runnable {
 	private static final Logger log = Logger.getLogger(Game.class.getName());
 	
@@ -45,15 +59,19 @@ public class Game implements Runnable {
 	private int storeItem;
 	private final BufferedImageLoader bL = new BufferedImageLoader();
 	private final BufferedImage storeBackground = bL.getImage("/images/shop.png");
+	
+	private static final SoundPlayer victory = new SoundPlayer("victory.wav");
+	private static final SoundPlayer timeup = new SoundPlayer("timeup.wav");
 
 	private int[] price = {700,1500,1000,500,4000,200};
 	private String[] storeItems = {"Handgun","Rocketlauncher","Maschinegun","Medipack","Extra Life","Magazine"};
 		
 	public Game(Menu menu) {
+		victory.setRepeat(true);
 		this.menu = menu;
 		this.scale = menu.getScale();
 		try {
-			font = Font.createFont(Font.TRUETYPE_FONT, r.getInputStream("fonts/04b.ttf"));
+			font = Font.createFont(Font.TRUETYPE_FONT, r.getInputStream("/fonts/PressStart2P.ttf"));//"fonts/04b.ttf"));
 		} catch (IOException|FontFormatException e) {
 		}
 		if (characters.size() == 0) {
@@ -134,6 +152,8 @@ public class Game implements Runnable {
 			}
 			level.stop();
 			if (!me.isAlive() | level.timeUp()) {
+				if (level.timeUp())
+					timeup.play();
 				me.setLives(me.getLives()-1);
 				level = null;
 				if (me.getLives() > 0) {
@@ -142,6 +162,7 @@ public class Game implements Runnable {
 					level = new Level(this, activeLevel);
 				} else if (points > highscore.getScore(7)){
 					inputName = true;
+					victory.play();
 				}
 			} else if (level.isCompleted()) {
 				points += level.getRemainingTime()/10;
@@ -153,7 +174,8 @@ public class Game implements Runnable {
 				level = null;
 			}
 		}
-		menu.getBgm().play();
+		if (!inputName)
+			menu.getBgm().play();
 	}
 	
 	public void render(Graphics g) {
@@ -166,7 +188,7 @@ public class Game implements Runnable {
 		if (!store)
 			g.drawImage(menu.getBackground(), 0, 0, null);
 		g.setColor(Color.BLACK);
-		g.setFont(font.deriveFont(Font.PLAIN,16));
+		g.setFont(font.deriveFont(Font.PLAIN,8));
 		if (inputName) {
 			for (int i = 0; i < 4; i++) {
 				g.drawString(""+name.charAt(i),40+40*i,135);
@@ -175,13 +197,13 @@ public class Game implements Runnable {
 			if ((System.currentTimeMillis()/200)%2 == 0 && activeChar != 4)
 				g.drawString("_",40+40*activeChar,140);
 			if (activeChar < 4) {
-				g.drawString("/\\",33+40*activeChar,125);
-				g.drawString("\\/",33+40*activeChar,150);
+				g.drawString("/\\",35+40*activeChar,125);
+				g.drawString("\\/",35+40*activeChar,150);
 			}
 			if (activeChar == 4)
 				g.drawString("____",240,140);
 		} else if (store) {
-			g.setFont(font.deriveFont(Font.PLAIN,8));
+			g.setFont(font.deriveFont(Font.PLAIN,4));
 			g.drawImage(storeBackground, 0, 0, null);
 			if (storeItem < 6) {
 				if (coins >= price[storeItem]) {
@@ -208,22 +230,28 @@ public class Game implements Runnable {
 				drawStringCentered(g,storeItems[i],(int)(50*(i/3-.5)), 90+60*(i%3));
 			}
 		} else {
-			drawStringCentered(g,"Choose Character",77);
-			drawStringCentered(g,"^",-120+character*80, 145);
-			drawStringCentered(g,"Andre",-120, 150);
-			drawStringCentered(g,"Luca",-40, 150);
-			drawStringCentered(g,"Patrick",40, 150);
-			drawStringCentered(g,"Steffen",120, 150);
-			g.drawString("Credits: "+menu.getCredits(), 10, 234);
-			if (menu.getCredits() == 0 && (System.currentTimeMillis()/500)%2 == 0) {
-				drawStringCentered(g,"INSERT COIN",234);
-			}
-			for (int i = 0; i < 4; i++)
-				characters.get(i).render(g,SlapEmHard.WIDTH/2-128+i*80,80);
 			for (int i = 0; i < 8; i++) {
 				g.drawString(i+1+".",10+160*(i/4),165+17*(i%4));
 				g.drawString(highscore.getName(i),30+160*(i/4),165+17*(i%4));
 				g.drawString(""+highscore.getScore(i),80+160*(i/4),165+17*(i%4));
+			}
+			if (menu.getCredits() == 0) {
+				if ((System.currentTimeMillis()/500)%2 == 0) {
+					g.setFont(font.deriveFont(Font.PLAIN,24));
+					drawStringCentered(g,"INSERT COIN",120);
+				}
+			} else {
+				for (int i = 0; i < 4; i++)
+					characters.get(i).render(g,SlapEmHard.WIDTH/2-128+i*80,80);
+				drawStringCentered(g,"Choose Character",77);
+				drawStringCentered(g,"^",-120+character*80, 145);
+				drawStringCentered(g,"Andre",-120, 150);
+				drawStringCentered(g,"Luca",-40, 150);
+				drawStringCentered(g,"Patrick",40, 150);
+				drawStringCentered(g,"Steffen",120, 150);
+				g.drawString("Credits: "+menu.getCredits(), 10, 234);
+				if ((System.currentTimeMillis()/200)%2 == 0)
+					drawStringCentered(g,"Press Start", 234);
 			}
 		}
 	}
@@ -242,8 +270,10 @@ public class Game implements Runnable {
 			level = tmplevel;
 			return;
 		}
-		if (points > highscore.getScore(7))
+		if (points > highscore.getScore(7)) {
 			inputName = true;
+			victory.play();
+		}
 		level = null;
 	}
 	
@@ -252,8 +282,16 @@ public class Game implements Runnable {
 	}
 	
 	public void keyEvent(int keyCode) {
+		keyEvent(keyCode,true);
+	}
+	public void keyEvent(int keyCode, boolean type) {
+		if (level != null && !store) {
+			level.keyEvent(keyCode, type);
+			return;
+		}
+		if (type)
 		switch (keyCode) {
-			case KeyEvent.VK_LEFT:
+			case KeyMap.LEFT:
 				if (inputName) {
 					activeChar = (activeChar+4)%5;
 				} else if (store) {
@@ -266,7 +304,7 @@ public class Game implements Runnable {
 					characters.get(character).setWalking(true);
 				}
 				break;
-			case KeyEvent.VK_RIGHT:
+			case KeyMap.RIGHT:
 				if (inputName) {
 					activeChar = (activeChar+1)%5;
 				} else if (store) {
@@ -279,39 +317,48 @@ public class Game implements Runnable {
 					characters.get(character).setWalking(true);
 				}
 				break;
-			case KeyEvent.VK_UP:
+			case KeyMap.UP:
 				if (inputName) {
 					name.setCharAt(activeChar, (char)((name.charAt(activeChar)-64)%26+65));
 				} else if (store) {
 					storeItem = (storeItem+6)%7;
 				}
 				break;
-			case KeyEvent.VK_DOWN:
+			case KeyMap.DOWN:
 				if (inputName) {
 					name.setCharAt(activeChar, (char)((name.charAt(activeChar)-40)%26+65));
 				} else if (store) {
 					storeItem = (storeItem+1)%7;
 				}
 				break;
-			case KeyEvent.VK_ESCAPE:
+			case KeyMap.ESCAPE:
 				//return to main screen
-				if (store)
-					leaveStore();
-				else 
+				if (!store)
 					synchronized(menu) {
 						menu.notify();
+						return;
 					}
+			case KeyMap.CANCEL:
+				if (store)
+					leaveStore();
 				break;
-			case KeyEvent.VK_1:
-				if (inputName) break;
-			case KeyEvent.VK_ENTER:
-			case KeyEvent.VK_CONTROL:
-			case KeyEvent.VK_SHIFT:
+			case KeyMap.START:
+				if (menu.getCredits() > 0) {
+					me = new Player(this, character);
+					//me.addWeapon(new BulletType(BulletType.BulletName.ROCKETLAUNCHER));
+					//me.addWeapon(new BulletType(BulletType.BulletName.MACHINEGUN));
+					me.addWeapon(new BulletType(BulletType.BulletName.HANDGUN));
+					start();
+				}
+				break;
+			case KeyMap.OK:
 				if (inputName) {
 					if (activeChar == 4) {
 						highscore.addHighscore(name.toString(), points);
 						points = 0;
 						inputName = false;
+						victory.stopAudio();
+						menu.getBgm().play();
 						saveHighscore();
 					}
 					break;
@@ -322,28 +369,15 @@ public class Game implements Runnable {
 					}
 					if (coins >= price[storeItem]) {
 						switch (storeItem) {
-						case 1:
-							me.addWeapon(new BulletType(BulletType.BulletName.ROCKETLAUNCHER));
-							break;
-						case 2:
-							me.addWeapon(new BulletType(BulletType.BulletName.MACHINEGUN));
-							break;
-						case 3:
-							me.restoreHealth();break;
-						case 4:
-							me.setLives(me.getLives()+1);break;
-						case 5:
-							me.restoreAmmo();break;
+						case 1:me.addWeapon(new BulletType(BulletType.BulletName.ROCKETLAUNCHER));break;
+						case 2:me.addWeapon(new BulletType(BulletType.BulletName.MACHINEGUN));break;
+						case 3:me.restoreHealth();break;
+						case 4:me.setLives(me.getLives()+1);break;
+						case 5:me.restoreAmmo();break;
 						}
 						coins -= price[storeItem];
-						(new SoundPlayer("sounds/bought.wav",0)).play();
+						(new SoundPlayer("bought.wav",0)).play();
 					}
-				} else if (menu.getCredits() > 0) {
-					me = new Player(this, character);
-					me.addWeapon(new BulletType(BulletType.BulletName.ROCKETLAUNCHER));
-					me.addWeapon(new BulletType(BulletType.BulletName.MACHINEGUN));
-					//me.addWeapon(new BulletType(BulletType.BulletName.HANDGUN));
-					start();
 				}
 				break;
 		}

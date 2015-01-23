@@ -44,10 +44,15 @@ public class Player extends Person {
 	 */
 	@Override
 	public void reduceHealth(int damage) {
-		if (!invincible | super.outOfWindow()[3])
+		boolean oow = super.outOfWindow()[3];
+		if (!invincible | oow) {
+			if (!oow)
+				(new SoundPlayer("hurt.wav")).play();
 			super.reduceHealth(damage);
+		}
 		synchronized (game) {
 			if (!isAlive()) {
+				(new SoundPlayer("died.wav")).play();
 				try {
 					invincibleThread.interrupt();
 				} catch (NullPointerException e) {}
@@ -104,9 +109,10 @@ public class Player extends Person {
 		if (fire && (shots == 0 | getWeapon().getType().isAutomatic())) {
 			if (lastFired == 0) {
 				if (getWeapon().getAmmo()==0) {
-					(new SoundPlayer("sounds/empty_shot.wav")).play();
+					(new SoundPlayer("fire_empty.wav")).play();
 					fire = false;
 				} else {
+					(new SoundPlayer("fire.wav")).play();
 					fire();
 					shots++;
 				}
@@ -163,10 +169,18 @@ public class Player extends Person {
 	 * Sets invincible mode on
 	 */
 	public void setInvincible() {
-		if (invincible) {
+		setInvincible(true);
+	}
+	public void setInvincible(boolean set_invincible) {
+		if (set_invincible && invincible) {
 			invincibleTime = System.currentTimeMillis();
 			return;
-		}
+		} else if (!set_invincible && invincible) {
+			invincible = false;
+			return;
+		} else if (!set_invincible)
+			return;
+		
 		invincible = true;
 		invincibleThread = new Thread() {
 			@Override

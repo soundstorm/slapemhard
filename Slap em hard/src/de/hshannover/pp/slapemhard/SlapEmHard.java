@@ -35,22 +35,27 @@ public class SlapEmHard {
 	private static double scale;
 	private static DrawThread drawThread;
 	public static void main(String[] args) {
-		JFrame.setDefaultLookAndFeelDecorated(true);
-		frame.setUndecorated(true);
-		frame.setFocusable(true);
-		frame.setResizable(false);
-		
-		URL iconURL = SlapEmHard.class.getResource("/res/logo.png");
-		ImageIcon icon = new ImageIcon(iconURL);
-		frame.setIconImage(icon.getImage());
-
-		Object[] options = { "Ja", "Nein" };
-		int n = JOptionPane.showOptionDialog(null,
-				"Switch to fullscreen?", "Fullscreen",
-				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
-				icon, options, options[0]);
-		if (n == JOptionPane.YES_OPTION) {
+		if (args.length > 0 && args[0].equals("headless")) {
 			fullscreen = true;
+		} else {
+			try {
+				JFrame.setDefaultLookAndFeelDecorated(true);
+				frame.setUndecorated(true);
+				frame.setFocusable(true);
+				frame.setResizable(false);
+			
+				URL iconURL = SlapEmHard.class.getResource("/res/logo.png");
+				ImageIcon icon = new ImageIcon(iconURL);
+				frame.setIconImage(icon.getImage());
+				Object[] options = { "Ja", "Nein" };
+				int n = JOptionPane.showOptionDialog(null,
+						"Switch to fullscreen?", "Fullscreen",
+						JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
+						icon, options, options[0]);
+				if (n == JOptionPane.YES_OPTION) {
+					fullscreen = true;
+				}
+			} catch (Exception e) {}
 		}
 		
 		scale = 2.0;

@@ -3,14 +3,15 @@ package de.hshannover.pp.slapemhard.objects;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
 
-
 import de.hshannover.pp.slapemhard.Game;
 import de.hshannover.pp.slapemhard.images.BufferedImageLoader;
 import de.hshannover.pp.slapemhard.images.SpriteSheet;
+import de.hshannover.pp.slapemhard.resources.SoundPlayer;
 /**
  * A person is an actor, holding a weapon. A Person can move, shoot and may die.
  * @see de.hshannover.pp.slapemhard.objects.CollisionObject
@@ -39,15 +40,11 @@ public class Person extends CollisionObject {
 	private int animationFrame;
 	//private boolean autonomous;
 	//private Thread autonomic;
-
+	private static final SoundPlayer dieSound = new SoundPlayer("killed.wav");
 	private double rate;
-
 	private int distance;
-
 	private boolean direction;
-
 	private int sleep;
-
 	private boolean initDone;
 
 	private int personId;
@@ -66,6 +63,9 @@ public class Person extends CollisionObject {
 		ENEMY7,
 		ENEMY8,
 		ENEMY9
+	}
+	public Person() {
+		super(null,null);
 	}
 	public Person(Game game, int health, Dimension position, PersonName name) {
 		this(game, health, position, name, false);
@@ -110,6 +110,22 @@ public class Person extends CollisionObject {
 		}
 		initDone = true;
 	}
+	public boolean setAnimation(BufferedImage bI) {
+		SpriteSheet sprite = new SpriteSheet(bI,16,56);
+		if (sprite.getCols() == 8 && sprite.getRows() == 3) {
+			animation = sprite;
+			return true;
+		}
+		return false;
+	}
+	public boolean setArm(BufferedImage bI) {
+		SpriteSheet sprite = new SpriteSheet(bI,38,60);
+		if (sprite.getCols() == 8) {
+			arm = sprite;
+			return true;
+		}
+		return false;
+	}
 	/**
 	 * Returns if Person is alive (health > 0)
 	 * @return if Person is alive (health > 0)
@@ -125,6 +141,7 @@ public class Person extends CollisionObject {
 		health -= damage;
 		if (health <= 0) {
 			health = 0;
+			dieSound.play();
 			//stop();
 		}
 	}

@@ -40,8 +40,9 @@ public class Menu implements Runnable {
 	private final BufferedImage howtoplay = bL.getImage("/controls.png");
 	private final BufferedImage background = bL.getImage("/startscreen.png");
 	private LevelDesigner levelDesigner;
+	private static KeyMap keyMap = new KeyMap();
 
-	private static final SoundPlayer bgm = new SoundPlayer("sounds/main_menu.wav");
+	private static final SoundPlayer bgm = new SoundPlayer("main_menu.wav");
 
 	public Menu(JFrame frame, double scale) {
 		this.frame = frame;
@@ -168,6 +169,7 @@ public class Menu implements Runnable {
 		return credits;
 	}
 	public void addCredits() {
+		(new SoundPlayer("coin_in.wav")).play();
 		log.info("Inserted coin");
 		credits++;
 	}
@@ -191,45 +193,56 @@ public class Menu implements Runnable {
 		}
 		return null;
 	}
+	public void rawKeyEvent(int keyCode, boolean type) {
+		if (levelDesigner != null)
+			levelDesigner.rawKeyEvent(keyCode, type);
+	}
+	
 	/**
 	 * Handles Keyboard Events fired by {@link KeyboardListener#keyPressed(KeyEvent)}
 	 * @param keyCode corresponding code of the key.
 	 */
 	public void keyEvent(int keyCode) {
+		keyEvent(keyCode, true);
+	}
+	public void keyEvent(int keyCode, boolean type) {
+		if (keyCode == KeyMap.COIN && type) {
+			addCredits();
+		}
 		if (game != null) {
-			game.keyEvent(keyCode);
+			game.keyEvent(keyCode, type);
 			return;
 		} else if (levelDesigner != null) {
-			levelDesigner.keyEvent(keyCode);
 			return;
 		}
+		if (type)
 		switch (keyCode) {
-			case KeyEvent.VK_G:
+			case KeyMap.EDITOR:
 				System.out.println("creating leveldesigner");
 				levelDesigner = new LevelDesigner(this);
 				break;
-			case KeyEvent.VK_UP:
+			case KeyMap.UP:
 				if (activeSelection.size() == 1) {
 					activeSelection.set(0,(activeSelection.get(0)+3)%4);
 				}
 				break;
-			case KeyEvent.VK_DOWN:
+			case KeyMap.DOWN:
 				if (activeSelection.size() == 1) {
 					activeSelection.set(0,(activeSelection.get(0)+1)%4);
 				}
 				break;
-			case KeyEvent.VK_LEFT:
+			case KeyMap.LEFT:
 				if (activeSelection.get(0) == 1 && activeSelection.size()!=1) {
 					activeSelection.set(1,(activeSelection.get(1)+1)%2);
 				}
 				break;
-			case KeyEvent.VK_RIGHT:
+			case KeyMap.RIGHT:
 				if (activeSelection.get(0) == 1 && activeSelection.size()!=1) {
 					activeSelection.set(1,(activeSelection.get(1)+1)%2);
 				}
 				break;
-			case KeyEvent.VK_ENTER: case KeyEvent.VK_CONTROL: case KeyEvent.VK_SHIFT:
-				(new SoundPlayer("sounds/select.wav",-10)).play();
+			case KeyMap.OK: case KeyEvent.VK_CONTROL: case KeyEvent.VK_SHIFT:
+				(new SoundPlayer("select.wav",-10)).play();
 				if (activeSelection.get(0) == 0) {
 					start();
 					break;
@@ -242,13 +255,14 @@ public class Menu implements Runnable {
 					positionFrame = 0;
 				}
 				break;
-			case KeyEvent.VK_ESCAPE: case KeyEvent.VK_ALT: case KeyEvent.VK_Y:
+			case KeyMap.ESCAPE:
 				if (activeSelection.size() == 1) {
 					if (keyCode == 27) {
 						close();
 					}
 					break;
 				}
+			case KeyMap.CANCEL:
 				activeSelection.remove(activeSelection.size()-1);
 				break;
 		}
@@ -278,5 +292,12 @@ public class Menu implements Runnable {
 	public void mouseDragged(MouseEvent e) {
 		if (levelDesigner != null)
 			levelDesigner.mouseDragged(e);
+	}
+
+	/**
+	 * @return the keyMap
+	 */
+	public KeyMap getKeyMap() {
+		return keyMap;
 	}
 }

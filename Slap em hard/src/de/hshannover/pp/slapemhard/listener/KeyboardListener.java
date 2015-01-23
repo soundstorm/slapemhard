@@ -39,7 +39,7 @@ import de.hshannover.pp.slapemhard.*;
  * 			Luca Zimmermann
  */
 public class KeyboardListener implements KeyListener {
-	private boolean spacePressed;	//Only allow jumping once when pressed
+	//private boolean spacePressed;	//Only allow jumping once when pressed
 	Menu menu;
 	/**
 	 * 
@@ -62,6 +62,9 @@ public class KeyboardListener implements KeyListener {
 	 */
 	@Override
 	public void keyPressed(KeyEvent e) {
+		menu.rawKeyEvent(e.getKeyCode(), true);
+		menu.keyEvent(menu.getKeyMap().getCode(e.getKeyCode()), true);
+		/*
 		if (e.getKeyCode() == KeyEvent.VK_5) {
 			menu.addCredits();
 			return;
@@ -72,7 +75,7 @@ public class KeyboardListener implements KeyListener {
 			menu.getGame().keyEvent(e.getKeyCode());
 		} else {
 			menu.keyEvent(e.getKeyCode());
-		}
+		}*/
 	}
 	/**
 	 * Sets the threads to stop behavior according to the key if any of the keys is released.
@@ -80,10 +83,14 @@ public class KeyboardListener implements KeyListener {
 	 */
 	@Override
 	public void keyReleased(KeyEvent e) {
+		menu.rawKeyEvent(e.getKeyCode(), false);
+		menu.keyEvent(menu.getKeyMap().getCode(e.getKeyCode()), false);
+		/*
 		if (menu.getLevel() != null)
 			toggleEvent(e.getKeyCode(), false);
+		*/
 	}
-	
+	/*
 	private void toggleEvent(int keyCode, boolean state) {
 		Level level = menu.getLevel();
 		switch (keyCode) {
@@ -128,5 +135,5 @@ public class KeyboardListener implements KeyListener {
 			default:
 				System.out.println("KeyCode: "+keyCode);
 		}
-	}
+	}*/
 }
