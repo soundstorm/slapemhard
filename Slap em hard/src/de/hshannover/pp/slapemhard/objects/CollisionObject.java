@@ -53,7 +53,7 @@ public class CollisionObject extends Rectangle {
 		Rectangle xColl = new Rectangle(this.x+x,this.y,this.width,this.height);
 		Rectangle yColl = new Rectangle(this.x,this.y+y,this.width,this.height);
 		
-		for (Rectangle collide : collisions) {
+ 		for (Rectangle collide : collisions) {
 
 			//Collision Detected. Now determine in which Direction:
 			if (collide.intersects(xColl)) {

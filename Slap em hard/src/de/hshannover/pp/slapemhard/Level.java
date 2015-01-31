@@ -344,46 +344,46 @@ public class Level {
 	
 	public void keyEvent(int keyCode, boolean type) {
 		switch (keyCode) {
-		case KeyMap.ESCAPE:
-			synchronized (getGame()) {
-				getGame().notify();
-			}
-		case KeyMap.BUTTON1:
-			if (!spacePressed && type) {
-				boolean collision[] = getPlayer().collides(getCollisionObjects(),0,1);	//Check if on floor
-				if (collision[1]) {														//Only Jump, when on floor
-					getPlayer().setJump(true);
+			case KeyMap.ESCAPE:
+				synchronized (getGame()) {
+					getGame().notify();
 				}
-			} else if (!type) {
-				getPlayer().setJump(false);
-			}
-			spacePressed = type;
-			break;
-		case KeyMap.BUTTON2:
-			getPlayer().setFire(type);
-			break;
-		case KeyMap.BUTTON3:
-			if (type)
-				getPlayer().changeWapon();
-			break;
-		case KeyMap.LEFT:
-			getPlayer().setLeft(type);
-			if (type)
-				getPlayer().setRight(false);
-			break;
-		case KeyMap.RIGHT:
-			getPlayer().setRight(type);
-			if (type)
-				getPlayer().setLeft(false);
-			break;
-		case KeyMap.UP:
-			getPlayer().getWeapon().setAngle(type?1:0);
-			break;
-		case KeyMap.DOWN:
-			getPlayer().getWeapon().setAngle(type?-1:0);
-			break;
-		default:
-			System.out.println("KeyCode: "+keyCode);
-	}
+			case KeyMap.BUTTON3:
+				if (!spacePressed && type) {
+					boolean collision[] = getPlayer().collides(getCollisionObjects(),0,1);	//Check if on floor
+					if (collision[1]) {														//Only Jump, when on floor
+						getPlayer().setJump(true);
+					}
+				} else if (!type) {
+					getPlayer().setJump(false);
+				}
+				spacePressed = type;
+				break;
+			case KeyMap.BUTTON2:
+				getPlayer().setFire(type);
+				break;
+			case KeyMap.BUTTON1:
+				if (type)
+					getPlayer().changeWapon();
+				break;
+			case KeyMap.LEFT:
+				getPlayer().setLeft(type);
+				if (type)
+					getPlayer().setRight(false);
+				break;
+			case KeyMap.RIGHT:
+				getPlayer().setRight(type);
+				if (type)
+					getPlayer().setLeft(false);
+				break;
+			case KeyMap.UP:
+				getPlayer().getWeapon().setAngle(type?1:0);
+				break;
+			case KeyMap.DOWN:
+				getPlayer().getWeapon().setAngle(type?-1:0);
+				break;
+			default:
+				System.out.println("KeyCode: "+keyCode);
+		}
 	}
 }

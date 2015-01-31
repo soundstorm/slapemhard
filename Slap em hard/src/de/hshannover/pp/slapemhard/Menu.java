@@ -242,7 +242,7 @@ public class Menu implements Runnable {
 				}
 				break;
 			case KeyMap.OK: case KeyEvent.VK_CONTROL: case KeyEvent.VK_SHIFT:
-				(new SoundPlayer("select.wav",-10)).play();
+				(new SoundPlayer("select.wav")).play();
 				if (activeSelection.get(0) == 0) {
 					start();
 					break;

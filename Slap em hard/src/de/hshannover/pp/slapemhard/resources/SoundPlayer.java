@@ -23,7 +23,7 @@ public class SoundPlayer implements Runnable {
 	private boolean playing;
 	
 	public SoundPlayer(String fileName) {
-		this(fileName, 0);
+		this(fileName, -15 );
 	}
 	
 	public SoundPlayer(String fileName, float loudness) {
