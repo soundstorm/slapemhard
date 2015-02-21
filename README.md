@@ -40,12 +40,3 @@ Vorstellungen
 | Alt/Y      | Schießen          |
 | Space/X    | Waffe wechseln    |
 | ESC        | Beenden           |
-
-Aktuelle Kosten für Automaten:
-
-* Monitor 7,90+5,99 (wegen verwechselter Pakete) *-10,-* Rückerstattung dafür **3,89**
-* HDMI/VGA-Wandler **11,95**
-* Joysticks **12,18**
-* Buttons **12,77**
-* Münzeinwurf **13,76**
- * **54,55**
